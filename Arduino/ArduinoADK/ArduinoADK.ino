@@ -25,9 +25,9 @@ void sendSensorData(byte sensor, long value) {
 
   // long to bytes (4)
   bufferO[4] = (byte) value;
-  bufferO[3] = (byte) value >> 8;
-  bufferO[2] = (byte) value >> 16;
-  bufferO[1] = (byte) value >> 24;
+  bufferO[3] = (byte) (value >> 8);
+  bufferO[2] = (byte) (value >> 16);
+  bufferO[1] = (byte) (value >> 24);
 
   acc.write(bufferO, 5);
 }
@@ -86,3 +86,4 @@ void loop() {
     }
   }
 }
+
