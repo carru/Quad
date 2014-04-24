@@ -32,10 +32,10 @@ void loop() {
           //print each character to the serial output
           for(int x = 3; x < textEndIndex; x++) {
             Serial.print((char)rcvmsg[x]);
-            delay(250);
+            //delay(250);
           }
           Serial.println();
-          delay(250);
+          delay(500);
         }
       }
     }
