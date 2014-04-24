@@ -17,7 +17,7 @@ void setup() {
 
 long readSensor() {
   //return random(-2147483648, 2147483647); // whole long range
-  return random(-1024, 1024);
+  return random(-1024000, 1024000);
 }
 
 void sendSensorData(byte sensor, long value) {

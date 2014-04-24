@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.future.usb.UsbAccessory;
 import com.android.future.usb.UsbManager;
@@ -39,7 +40,7 @@ public class MainActivity extends Activity {
 	private TextView sensor1Text;
 	private TextView sensor2Text;
 	private TextView sensor3Text;
-	private Button connectButton;
+	//private Button connectButton;
 	private Button readSensor1Button;
 	private Button readSensor2Button;
 	private Button readSensor3Button;
@@ -56,8 +57,10 @@ public class MainActivity extends Activity {
 			comms.start();
 			
 			setUi(CONNECTED);
+			Toast.makeText(this, "Accessory opened", Toast.LENGTH_SHORT).show();
 			Log.i(TAG, "Accessory opened");
 		} else {
+			Toast.makeText(this, "Error opening accessory", Toast.LENGTH_SHORT).show();
 			Log.e(TAG, "Error opening accessory");
 		}
 	}
@@ -83,19 +86,14 @@ public class MainActivity extends Activity {
 		setUi(DISCONNECTED);
 	}
 	
-	private OnClickListener connectButtonListener = new OnClickListener() {
+	/*private OnClickListener connectButtonListener = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
-			// Connect
 			if (mAccessory == null) {
 				connect();
 			}
-			// Disconnect
-			else {
-				closeAccessory();				
-			}
 		}
-	};
+	};*/
 	
 	private OnClickListener readSensorButtonListener = new OnClickListener() {
 		@Override
@@ -132,6 +130,7 @@ public class MainActivity extends Activity {
 				}
 			}
 		} else {
+			Toast.makeText(this, "Error connecting to accessory", Toast.LENGTH_SHORT).show();
 			Log.e(TAG, "Error connecting");
 		}
 	}
@@ -142,7 +141,7 @@ public class MainActivity extends Activity {
 		
 		setContentView(R.layout.main_activity);
 		getUiReferences();
-		connectButton.setOnClickListener(connectButtonListener);
+		//connectButton.setOnClickListener(connectButtonListener);
 		readSensor1Button.setOnClickListener(readSensorButtonListener);
 		readSensor2Button.setOnClickListener(readSensorButtonListener);
 		readSensor3Button.setOnClickListener(readSensorButtonListener);
@@ -155,6 +154,13 @@ public class MainActivity extends Activity {
 	}
 
 	@Override
+	protected void onResume() {
+		super.onResume();
+		
+		if (mAccessory == null) { connect(); }
+	}
+	
+	@Override
 	public void onDestroy() {
 		super.onDestroy();
 		closeAccessory();
@@ -166,7 +172,7 @@ public class MainActivity extends Activity {
 		sensor1Text = (TextView) findViewById(R.id.sensor_1_text);
 		sensor2Text = (TextView) findViewById(R.id.sensor_2_text);
 		sensor3Text = (TextView) findViewById(R.id.sensor_3_text);
-		connectButton = (Button) findViewById(R.id.connect_button);
+		//connectButton = (Button) findViewById(R.id.connect_button);
 		readSensor1Button = (Button) findViewById(R.id.read_sensor_1_button);
 		readSensor2Button = (Button) findViewById(R.id.read_sensor_2_button);
 		readSensor3Button = (Button) findViewById(R.id.read_sensor_3_button);
@@ -176,14 +182,14 @@ public class MainActivity extends Activity {
     	switch (type) {
     		case CONNECTED:
     			connectionStatusText.setText("Connected");
-    			connectButton.setText("Disconnect");
+    			//connectButton.setVisibility(View.GONE);
     			readSensor1Button.setEnabled(true);
     			readSensor2Button.setEnabled(true);
     			readSensor3Button.setEnabled(true);
     			break;
     		case DISCONNECTED:
     			connectionStatusText.setText("Disconnected");
-    			connectButton.setText("Connect");
+    			//connectButton.setVisibility(View.VISIBLE);
     			readSensor1Button.setEnabled(false);
     			readSensor2Button.setEnabled(false);
     			readSensor3Button.setEnabled(false);
