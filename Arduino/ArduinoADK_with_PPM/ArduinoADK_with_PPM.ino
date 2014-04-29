@@ -19,9 +19,17 @@ AndroidAccessory acc("UPC", "ArduinoADK", "Description","1.0", "URI", "Serial");
 #define onState 0        // Polarity of the pulses: 1 is positive, 0 is negative
 #define ppmOutPin 10     // PPM signal output pin on the arduino
 #define ppmInPin 4       // PPM signal input pin on the arduino
+#define switchChannel 7  // Channel with the switch to toggle auto and manual
 
-// RC PPM values are stored here
-int ppm[chanel_number];
+int ppm[chanel_number];    // PPM generator reads these values
+int ppm_in[chanel_number]; // RC PPM values are stored here
+
+boolean mode;
+#define AUTO true
+#define MANUAL false
+
+#define MODE_LOITTER 1000 // GET REAL VALUES!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#define MODE_ALTHOLD 1400 // GET REAL VALUES!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //////////////////////////////////////////////////////////////////
 
 void setup() {
@@ -47,6 +55,10 @@ void setup() {
   TCCR1B |= (1 << CS11);  // 8 prescaler: 0,5 microseconds at 16mhz
   TIMSK1 |= (1 << OCIE1A); // enable timer compare interrupt
   sei();
+  
+  
+  // Initialize ppm values
+  setLoitter();
 }
 
 long readSensor() {
@@ -66,8 +78,18 @@ void sendSensorData(byte sensor, long value) {
   acc.write(bufferO, 5);
 }
 
-void attendCommand(byte command) {
+void setPPMChannel(int channel, int value) {
+  if (mode == MANUAL) { return; }
+  
+  // Reject out of range values
+  if (value < 1000 || value > 2000) { return; }
+  
+  ppm[channel-1] = value;
+}
+
+void attendCommand(byte command, int value) {
   long sensorData;
+  int ch;
 
   switch(command) {
   case READ_SENSOR_1:
@@ -97,9 +119,31 @@ void attendCommand(byte command) {
     sendSensorData(DATA_SENSOR_3, sensorData);
     break;
 
+  case SET_CH1:
+  case SET_CH2:
+  case SET_CH3:
+  case SET_CH4:
+  case SET_CH5:
+  case SET_CH6:
+  case SET_CH7:
+  case SET_CH8:
+    ch = command & 0x0F; // Get channel number (lower 4 bits)
+    setPPMChannel(ch, value);
+    break;
+
   default:
     break;
   }
+}
+
+void setLoitter() {
+  setPPMChannel(1, 1500);
+  setPPMChannel(2, 1500);
+  setPPMChannel(3, 1500);
+  setPPMChannel(4, 1500);
+  setPPMChannel(5, MODE_LOITTER);
+  setPPMChannel(6, 1500); // Not used
+  setPPMChannel(8, 1500); // Not used
 }
 
 void loop() {
@@ -107,12 +151,32 @@ void loop() {
 
 
   // Read PPM frame
-  if(pulseIn(ppmInPin, HIGH) > 3000) // New PPM frame starts after this long pulse
+  if (pulseIn(ppmInPin, HIGH) > 3000) // New PPM frame starts after this long pulse
   {
-    for(int i = 0; i <= chanel_number-1; i++) // Read channels
-    {
-      ppm[i]=pulseIn(ppmInPin, HIGH)+400;
+    for (int i = 0; i <= chanel_number-1; i++) { // Read channels
+      ppm_in[i] = pulseIn(ppmInPin, HIGH)+400; // ead and add offset
     }
+  }
+  
+  // Check RC mode
+  if (ppm_in[switchChannel-1] > 1000) {
+    // Switch on high position (auto)
+    if (mode == MANUAL) {
+      // Toggled from manual to auto
+      mode = AUTO;
+      // Set channels to neutral position (loitter)
+      setLoitter();
+    } else {
+      // Was already in auto mode
+      // Do nothing
+    }
+  }
+  else {
+    // Switch on low position (manual)
+    for (int i = 0; i <= chanel_number-1; i++) {
+      ppm[i] = ppm_in[i];
+    }
+    mode = MANUAL;
   }
 
   // Manage ADK connection
@@ -124,7 +188,15 @@ void loop() {
       // Is a command (1 byte)
       receivedCommand = bufferI[0];
 
-      attendCommand(receivedCommand);
+      attendCommand(receivedCommand, 0);
+    }
+    else if (len == 3) {
+      // Command with 2 bytes of data
+      int value = bufferI[1];
+      value = value >> 8; // HSB read
+      value = value + bufferI[2]; // LSB read
+      
+      attendCommand(receivedCommand, value);
     }
     else {
       // Not a command, ignore

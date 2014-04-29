@@ -44,6 +44,14 @@ public class MainActivity extends Activity {
 	private Button readSensor1Button;
 	private Button readSensor2Button;
 	private Button readSensor3Button;
+	private Button ch1aButton;
+	private Button ch1bButton;
+	private Button ch2aButton;
+	private Button ch2bButton;
+	private Button ch3aButton;
+	private Button ch3bButton;
+	private Button ch4aButton;
+	private Button ch4bButton;
 	// UI states
 	private static final int CONNECTED = 1;
     private static final int DISCONNECTED = 2;
@@ -114,6 +122,40 @@ public class MainActivity extends Activity {
 		}
 	};
 	
+	private OnClickListener setCHButtonListener = new OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			if (mAccessory == null) { return; }
+			
+			switch(v.getId()) {
+			case R.id.button1:
+				comms.send(Commands.SET_CH1, 1250);
+				break;
+			case R.id.button2:
+				comms.send(Commands.SET_CH1, 1750);
+				break;
+			case R.id.button3:
+				comms.send(Commands.SET_CH2, 1250);
+				break;
+			case R.id.button4:
+				comms.send(Commands.SET_CH2, 1750);
+				break;
+			case R.id.button5:
+				comms.send(Commands.SET_CH3, 1250);
+				break;
+			case R.id.button6:
+				comms.send(Commands.SET_CH3, 1750);
+				break;
+			case R.id.button7:
+				comms.send(Commands.SET_CH4, 1250);
+				break;
+			case R.id.button8:
+				comms.send(Commands.SET_CH4, 1750);
+				break;
+			}
+		}
+	};
+	
 	private void connect() {
 		UsbAccessory[] accessories = mUsbManager.getAccessoryList();
 		UsbAccessory accessory = (accessories == null ? null : accessories[0]);
@@ -145,6 +187,14 @@ public class MainActivity extends Activity {
 		readSensor1Button.setOnClickListener(readSensorButtonListener);
 		readSensor2Button.setOnClickListener(readSensorButtonListener);
 		readSensor3Button.setOnClickListener(readSensorButtonListener);
+		ch1aButton.setOnClickListener(setCHButtonListener);
+		ch1bButton.setOnClickListener(setCHButtonListener);
+		ch2aButton.setOnClickListener(setCHButtonListener);
+		ch2bButton.setOnClickListener(setCHButtonListener);
+		ch3aButton.setOnClickListener(setCHButtonListener);
+		ch3bButton.setOnClickListener(setCHButtonListener);
+		ch4aButton.setOnClickListener(setCHButtonListener);
+		ch4bButton.setOnClickListener(setCHButtonListener);
 		
 		setUi(DISCONNECTED);
 		
@@ -176,6 +226,14 @@ public class MainActivity extends Activity {
 		readSensor1Button = (Button) findViewById(R.id.read_sensor_1_button);
 		readSensor2Button = (Button) findViewById(R.id.read_sensor_2_button);
 		readSensor3Button = (Button) findViewById(R.id.read_sensor_3_button);
+		ch1aButton = (Button) findViewById(R.id.button1);
+		ch1bButton = (Button) findViewById(R.id.button2);
+		ch2aButton = (Button) findViewById(R.id.button3);
+		ch2bButton = (Button) findViewById(R.id.button4);
+		ch3aButton = (Button) findViewById(R.id.button5);
+		ch3bButton = (Button) findViewById(R.id.button6);
+		ch4aButton = (Button) findViewById(R.id.button7);
+		ch4bButton = (Button) findViewById(R.id.button8);
 	}
 	
 	private void setUi(int type) {

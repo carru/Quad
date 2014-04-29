@@ -46,6 +46,19 @@ public class CommunicationsThread extends Thread {
 		}
 	}
 	
+	public void send(byte command, int value) {
+		byte[] buffer = new byte[3];
+		buffer[0] = command;
+		buffer[1] = (byte) (value >> 8);
+		buffer[2] = (byte) value;
+		try {
+			mOutputStream.write(buffer);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	private void readLoop() {
 		int bytes = 0;
 		byte[] buffer = new byte[READ_BUFFER_SIZE];
