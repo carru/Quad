@@ -15,7 +15,7 @@ AndroidAccessory acc("UPC", "ArduinoADK", "Description","1.0", "URI", "Serial");
 ///////////////////////// RC CONFIG //////////////////////////////
 #define chanel_number 8  // Number of chanels
 #define PPM_FrLen 27000  // PPM frame length in microseconds (1ms = 1000µs)
-#define PPM_PulseLen 300 // Pulse length
+#define PPM_PulseLen 400 // Pulse length
 #define onState 0        // Polarity of the pulses: 1 is positive, 0 is negative
 #define ppmOutPin 10     // PPM signal output pin on the arduino
 #define ppmInPin 4       // PPM signal input pin on the arduino
@@ -28,12 +28,13 @@ boolean mode;
 #define AUTO true
 #define MANUAL false
 
-#define MODE_LOITTER 1000 // GET REAL VALUES!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-#define MODE_ALTHOLD 1400 // GET REAL VALUES!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#define MODE_LOITTER 1325 // Values from the quad
+#define MODE_ALTHOLD 1783
 //////////////////////////////////////////////////////////////////
 
 void setup() {
   Serial.begin(115200);
+  Serial.println("Start");
 
 
   // ADK
@@ -154,12 +155,29 @@ void loop() {
   if (pulseIn(ppmInPin, HIGH) > 3000) // New PPM frame starts after this long pulse
   {
     for (int i = 0; i <= chanel_number-1; i++) { // Read channels
-      ppm_in[i] = pulseIn(ppmInPin, HIGH)+400; // ead and add offset
+      ppm_in[i] = pulseIn(ppmInPin, HIGH) + PPM_PulseLen;
     }
+    
+    
+    
+//    for(int i = 0; i <= chanel_number-1; i++)
+//  {
+//    Serial.print("CH");
+//    Serial.print(i+1);
+//    Serial.print(": ");
+//    if (i!=chanel_number-1) {
+//      Serial.print(ppm_in[i]);
+//      Serial.print("  ");
+//    } 
+//    else {
+//      Serial.println(ppm_in[i]);
+//    }
+//  }
   }
   
+  
   // Check RC mode
-  if (ppm_in[switchChannel-1] > 1000) {
+  if (ppm_in[switchChannel-1] > (900 + 1900)/2) {
     // Switch on high position (auto)
     if (mode == MANUAL) {
       // Toggled from manual to auto
