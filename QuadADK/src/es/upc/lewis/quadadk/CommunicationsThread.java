@@ -50,7 +50,8 @@ public class CommunicationsThread extends Thread {
 		byte[] buffer = new byte[3];
 		buffer[0] = command;
 		buffer[1] = (byte) (value >> 8);
-		buffer[2] = (byte) value;
+		buffer[2] = (byte) (value & 0xFF);
+		
 		try {
 			mOutputStream.write(buffer);
 		} catch (IOException e) {

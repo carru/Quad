@@ -131,6 +131,7 @@ void attendCommand(byte command, int value) {
     break;
 
   default:
+    Serial.print("Unknown command");
     break;
   }
 }
@@ -198,15 +199,16 @@ void loop() {
     int len = acc.read(bufferI, sizeof(bufferI), 1);
 
     if (len == 1) {
-      // Is a command (1 byte)
+      // Command (1 byte)
       receivedCommand = bufferI[0];
 
       attendCommand(receivedCommand, 0);
     }
     else if (len == 3) {
       // Command with 2 bytes of data
+      receivedCommand = bufferI[0];
       int value = bufferI[1];
-      value = value >> 8; // HSB read
+      value = value << 8; // HSB read
       value = value + bufferI[2]; // LSB read
       
       attendCommand(receivedCommand, value);
