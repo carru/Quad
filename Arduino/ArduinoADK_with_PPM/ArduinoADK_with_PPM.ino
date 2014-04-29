@@ -2,6 +2,7 @@
 #include <Usb.h>
 #include <AndroidAccessory.h>
 #include "commands.h"
+#include "rc.h"
 
 ///////////////////////// ADK CONFIG /////////////////////////////
 #define BUFFER_SIZE_FOR_IO 256
@@ -14,12 +15,11 @@ AndroidAccessory acc("UPC", "ArduinoADK", "Description","1.0", "URI", "Serial");
 
 ///////////////////////// RC CONFIG //////////////////////////////
 #define chanel_number 8  // Number of chanels
-#define PPM_FrLen 27000  // PPM frame length in microseconds (1ms = 1000µs)
-#define PPM_PulseLen 400 // Pulse length
+#define PPM_FrLen 27000  // PPM frame length in microseconds
+#define PPM_PulseLen 400 // Pulse length in microseconds
 #define onState 0        // Polarity of the pulses: 1 is positive, 0 is negative
 #define ppmOutPin 10     // PPM signal output pin on the arduino
 #define ppmInPin 4       // PPM signal input pin on the arduino
-#define switchChannel 7  // Channel with the switch to toggle auto and manual
 
 int ppm[chanel_number];    // PPM generator reads these values
 int ppm_in[chanel_number]; // RC PPM values are stored here
@@ -27,9 +27,6 @@ int ppm_in[chanel_number]; // RC PPM values are stored here
 boolean mode;
 #define AUTO true
 #define MANUAL false
-
-#define MODE_LOITTER 1325 // Values from the quad
-#define MODE_ALTHOLD 1783
 //////////////////////////////////////////////////////////////////
 
 void setup() {
@@ -59,7 +56,8 @@ void setup() {
   
   
   // Initialize ppm values
-  setLoitter();
+  setFlightMode(MODE_LOITTER); // Will probably have to change to MODE_ALTHOLD to arm motors
+  setSlidersNeutralNoThrotle();
 }
 
 long readSensor() {
@@ -137,19 +135,34 @@ void attendCommand(byte command, int value) {
   }
 }
 
-void setLoitter() {
+void setSlidersNeutral() {
   setPPMChannel(1, 1500);
   setPPMChannel(2, 1500);
-  setPPMChannel(3, 1500);
+  setPPMChannel(CH_THROTLE, 1500);
   setPPMChannel(4, 1500);
-  setPPMChannel(5, MODE_LOITTER);
-  setPPMChannel(6, 1500); // Not used
-  setPPMChannel(8, 1500); // Not used
+  
+  // Unused channels
+  setPPMChannel(6, 1000);
+  setPPMChannel(8, 1000);
+}
+
+void setSlidersNeutralNoThrotle() {
+  setPPMChannel(1, 1500);
+  setPPMChannel(2, 1500);
+  setPPMChannel(CH_THROTLE, 1000);
+  setPPMChannel(4, 1500);
+  
+  // Unused channels
+  setPPMChannel(6, 1000);
+  setPPMChannel(8, 1000);
+}
+
+void setFlightMode(int mode) {
+  setPPMChannel(CH_MODE, mode);
 }
 
 void loop() {
   byte receivedCommand;
-
 
   // Read PPM frame
   if (pulseIn(ppmInPin, HIGH) > 3000) // New PPM frame starts after this long pulse
@@ -157,40 +170,22 @@ void loop() {
     for (int i = 0; i <= chanel_number-1; i++) { // Read channels
       ppm_in[i] = pulseIn(ppmInPin, HIGH) + PPM_PulseLen;
     }
-    
-    
-    
-//    for(int i = 0; i <= chanel_number-1; i++)
-//  {
-//    Serial.print("CH");
-//    Serial.print(i+1);
-//    Serial.print(": ");
-//    if (i!=chanel_number-1) {
-//      Serial.print(ppm_in[i]);
-//      Serial.print("  ");
-//    } 
-//    else {
-//      Serial.println(ppm_in[i]);
-//    }
-//  }
   }
   
-  
   // Check RC mode
-  if (ppm_in[switchChannel-1] > (900 + 1900)/2) {
-    // Switch on high position (auto)
+  if (ppm_in[CH_SWITCH-1] > 1500) { // Switch on high position (auto)
     if (mode == MANUAL) {
       // Toggled from manual to auto
       mode = AUTO;
-      // Set channels to neutral position (loitter)
-      setLoitter();
+      // Set channels to neutral position (loitter).
+      setFlightMode(MODE_LOITTER);
+      setSlidersNeutral();
     } else {
       // Was already in auto mode
       // Do nothing
     }
   }
-  else {
-    // Switch on low position (manual)
+  else { // Switch on low position (manual)
     for (int i = 0; i <= chanel_number-1; i++) {
       ppm[i] = ppm_in[i];
     }
@@ -242,7 +237,7 @@ ISR(TIMER1_COMPA_vect){
 
     if(cur_chan_numb >= chanel_number){
       cur_chan_numb = 0;
-      calc_rest = calc_rest + PPM_PulseLen;// 
+      calc_rest = calc_rest + PPM_PulseLen;
       OCR1A = (PPM_FrLen - calc_rest) * 2;
       calc_rest = 0;
     }
