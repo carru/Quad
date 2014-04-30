@@ -137,10 +137,12 @@ void attendCommand(byte command, int value) {
 }
 
 void setSlidersNeutral() {
-  setPPMChannel(1, 1500);
-  setPPMChannel(2, 1500);
+  setPPMChannel(CH_ROLL, 1500);
+  setPPMChannel(CH_PITCH, 1500);
   setPPMChannel(CH_THROTLE, 1500);
-  setPPMChannel(4, 1500);
+  setPPMChannel(CH_YAW, 1500);
+  
+  setPPMChannel(CH_SWITCH, 1000); // No simple mode
   
   // Unused channels
   setPPMChannel(6, 1000);
@@ -148,10 +150,12 @@ void setSlidersNeutral() {
 }
 
 void setSlidersNeutralNoThrotle() {
-  setPPMChannel(1, 1500);
-  setPPMChannel(2, 1500);
+  setPPMChannel(CH_ROLL, 1500);
+  setPPMChannel(CH_PITCH, 1500);
   setPPMChannel(CH_THROTLE, 1000);
-  setPPMChannel(4, 1500);
+  setPPMChannel(CH_YAW, 1500);
+  
+  setPPMChannel(CH_SWITCH, 1000); // No simple mode
   
   // Unused channels
   setPPMChannel(6, 1000);
