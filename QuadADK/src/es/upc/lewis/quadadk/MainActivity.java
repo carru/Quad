@@ -40,7 +40,6 @@ public class MainActivity extends Activity {
 	private TextView sensor1Text;
 	private TextView sensor2Text;
 	private TextView sensor3Text;
-	//private Button connectButton;
 	private Button readSensor1Button;
 	private Button readSensor2Button;
 	private Button readSensor3Button;
@@ -93,15 +92,6 @@ public class MainActivity extends Activity {
 		
 		setUi(DISCONNECTED);
 	}
-	
-	/*private OnClickListener connectButtonListener = new OnClickListener() {
-		@Override
-		public void onClick(View v) {
-			if (mAccessory == null) {
-				connect();
-			}
-		}
-	};*/
 	
 	private OnClickListener readSensorButtonListener = new OnClickListener() {
 		@Override
@@ -183,7 +173,6 @@ public class MainActivity extends Activity {
 		
 		setContentView(R.layout.main_activity);
 		getUiReferences();
-		//connectButton.setOnClickListener(connectButtonListener);
 		readSensor1Button.setOnClickListener(readSensorButtonListener);
 		readSensor2Button.setOnClickListener(readSensorButtonListener);
 		readSensor3Button.setOnClickListener(readSensorButtonListener);
@@ -222,7 +211,6 @@ public class MainActivity extends Activity {
 		sensor1Text = (TextView) findViewById(R.id.sensor_1_text);
 		sensor2Text = (TextView) findViewById(R.id.sensor_2_text);
 		sensor3Text = (TextView) findViewById(R.id.sensor_3_text);
-		//connectButton = (Button) findViewById(R.id.connect_button);
 		readSensor1Button = (Button) findViewById(R.id.read_sensor_1_button);
 		readSensor2Button = (Button) findViewById(R.id.read_sensor_2_button);
 		readSensor3Button = (Button) findViewById(R.id.read_sensor_3_button);
@@ -240,14 +228,12 @@ public class MainActivity extends Activity {
     	switch (type) {
     		case CONNECTED:
     			connectionStatusText.setText("Connected");
-    			//connectButton.setVisibility(View.GONE);
     			readSensor1Button.setEnabled(true);
     			readSensor2Button.setEnabled(true);
     			readSensor3Button.setEnabled(true);
     			break;
     		case DISCONNECTED:
     			connectionStatusText.setText("Disconnected");
-    			//connectButton.setVisibility(View.VISIBLE);
     			readSensor1Button.setEnabled(false);
     			readSensor2Button.setEnabled(false);
     			readSensor3Button.setEnabled(false);
