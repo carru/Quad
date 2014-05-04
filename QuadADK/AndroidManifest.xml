@@ -5,11 +5,15 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="8"
+        android:minSdkVersion="9"
         android:targetSdkVersion="19" />
 
     <uses-feature android:name="android.hardware.usb.accessory" />
-
+	<uses-feature android:name="android.hardware.camera" android:required="false" />
+    
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    
     <application
         android:allowBackup="false"
         android:icon="@drawable/ic_launcher"

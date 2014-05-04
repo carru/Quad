@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,6 +36,9 @@ public class MainActivity extends Activity {
 	// Worker thread for ADK communications
 	private CommunicationsThread comms;
 	
+	// Camera
+	private SimpleCamera camera;
+	
 	// UI references
 	private TextView connectionStatusText;
 	private TextView sensor1Text;
@@ -51,6 +55,7 @@ public class MainActivity extends Activity {
 	private Button ch3bButton;
 	private Button ch4aButton;
 	private Button ch4bButton;
+	private Button CameraButton;
 	// UI states
 	private static final int CONNECTED = 1;
     private static final int DISCONNECTED = 2;
@@ -146,6 +151,14 @@ public class MainActivity extends Activity {
 		}
 	};
 	
+	private OnClickListener cameraButtonListener = new OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			//SimpleCamera.takePicture(getApplicationContext());
+			if (camera.isReady()) { camera.takePicture(); }
+		}
+	};
+	
 	private void connect() {
 		UsbAccessory[] accessories = mUsbManager.getAccessoryList();
 		UsbAccessory accessory = (accessories == null ? null : accessories[0]);
@@ -184,12 +197,15 @@ public class MainActivity extends Activity {
 		ch3bButton.setOnClickListener(setCHButtonListener);
 		ch4aButton.setOnClickListener(setCHButtonListener);
 		ch4bButton.setOnClickListener(setCHButtonListener);
+		CameraButton.setOnClickListener(cameraButtonListener);
 		
 		setUi(DISCONNECTED);
 		
 		mUsbManager = UsbManager.getInstance(this);
 		mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
 		registerReceivers();
+		
+		camera = new SimpleCamera(this, (FrameLayout) findViewById(R.id.camera_preview));
 	}
 
 	@Override
@@ -204,6 +220,8 @@ public class MainActivity extends Activity {
 		super.onDestroy();
 		closeAccessory();
 		unregisterReceivers();
+		
+		if (camera != null) { camera.close(); }
 	}
 	
 	private void getUiReferences() {
@@ -222,6 +240,7 @@ public class MainActivity extends Activity {
 		ch3bButton = (Button) findViewById(R.id.button6);
 		ch4aButton = (Button) findViewById(R.id.button7);
 		ch4bButton = (Button) findViewById(R.id.button8);
+		CameraButton = (Button) findViewById(R.id.button9);
 	}
 	
 	private void setUi(int type) {
