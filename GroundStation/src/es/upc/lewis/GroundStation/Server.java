@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -14,7 +15,7 @@ public class Server extends Thread {
 
 	Socket socket;
 	BufferedReader input;
-	BufferedWriter output;
+	PrintWriter output;
 
 	public Server(int port) {
 		this.port = port;
@@ -51,7 +52,8 @@ public class Server extends Thread {
 			socket = serverSocket.accept();
 
 			input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			output = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+			//output = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+			output = new PrintWriter(socket.getOutputStream(), true);
 		} catch (IOException e) {
 			// Server closed
 			GUI.setUi(GUI.DISCONNECTED);
@@ -70,8 +72,7 @@ public class Server extends Thread {
 			try {
 				string = input.readLine();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				return;
 			}
 		}
 	}
