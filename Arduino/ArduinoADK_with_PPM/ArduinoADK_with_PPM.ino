@@ -174,7 +174,6 @@ void loop() {
   {
     for (int i = 0; i <= chanel_number-1; i++) { // Read channels
       ppm_in[i] = pulseIn(ppmInPin, HIGH) + PPM_PulseLen;
-      Serial.println(ppm_in[i]);
     }
   }
   
