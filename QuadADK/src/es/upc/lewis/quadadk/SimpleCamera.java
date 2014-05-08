@@ -47,7 +47,7 @@ public class SimpleCamera {
 	
 	public void close() {
 		isReady = false;
-		mCamera.release();
+		if (mCamera != null) { mCamera.release(); }
 	}
 	
 	public void takePicture() {
