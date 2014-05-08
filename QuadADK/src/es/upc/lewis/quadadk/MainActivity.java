@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,6 +37,9 @@ public class MainActivity extends Activity {
 	
 	// Worker thread for ADK communications
 	private CommunicationsThread comms;
+	
+	// Class to communicate with the GroundStation
+	private GroundStationClient groundStation;
 	
 	// Camera
 	private SimpleCamera camera;
@@ -58,9 +62,13 @@ public class MainActivity extends Activity {
 	private Button ch4aButton;
 	private Button ch4bButton;
 	private Button CameraButton;
+	private Button connectToServerButton;
+	private EditText ipEditText;
+	private EditText portEditText;
 	// UI states
-	private static final int CONNECTED = 1;
-    private static final int DISCONNECTED = 2;
+	public static final int CONNECTED = 1;
+	public static final int CONNECTING = 2;
+	public static final int DISCONNECTED = 3;
 
 	private void openAccessory(UsbAccessory accessory) {
 		mFileDescriptor = mUsbManager.openAccessory(accessory);
@@ -156,8 +164,23 @@ public class MainActivity extends Activity {
 	private OnClickListener cameraButtonListener = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
-			//SimpleCamera.takePicture(getApplicationContext());
 			if (camera.isReady()) { camera.takePicture(); }
+		}
+	};
+	
+	private OnClickListener connectToServerButtonListener = new OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			String ip = ipEditText.getText().toString();
+			int port;
+			try {
+				port = Integer.parseInt(portEditText.getText().toString());
+			} catch(NumberFormatException e) {
+				Toast.makeText(getApplicationContext(), "Invalid port", Toast.LENGTH_SHORT).show();
+				return;
+			}
+			
+			groundStation = new GroundStationClient(ip, port, getApplicationContext());
 		}
 	};
 	
@@ -177,8 +200,8 @@ public class MainActivity extends Activity {
 				}
 			}
 		} else {
-			Toast.makeText(this, "Error connecting to accessory", Toast.LENGTH_SHORT).show();
-			Log.e(TAG, "Error connecting");
+			Toast.makeText(this, "Error connecting to Arduino", Toast.LENGTH_SHORT).show();
+			Log.e(TAG, "Error connecting to Arduino");
 		}
 	}
 	
@@ -200,6 +223,7 @@ public class MainActivity extends Activity {
 		ch4aButton.setOnClickListener(setCHButtonListener);
 		ch4bButton.setOnClickListener(setCHButtonListener);
 		CameraButton.setOnClickListener(cameraButtonListener);
+		connectToServerButton.setOnClickListener(connectToServerButtonListener);
 		
 		setADKStatus(DISCONNECTED);
 		setServerStatus(DISCONNECTED);
@@ -245,6 +269,9 @@ public class MainActivity extends Activity {
 		ch4aButton = (Button) findViewById(R.id.button7);
 		ch4bButton = (Button) findViewById(R.id.button8);
 		CameraButton = (Button) findViewById(R.id.button9);
+		connectToServerButton = (Button) findViewById(R.id.server_connect_button);
+		ipEditText = (EditText) findViewById(R.id.server_ip);
+		portEditText = (EditText) findViewById(R.id.server_port);
 	}
 	
 	private void setADKStatus(int type) {
@@ -266,6 +293,10 @@ public class MainActivity extends Activity {
     			serverStatusText.setText("Connected");
     			serverStatusText.setTextColor(Color.GREEN);
     			break;
+    		case CONNECTING:
+    			serverStatusText.setText("Connecting");
+    			serverStatusText.setTextColor(Color.YELLOW);
+    			break;
     		case DISCONNECTED:
     			serverStatusText.setText("Disconnected");
     			serverStatusText.setTextColor(Color.RED);
@@ -273,28 +304,12 @@ public class MainActivity extends Activity {
     	}
     }
 	
-//	private void setUi(int type) {
-//    	switch (type) {
-//    		case CONNECTED:
-//    			adkStatusText.setText("Connected");
-//    			adkStatusText.setTextColor(Color.GREEN);
-//    			readSensor1Button.setEnabled(true);
-//    			readSensor2Button.setEnabled(true);
-//    			readSensor3Button.setEnabled(true);
-//    			break;
-//    		case DISCONNECTED:
-//    			adkStatusText.setText("Disconnected");
-//    			adkStatusText.setTextColor(Color.RED);
-//    			readSensor1Button.setEnabled(false);
-//    			readSensor2Button.setEnabled(false);
-//    			readSensor3Button.setEnabled(false);
-//    			break;
-//    	}
-//    }
-	
 	private void registerReceivers() {
 		// Sensor data receiver
     	LocalBroadcastManager.getInstance(this).registerReceiver(sensorDataReceiver,sensorDataIntentFilter());
+    	
+    	// GroundStation receiver
+    	LocalBroadcastManager.getInstance(this).registerReceiver(groundStationClientReceiver,groundStationClientIntentFilter());
     	
     	// USB events
     	IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
@@ -310,6 +325,7 @@ public class MainActivity extends Activity {
     	unregisterReceiver(usbReceiver);
     }
     
+    // Receiver for Arduino related intents
     private BroadcastReceiver sensorDataReceiver = new BroadcastReceiver() {
     	  @Override
     	  public void onReceive(Context context, Intent intent) {
@@ -335,6 +351,36 @@ public class MainActivity extends Activity {
         intentFilter.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_3);
         return intentFilter;
     }
+    
+    // Receiver for GroundStation related intents
+    private BroadcastReceiver groundStationClientReceiver = new BroadcastReceiver() {
+  	  @Override
+  	  public void onReceive(Context context, Intent intent) {
+  		  String action = intent.getAction();
+  		  
+  		  if (action.equals(GroundStationClient.CONNECTED)) {
+  			  setServerStatus(MainActivity.CONNECTED);
+  		  }
+  		  else if (action.equals(GroundStationClient.CONNECTING)) {
+  			setServerStatus(MainActivity.CONNECTING);
+  		  }
+  		  else if (action.equals(GroundStationClient.DISCONNECTED)) {
+  			setServerStatus(MainActivity.DISCONNECTED);
+  		  }
+  		  else if (action.equals(GroundStationClient.CANT_RESOLVE_HOST)) {
+  			Toast.makeText(getApplicationContext(), "Can't resolve host", Toast.LENGTH_SHORT).show();
+  		  }
+  	  }
+  };
+  
+  private static IntentFilter groundStationClientIntentFilter() {
+      final IntentFilter intentFilter = new IntentFilter();
+      intentFilter.addAction(GroundStationClient.CONNECTED);
+      intentFilter.addAction(GroundStationClient.CONNECTING);
+      intentFilter.addAction(GroundStationClient.DISCONNECTED);
+      intentFilter.addAction(GroundStationClient.CANT_RESOLVE_HOST);
+      return intentFilter;
+  }
     
     private final BroadcastReceiver usbReceiver = new BroadcastReceiver() {
 		@Override
