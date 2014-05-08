@@ -31,6 +31,7 @@ public class Server extends Thread {
 			e.printStackTrace();
 		}
 		
+		GUI.setUi(GUI.DISCONNECTED);
 		GUI.serverIsWorking = false;
 	}
 	
