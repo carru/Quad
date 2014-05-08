@@ -17,7 +17,7 @@ public class GUI {
 	private Server server;
 	public static volatile boolean serverIsWorking = false;
 
-	private JFrame frame;
+	private JFrame frmGroundstation;
 
 	/**
 	 * Launch the application.
@@ -27,7 +27,7 @@ public class GUI {
 			public void run() {
 				try {
 					GUI window = new GUI();
-					window.frame.setVisible(true);
+					window.frmGroundstation.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -46,14 +46,16 @@ public class GUI {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frame = new JFrame();
-		frame.setBounds(100, 100, 343, 300);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(null);
+		frmGroundstation = new JFrame();
+		frmGroundstation.setResizable(false);
+		frmGroundstation.setTitle("GroundStation");
+		frmGroundstation.setBounds(100, 100, 343, 300);
+		frmGroundstation.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmGroundstation.getContentPane().setLayout(null);
 		
 		statusLabel = new JLabel("Status: Disconnected");
 		statusLabel.setBounds(125, 15, 146, 14);
-		frame.getContentPane().add(statusLabel);
+		frmGroundstation.getContentPane().add(statusLabel);
 		
 		startButton = new JButton("Start server");
 		startButton.addActionListener(new ActionListener() {
@@ -69,7 +71,7 @@ public class GUI {
 			}
 		});
 		startButton.setBounds(10, 11, 105, 23);
-		frame.getContentPane().add(startButton);
+		frmGroundstation.getContentPane().add(startButton);
 	}
 	
 	public static void showErrorDialog(String message, String title) {
