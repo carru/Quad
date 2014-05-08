@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.support.v4.content.LocalBroadcastManager;
@@ -40,7 +41,8 @@ public class MainActivity extends Activity {
 	private SimpleCamera camera;
 	
 	// UI references
-	private TextView connectionStatusText;
+	private TextView adkStatusText;
+	private TextView serverStatusText;
 	private TextView sensor1Text;
 	private TextView sensor2Text;
 	private TextView sensor3Text;
@@ -68,7 +70,7 @@ public class MainActivity extends Activity {
 			comms = new CommunicationsThread(this, mFileDescriptor.getFileDescriptor());
 			comms.start();
 			
-			setUi(CONNECTED);
+			setADKStatus(CONNECTED);
 			Toast.makeText(this, "Accessory opened", Toast.LENGTH_SHORT).show();
 			Log.i(TAG, "Accessory opened");
 		} else {
@@ -95,7 +97,7 @@ public class MainActivity extends Activity {
 
 		}
 		
-		setUi(DISCONNECTED);
+		setADKStatus(DISCONNECTED);
 	}
 	
 	private OnClickListener readSensorButtonListener = new OnClickListener() {
@@ -199,7 +201,8 @@ public class MainActivity extends Activity {
 		ch4bButton.setOnClickListener(setCHButtonListener);
 		CameraButton.setOnClickListener(cameraButtonListener);
 		
-		setUi(DISCONNECTED);
+		setADKStatus(DISCONNECTED);
+		setServerStatus(DISCONNECTED);
 		
 		mUsbManager = UsbManager.getInstance(this);
 		mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
@@ -225,7 +228,8 @@ public class MainActivity extends Activity {
 	}
 	
 	private void getUiReferences() {
-		connectionStatusText = (TextView) findViewById(R.id.connection_status);
+		adkStatusText = (TextView) findViewById(R.id.adk_status);
+		serverStatusText = (TextView) findViewById(R.id.server_status);
 		sensor1Text = (TextView) findViewById(R.id.sensor_1_text);
 		sensor2Text = (TextView) findViewById(R.id.sensor_2_text);
 		sensor3Text = (TextView) findViewById(R.id.sensor_3_text);
@@ -243,22 +247,50 @@ public class MainActivity extends Activity {
 		CameraButton = (Button) findViewById(R.id.button9);
 	}
 	
-	private void setUi(int type) {
+	private void setADKStatus(int type) {
     	switch (type) {
     		case CONNECTED:
-    			connectionStatusText.setText("Connected");
-    			readSensor1Button.setEnabled(true);
-    			readSensor2Button.setEnabled(true);
-    			readSensor3Button.setEnabled(true);
+    			adkStatusText.setText("Connected");
+    			adkStatusText.setTextColor(Color.GREEN);
     			break;
     		case DISCONNECTED:
-    			connectionStatusText.setText("Disconnected");
-    			readSensor1Button.setEnabled(false);
-    			readSensor2Button.setEnabled(false);
-    			readSensor3Button.setEnabled(false);
+    			adkStatusText.setText("Disconnected");
+    			adkStatusText.setTextColor(Color.RED);
     			break;
     	}
     }
+	
+	private void setServerStatus(int type) {
+    	switch (type) {
+    		case CONNECTED:
+    			serverStatusText.setText("Connected");
+    			serverStatusText.setTextColor(Color.GREEN);
+    			break;
+    		case DISCONNECTED:
+    			serverStatusText.setText("Disconnected");
+    			serverStatusText.setTextColor(Color.RED);
+    			break;
+    	}
+    }
+	
+//	private void setUi(int type) {
+//    	switch (type) {
+//    		case CONNECTED:
+//    			adkStatusText.setText("Connected");
+//    			adkStatusText.setTextColor(Color.GREEN);
+//    			readSensor1Button.setEnabled(true);
+//    			readSensor2Button.setEnabled(true);
+//    			readSensor3Button.setEnabled(true);
+//    			break;
+//    		case DISCONNECTED:
+//    			adkStatusText.setText("Disconnected");
+//    			adkStatusText.setTextColor(Color.RED);
+//    			readSensor1Button.setEnabled(false);
+//    			readSensor2Button.setEnabled(false);
+//    			readSensor3Button.setEnabled(false);
+//    			break;
+//    	}
+//    }
 	
 	private void registerReceivers() {
 		// Sensor data receiver
