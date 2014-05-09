@@ -4,10 +4,13 @@ import javax.swing.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
+import es.upc.lewis.quadadk.Commands;
+
 public class GUI {
 	// UI
 	private static JLabel statusLabel;
 	private static JButton startButton;
+	private static JButton btnStartMission;
 	// UI states
 	public static final int CONNECTED = 1;
 	public static final int DISCONNECTED = 2;
@@ -49,12 +52,12 @@ public class GUI {
 		frmGroundstation = new JFrame();
 		frmGroundstation.setResizable(false);
 		frmGroundstation.setTitle("GroundStation");
-		frmGroundstation.setBounds(100, 100, 343, 300);
+		frmGroundstation.setBounds(100, 100, 295, 300);
 		frmGroundstation.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmGroundstation.getContentPane().setLayout(null);
 		
 		statusLabel = new JLabel("Status: Disconnected");
-		statusLabel.setBounds(125, 15, 146, 14);
+		statusLabel.setBounds(125, 15, 154, 14);
 		frmGroundstation.getContentPane().add(statusLabel);
 		
 		startButton = new JButton("Start server");
@@ -72,6 +75,16 @@ public class GUI {
 		});
 		startButton.setBounds(10, 11, 105, 23);
 		frmGroundstation.getContentPane().add(startButton);
+		
+		btnStartMission = new JButton("Start mission");
+		btnStartMission.setEnabled(false);
+		btnStartMission.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				server.write(Commands.START_MISSION);
+			}
+		});
+		btnStartMission.setBounds(10, 45, 269, 23);
+		frmGroundstation.getContentPane().add(btnStartMission);
 	}
 	
 	public static void showErrorDialog(String message, String title) {
@@ -93,14 +106,18 @@ public class GUI {
 		case CONNECTED:
 			statusLabel.setText("Status: Connected");
 			startButton.setText("Stop server");
+			btnStartMission.setEnabled(true);
+			
 			break;
 		case DISCONNECTED:
 			statusLabel.setText("Status: Disconnected");
 			startButton.setText("Start server");
+			btnStartMission.setEnabled(false);
 			break;
 		case LISTENING:
 			statusLabel.setText("Status: Listening");
 			startButton.setText("Stop server");
+			btnStartMission.setEnabled(false);
 			break;
 		}
 	}

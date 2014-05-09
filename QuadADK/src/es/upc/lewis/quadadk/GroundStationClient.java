@@ -12,7 +12,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.widget.Toast;
 
 public class GroundStationClient extends Thread {
 	private String TAG = "GroundStationClient";
@@ -50,20 +49,20 @@ public class GroundStationClient extends Thread {
 			addr = InetAddress.getByName(ip);
 		} catch (UnknownHostException e) {
 			Log.e(TAG, "Can't resolve host " + ip);
-			notifyStatus(CANT_RESOLVE_HOST);
+			notifyAction(CANT_RESOLVE_HOST);
 			return;
 		}
 		
 		// Connect
 		try {
 			Log.i(TAG, "Connecting to " + addr.toString() + ":" + String.valueOf(port));
-			notifyStatus(CONNECTING);
+			notifyAction(CONNECTING);
 			socket = new Socket(addr, port);
 			Log.i(TAG, "Connected");
-			notifyStatus(CONNECTED);
+			notifyAction(CONNECTED);
 		} catch (IOException e) {
 			Log.e(TAG, "Connection failed");
-			notifyStatus(DISCONNECTED);
+			notifyAction(DISCONNECTED);
 			e.printStackTrace();
 		}
 		
@@ -88,14 +87,34 @@ public class GroundStationClient extends Thread {
 				if (interrupted()) { return; }
 				
 				string = input.readLine();
+				
+				if (string == null) {
+					disconnect();
+					return;
+				}
+				
+				Log.i(TAG, "Received command: " + string);
+				attendCommand(string);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
+			disconnect();
 			return;
 		}
 	}
 	
-	private void notifyStatus(String status) {
+	private void disconnect() {
+		notifyAction(DISCONNECTED);
+	}
+	
+	private void attendCommand(String string) {
+		if (string == null) { return; }
+		if (string.equals(Commands.START_MISSION)) {
+			notifyAction(Commands.START_MISSION);
+		}
+	}
+	
+	private void notifyAction(String status) {
 		Intent intent = new Intent(status);
 		LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 	}

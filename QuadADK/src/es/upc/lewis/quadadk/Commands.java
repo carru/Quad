@@ -21,4 +21,7 @@ public interface Commands {
 	public static final byte SET_CH6 = (byte) 0xF6;
 	public static final byte SET_CH7 = (byte) 0xF7;
 	public static final byte SET_CH8 = (byte) 0xF8;
+	
+	// GROUNDSTATION COMMANDS
+	public static final String START_MISSION = "start";
 }

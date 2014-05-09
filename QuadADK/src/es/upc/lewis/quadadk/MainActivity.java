@@ -304,6 +304,11 @@ public class MainActivity extends Activity {
     	}
     }
 	
+	private void mission() {
+		Log.i(TAG, "Starting mission");
+		Toast.makeText(this, "Starting mission", Toast.LENGTH_SHORT).show();
+	}
+	
 	private void registerReceivers() {
 		// Sensor data receiver
     	LocalBroadcastManager.getInstance(this).registerReceiver(sensorDataReceiver,sensorDataIntentFilter());
@@ -370,6 +375,9 @@ public class MainActivity extends Activity {
   		  else if (action.equals(GroundStationClient.CANT_RESOLVE_HOST)) {
   			Toast.makeText(getApplicationContext(), "Can't resolve host", Toast.LENGTH_SHORT).show();
   		  }
+  		  else if (action.equals(Commands.START_MISSION)) {
+  			mission();
+  		  }
   	  }
   };
   
@@ -379,6 +387,7 @@ public class MainActivity extends Activity {
       intentFilter.addAction(GroundStationClient.CONNECTING);
       intentFilter.addAction(GroundStationClient.DISCONNECTED);
       intentFilter.addAction(GroundStationClient.CANT_RESOLVE_HOST);
+      intentFilter.addAction(Commands.START_MISSION);
       return intentFilter;
   }
     
