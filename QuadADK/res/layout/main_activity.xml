@@ -1,197 +1,202 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-        <TextView
-            android:id="@+id/text1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Arduino link:"
-            android:textSize="20sp" />
-
-        <TextView
-            android:id="@+id/adk_status"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/text1"
-            android:gravity="right"
-            android:text="Disconnected"
-            android:textSize="20sp" />
-
-        <TextView
-            android:id="@+id/text2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/text1"
-            android:text="GroundStation link:"
-            android:textSize="20sp" />
-
-        <TextView
-            android:id="@+id/server_status"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/text1"
-            android:layout_toRightOf="@id/text2"
-            android:gravity="right"
-            android:text="Disconnected"
-            android:textSize="20sp" />
-    </RelativeLayout>
-
-    <EditText
-        android:id="@+id/server_ip"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="Server IP" />
-
-    <EditText
-        android:id="@+id/server_port"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="Server port"
-        android:inputType="number" />
-
-    <Button
-        android:id="@+id/server_connect_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Connect to GroundStation" />
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/text1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Arduino link:"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/adk_status"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/text1"
+                android:gravity="right"
+                android:text="Disconnected"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/text2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/text1"
+                android:text="GroundStation link:"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/server_status"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/text1"
+                android:layout_toRightOf="@id/text2"
+                android:gravity="right"
+                android:text="Disconnected"
+                android:textSize="20sp" />
+        </RelativeLayout>
+
+        <EditText
+            android:id="@+id/server_ip"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Server IP" />
+
+        <EditText
+            android:id="@+id/server_port"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Server port"
+            android:inputType="number" />
 
         <Button
-            android:id="@+id/read_sensor_1_button"
+            android:id="@+id/server_connect_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Read sensor 1" />
+            android:text="Connect to GroundStation" />
 
-        <TextView
-            android:id="@+id/sensor_1_text"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/read_sensor_1_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Read sensor 1" />
+
+            <TextView
+                android:id="@+id/sensor_1_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/read_sensor_2_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Read sensor 2" />
+
+            <TextView
+                android:id="@+id/sensor_2_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/read_sensor_3_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Read sensor 3" />
+
+            <TextView
+                android:id="@+id/sensor_3_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/button1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CH1 1250" />
+
+            <Button
+                android:id="@+id/button2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CH1 1750" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/button3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CH2 1250" />
+
+            <Button
+                android:id="@+id/button4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CH2 1750" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/button5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CH3 1250" />
+
+            <Button
+                android:id="@+id/button6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CH3 1750" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/button7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CH4 1250" />
+
+            <Button
+                android:id="@+id/button8"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CH4 1750" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/button9"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="" />
+            android:text="Take a picture" />
+
+        <FrameLayout
+            android:id="@+id/camera_preview"
+            android:layout_width="1dp"
+            android:layout_height="1dp" />
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-        <Button
-            android:id="@+id/read_sensor_2_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Read sensor 2" />
-
-        <TextView
-            android:id="@+id/sensor_2_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-        <Button
-            android:id="@+id/read_sensor_3_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Read sensor 3" />
-
-        <TextView
-            android:id="@+id/sensor_3_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-        <Button
-            android:id="@+id/button1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="CH1 1250" />
-
-        <Button
-            android:id="@+id/button2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="CH1 1750" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-        <Button
-            android:id="@+id/button3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="CH2 1250" />
-
-        <Button
-            android:id="@+id/button4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="CH2 1750" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-        <Button
-            android:id="@+id/button5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="CH3 1250" />
-
-        <Button
-            android:id="@+id/button6"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="CH3 1750" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-        <Button
-            android:id="@+id/button7"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="CH4 1250" />
-
-        <Button
-            android:id="@+id/button8"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="CH4 1750" />
-    </LinearLayout>
-
-    <Button
-        android:id="@+id/button9"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Take a picture" />
-
-    <FrameLayout
-        android:id="@+id/camera_preview"
-        android:layout_width="1dp"
-        android:layout_height="1dp" />
-
-</LinearLayout>
+</ScrollView>

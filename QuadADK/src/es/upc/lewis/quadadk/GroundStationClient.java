@@ -28,8 +28,8 @@ public class GroundStationClient extends Thread {
 	private int port;
 	
 	private Socket socket;
-	BufferedReader input;
-	PrintWriter output;
+	private BufferedReader input;
+	private PrintWriter output;
 	
 	public GroundStationClient(String ip, int port, Context context) {
 		this.context = context;
@@ -38,6 +38,11 @@ public class GroundStationClient extends Thread {
 		this.port = port;
 		
 		start();
+	}
+	
+	public void write(String string) {
+		output.print(string);
+		output.println();
 	}
 	
 	@Override
@@ -64,6 +69,7 @@ public class GroundStationClient extends Thread {
 			Log.e(TAG, "Connection failed");
 			notifyAction(DISCONNECTED);
 			e.printStackTrace();
+			return;
 		}
 		
 		// Get streams

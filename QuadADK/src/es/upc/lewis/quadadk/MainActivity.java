@@ -309,6 +309,10 @@ public class MainActivity extends Activity {
 		Toast.makeText(this, "Starting mission", Toast.LENGTH_SHORT).show();
 	}
 	
+	private void sendSensorData(String sensor, int value) {
+		groundStation.write(sensor + Integer.toString(value));
+	}
+	
 	private void registerReceivers() {
 		// Sensor data receiver
     	LocalBroadcastManager.getInstance(this).registerReceiver(sensorDataReceiver,sensorDataIntentFilter());
@@ -339,12 +343,15 @@ public class MainActivity extends Activity {
     		  
     		  if (action.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_1)) {
     			  sensor1Text.setText(Integer.toString(value));
+    			  sendSensorData(Commands.SENSOR_1, value);
     		  }
     		  else if (action.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_2)) {
     			  sensor2Text.setText(Integer.toString(value));
+    			  sendSensorData(Commands.SENSOR_2, value);
     		  }
     		  else if (action.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_3)) {
     			  sensor3Text.setText(Integer.toString(value));
+    			  sendSensorData(Commands.SENSOR_3, value);
     		  }
     	  }
     };

@@ -7,6 +7,8 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import es.upc.lewis.quadadk.Commands;
+
 public class Server extends Thread {
 	private ServerSocket serverSocket;
 	int port;
@@ -70,6 +72,7 @@ public class Server extends Thread {
 		while (true) {
 			try {
 				string = input.readLine();
+				attendCommand(string);
 			} catch (IOException e) {
 				return;
 			}
@@ -79,5 +82,27 @@ public class Server extends Thread {
 	public void write(String string) {
 		output.print(string);
 		output.println();
+	}
+	
+	private void attendCommand(String string) {
+		if (string == null) { return; }
+		if (string.startsWith(Commands.SENSOR_1)) {
+			String data = string.substring(Commands.SENSOR_1.length());
+			int value = Integer.parseInt(data);
+			
+			GUI.displaySensorData(Commands.SENSOR_1, value);
+		}
+		else if (string.startsWith(Commands.SENSOR_2)) {
+			String data = string.substring(Commands.SENSOR_2.length());
+			int value = Integer.parseInt(data);
+			
+			GUI.displaySensorData(Commands.SENSOR_2, value);
+		}
+		else if (string.startsWith(Commands.SENSOR_3)) {
+			String data = string.substring(Commands.SENSOR_1.length());
+			int value = Integer.parseInt(data);
+			
+			GUI.displaySensorData(Commands.SENSOR_3, value);
+		}
 	}
 }

@@ -11,6 +11,9 @@ public class GUI {
 	private static JLabel statusLabel;
 	private static JButton startButton;
 	private static JButton btnStartMission;
+	private static JLabel sensor1Label;
+	private static JLabel sensor2Label;
+	private static JLabel sensor3Label;
 	// UI states
 	public static final int CONNECTED = 1;
 	public static final int DISCONNECTED = 2;
@@ -85,12 +88,46 @@ public class GUI {
 		});
 		btnStartMission.setBounds(10, 45, 269, 23);
 		frmGroundstation.getContentPane().add(btnStartMission);
+		
+		sensor1Label = new JLabel("Sensor 1: ");
+		sensor1Label.setBounds(10, 79, 269, 14);
+		frmGroundstation.getContentPane().add(sensor1Label);
+		
+		sensor2Label = new JLabel("Sensor 2: ");
+		sensor2Label.setBounds(10, 104, 269, 14);
+		frmGroundstation.getContentPane().add(sensor2Label);
+		
+		sensor3Label = new JLabel("Sensor 3: ");
+		sensor3Label.setBounds(10, 129, 269, 14);
+		frmGroundstation.getContentPane().add(sensor3Label);
 	}
 	
 	public static void showErrorDialog(String message, String title) {
 		JOptionPane.showMessageDialog(null, message, title, JOptionPane.ERROR_MESSAGE);
 	}
 	
+	public static void displaySensorData(final String sensor, final int value) {
+		// Make sure we are in the proper thread
+		if (!SwingUtilities.isEventDispatchThread()) {
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					displaySensorData(sensor, value);
+				}
+			});
+		}
+		
+		if (sensor.equals(Commands.SENSOR_1)) {
+			sensor1Label.setText("Sensor 1: " + Integer.toString(value));
+		}
+		else if (sensor.equals(Commands.SENSOR_2)) {
+			sensor2Label.setText("Sensor 2: " + Integer.toString(value));
+		}
+		else if (sensor.equals(Commands.SENSOR_3)) {
+			sensor3Label.setText("Sensor 3: " + Integer.toString(value));
+		}
+	}
+
 	public static void setUi(final int type) {
 		// Make sure we are in the proper thread
 		if (!SwingUtilities.isEventDispatchThread()) {
