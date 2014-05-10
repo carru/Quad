@@ -8,12 +8,15 @@ import es.upc.lewis.quadadk.Commands;
 
 public class GUI {
 	// UI
+	private JFrame frmGroundstation;
 	private static JLabel statusLabel;
 	private static JButton startButton;
 	private static JButton btnStartMission;
 	private static JLabel sensor1Label;
 	private static JLabel sensor2Label;
 	private static JLabel sensor3Label;
+	private JLabel lblPort;
+	private JTextField portText;
 	// UI states
 	public static final int CONNECTED = 1;
 	public static final int DISCONNECTED = 2;
@@ -22,8 +25,6 @@ public class GUI {
 	// Server
 	private Server server;
 	public static volatile boolean serverIsWorking = false;
-
-	private JFrame frmGroundstation;
 
 	/**
 	 * Launch the application.
@@ -60,14 +61,14 @@ public class GUI {
 		frmGroundstation.getContentPane().setLayout(null);
 		
 		statusLabel = new JLabel("Status: Disconnected");
-		statusLabel.setBounds(125, 15, 154, 14);
+		statusLabel.setBounds(125, 40, 154, 14);
 		frmGroundstation.getContentPane().add(statusLabel);
 		
 		startButton = new JButton("Start server");
 		startButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if (!serverIsWorking) {
-					server = new Server(9090);
+					server = new Server(Integer.parseInt((portText.getText())));
 					server.start();
 				}
 				else {
@@ -76,7 +77,7 @@ public class GUI {
 				}
 			}
 		});
-		startButton.setBounds(10, 11, 105, 23);
+		startButton.setBounds(10, 36, 105, 23);
 		frmGroundstation.getContentPane().add(startButton);
 		
 		btnStartMission = new JButton("Start mission");
@@ -86,20 +87,31 @@ public class GUI {
 				server.write(Commands.START_MISSION);
 			}
 		});
-		btnStartMission.setBounds(10, 45, 269, 23);
+		btnStartMission.setBounds(10, 70, 269, 23);
 		frmGroundstation.getContentPane().add(btnStartMission);
 		
 		sensor1Label = new JLabel("Sensor 1: ");
-		sensor1Label.setBounds(10, 79, 269, 14);
+		sensor1Label.setBounds(10, 104, 269, 14);
 		frmGroundstation.getContentPane().add(sensor1Label);
 		
 		sensor2Label = new JLabel("Sensor 2: ");
-		sensor2Label.setBounds(10, 104, 269, 14);
+		sensor2Label.setBounds(10, 129, 269, 14);
 		frmGroundstation.getContentPane().add(sensor2Label);
 		
 		sensor3Label = new JLabel("Sensor 3: ");
-		sensor3Label.setBounds(10, 129, 269, 14);
+		sensor3Label.setBounds(10, 154, 269, 14);
 		frmGroundstation.getContentPane().add(sensor3Label);
+		
+		lblPort = new JLabel("Port");
+		lblPort.setBounds(10, 11, 33, 14);
+		frmGroundstation.getContentPane().add(lblPort);
+		
+		portText = new JTextField();
+		portText.setText("9090");
+		portText.setToolTipText("Port number");
+		portText.setBounds(47, 8, 68, 20);
+		frmGroundstation.getContentPane().add(portText);
+		portText.setColumns(10);
 	}
 	
 	public static void showErrorDialog(String message, String title) {
