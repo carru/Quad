@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
@@ -43,6 +44,10 @@ public class MainActivity extends Activity {
 	
 	// Camera
 	private SimpleCamera camera;
+	
+	// Preferences to store socket details
+	SharedPreferences sharedPreferences;
+	SharedPreferences.Editor sharedPreferencesEditor;
 	
 	// UI references
 	private TextView adkStatusText;
@@ -181,6 +186,11 @@ public class MainActivity extends Activity {
 			}
 			
 			groundStation = new GroundStationClient(ip, port, getApplicationContext());
+			
+			// Save socket details
+			sharedPreferencesEditor.putString("ip", ip);
+			sharedPreferencesEditor.putInt("port", port);
+			sharedPreferencesEditor.apply();
 		}
 	};
 	
@@ -233,6 +243,12 @@ public class MainActivity extends Activity {
 		registerReceivers();
 		
 		camera = new SimpleCamera(this, (FrameLayout) findViewById(R.id.camera_preview));
+		
+		// Get last socket details
+		sharedPreferences = getPreferences(Context.MODE_PRIVATE);
+		sharedPreferencesEditor = sharedPreferences.edit();
+		ipEditText.setText(sharedPreferences.getString("ip", ""));
+		portEditText.setText(Integer.toString(sharedPreferences.getInt("port", 9090)));
 	}
 
 	@Override
