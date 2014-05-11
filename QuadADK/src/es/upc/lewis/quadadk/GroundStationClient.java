@@ -29,8 +29,6 @@ public class GroundStationClient extends Thread {
 	private int port;
 	
 	private Socket socket;
-	//private BufferedReader input;
-	//private PrintWriter output;
 	private InputStream input;
 	private OutputStream output;
 	// Buffer for read operations (bytes)
@@ -59,8 +57,6 @@ public class GroundStationClient extends Thread {
 		
 		byte[] buffer = new byte[5];
 		buffer[0] = command;
-		//buffer[1] = (byte) (value >> 8);
-		//buffer[2] = (byte) (value & 0xFF);
 		byte[] intInBytes = ByteBuffer.allocate(4).putInt(value).array();
 		for(int i=1; i<5; i++) { buffer[i] = intInBytes[i-1]; }
 		
@@ -101,8 +97,6 @@ public class GroundStationClient extends Thread {
 		
 		// Get streams
 		try {
-			//input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			//output = new PrintWriter(socket.getOutputStream(), true);
 			input = socket.getInputStream();
 			output = socket.getOutputStream();
 		} catch (IOException e) {
@@ -115,7 +109,6 @@ public class GroundStationClient extends Thread {
 	}
 	
 	private void readLoop() {
-		//String string;
 		byte[] buffer = new byte[READ_BUFFER_SIZE];
 		int bytes;
 		
@@ -125,16 +118,6 @@ public class GroundStationClient extends Thread {
 				
 				bytes = input.read(buffer);
 				parse(buffer, bytes);
-				
-				/*string = input.readLine();
-				
-				if (string == null) {
-					disconnect();
-					return;
-				}
-				
-				Log.i(TAG, "Received command: " + string);
-				attendCommand(string);*/
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -154,13 +137,6 @@ public class GroundStationClient extends Thread {
 			break;
 		}
 	}
-	
-	/*private void attendCommand(String string) {
-		if (string == null) { return; }
-		if (string.equals(Commands.START_MISSION)) {
-			notifyAction(Commands.START_MISSION);
-		}
-	}*/
 	
 	private void notifyAction(String status) {
 		Intent intent = new Intent(status);

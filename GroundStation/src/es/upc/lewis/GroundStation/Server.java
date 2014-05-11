@@ -14,8 +14,6 @@ public class Server extends Thread {
 	int port;
 
 	Socket socket;
-	//BufferedReader input;
-	//PrintWriter output;
 	private InputStream input;
 	private OutputStream output;
 	// Buffer for read operations (bytes)
@@ -48,20 +46,6 @@ public class Server extends Thread {
 		}
 	}
 	
-	/*public void send(byte command, int value) {
-		byte[] buffer = new byte[3];
-		buffer[0] = command;
-		buffer[1] = (byte) (value >> 8);
-		buffer[2] = (byte) (value & 0xFF);
-		
-		try {
-			output.write(buffer);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}*/
-	
 	@Override
 	public void run() {
 		GUI.setUi(GUI.LISTENING);
@@ -79,12 +63,10 @@ public class Server extends Thread {
 		try {	
 			socket = serverSocket.accept();
 
-			//input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			//output = new PrintWriter(socket.getOutputStream(), true);
 			input = socket.getInputStream();
 			output = socket.getOutputStream();
 		} catch (IOException e) {
-			// Server closed
+			// ServerSocket closed
 			GUI.setUi(GUI.DISCONNECTED);
 			GUI.serverIsWorking = false;
 			return;
@@ -101,12 +83,10 @@ public class Server extends Thread {
 
 		while (true) {
 			try {
-				//string = input.readLine();
-				//attendCommand(string);
-				
 				bytes = input.read(buffer);
 				parse(buffer, bytes);
 			} catch (IOException e) {
+				GUI.setUi(GUI.DISCONNECTED);
 				return;
 			}
 		}
@@ -128,26 +108,4 @@ public class Server extends Thread {
 			break;
 		}
 	}
-	
-	/*private void attendCommand(String string) {
-		if (string == null) { return; }
-		if (string.startsWith(Commands.SENSOR_1)) {
-			String data = string.substring(Commands.SENSOR_1.length());
-			int value = Integer.parseInt(data);
-			
-			GUI.displaySensorData(Commands.SENSOR_1, value);
-		}
-		else if (string.startsWith(Commands.SENSOR_2)) {
-			String data = string.substring(Commands.SENSOR_2.length());
-			int value = Integer.parseInt(data);
-			
-			GUI.displaySensorData(Commands.SENSOR_2, value);
-		}
-		else if (string.startsWith(Commands.SENSOR_3)) {
-			String data = string.substring(Commands.SENSOR_1.length());
-			int value = Integer.parseInt(data);
-			
-			GUI.displaySensorData(Commands.SENSOR_3, value);
-		}
-	}*/
 }
