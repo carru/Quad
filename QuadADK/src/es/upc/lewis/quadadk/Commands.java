@@ -24,8 +24,8 @@ public interface Commands {
 	
 	
 	// GROUNDSTATION COMMANDS
-	public static final String START_MISSION = "start";
-	public static final String SENSOR_1 = "sensor1:";
-	public static final String SENSOR_2 = "sensor2:";
-	public static final String SENSOR_3 = "sensor3:";
+	public static final byte START_MISSION = 0x01;
+	public static final byte SENSOR_1 = 0x11;
+	public static final byte SENSOR_2 = 0x12;
+	public static final byte SENSOR_3 = 0x13;
 }

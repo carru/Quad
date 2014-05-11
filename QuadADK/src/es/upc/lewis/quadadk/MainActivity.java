@@ -325,8 +325,8 @@ public class MainActivity extends Activity {
 		Toast.makeText(this, "Starting mission", Toast.LENGTH_SHORT).show();
 	}
 	
-	private void sendSensorData(String sensor, int value) {
-		groundStation.write(sensor + Integer.toString(value));
+	private void sendSensorData(byte sensor, int value) {
+		groundStation.send(sensor, value);
 	}
 	
 	private void registerReceivers() {
@@ -398,7 +398,7 @@ public class MainActivity extends Activity {
   		  else if (action.equals(GroundStationClient.CANT_RESOLVE_HOST)) {
   			Toast.makeText(getApplicationContext(), "Can't resolve host", Toast.LENGTH_SHORT).show();
   		  }
-  		  else if (action.equals(Commands.START_MISSION)) {
+  		  else if (action.equals(GroundStationClient.START_MISSION)) {
   			mission();
   		  }
   	  }
@@ -410,7 +410,7 @@ public class MainActivity extends Activity {
       intentFilter.addAction(GroundStationClient.CONNECTING);
       intentFilter.addAction(GroundStationClient.DISCONNECTED);
       intentFilter.addAction(GroundStationClient.CANT_RESOLVE_HOST);
-      intentFilter.addAction(Commands.START_MISSION);
+      intentFilter.addAction(GroundStationClient.START_MISSION);
       return intentFilter;
   }
     

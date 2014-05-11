@@ -84,7 +84,7 @@ public class GUI {
 		btnStartMission.setEnabled(false);
 		btnStartMission.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				server.write(Commands.START_MISSION);
+				server.send(Commands.START_MISSION);
 			}
 		});
 		btnStartMission.setBounds(10, 70, 269, 23);
@@ -118,7 +118,7 @@ public class GUI {
 		JOptionPane.showMessageDialog(null, message, title, JOptionPane.ERROR_MESSAGE);
 	}
 	
-	public static void displaySensorData(final String sensor, final int value) {
+	public static void displaySensorData(final byte sensor, final int value) {
 		// Make sure we are in the proper thread
 		if (!SwingUtilities.isEventDispatchThread()) {
 			SwingUtilities.invokeLater(new Runnable() {
@@ -129,7 +129,21 @@ public class GUI {
 			});
 		}
 		
-		if (sensor.equals(Commands.SENSOR_1)) {
+		switch(sensor) {
+		case Commands.SENSOR_1:
+			sensor1Label.setText("Sensor 1: " + Integer.toString(value));
+			break;
+			
+		case Commands.SENSOR_2:
+			sensor2Label.setText("Sensor 2: " + Integer.toString(value));
+			break;
+			
+		case Commands.SENSOR_3:
+			sensor3Label.setText("Sensor 3: " + Integer.toString(value));
+			break;
+		}
+		
+		/*if (sensor.equals(Commands.SENSOR_1)) {
 			sensor1Label.setText("Sensor 1: " + Integer.toString(value));
 		}
 		else if (sensor.equals(Commands.SENSOR_2)) {
@@ -137,7 +151,7 @@ public class GUI {
 		}
 		else if (sensor.equals(Commands.SENSOR_3)) {
 			sensor3Label.setText("Sensor 3: " + Integer.toString(value));
-		}
+		}*/
 	}
 
 	public static void setUi(final int type) {

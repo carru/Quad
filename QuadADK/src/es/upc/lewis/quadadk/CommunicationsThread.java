@@ -19,7 +19,7 @@ public class CommunicationsThread extends Thread {
     // Fields
     public static final String VALUE = "4";
     
-	// Buffer for the read operations (bytes)
+	// Buffer for read operations (bytes)
 	private final int READ_BUFFER_SIZE = 1024;
 	
 	private FileInputStream mInputStream;
