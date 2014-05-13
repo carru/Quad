@@ -356,6 +356,7 @@ public class MainActivity extends Activity {
 	}
 
 	private void sendSensorData(byte sensor, int value) {
+		if (groundStation == null) { return; }
 		groundStation.send(sensor, value);
 	}
 
