@@ -118,6 +118,14 @@ void attendCommand(byte command, int value) {
     sendSensorData(DATA_SENSOR_3, sensorData);
     break;
 
+  case SET_MODE_ALTHOLD:
+    setFlightMode(MODE_ALTHOLD);
+    break;
+    
+  case SET_MODE_LOITTER:
+    setFlightMode(MODE_LOITTER);
+    break;
+  
   case SET_CH1:
   case SET_CH2:
   case SET_CH3:

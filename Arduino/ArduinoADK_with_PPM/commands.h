@@ -17,3 +17,6 @@
 #define SET_CH6 0xF6
 #define SET_CH7 0xF7
 #define SET_CH8 0xF8
+
+#define SET_MODE_ALTHOLD 0xE0
+#define SET_MODE_LOITTER 0xE1

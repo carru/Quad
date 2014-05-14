@@ -352,9 +352,11 @@ public class MainActivity extends Activity {
 
 	private void mission() {
 		Log.i(TAG, "Starting mission");
-		Toast.makeText(this, "Starting mission", Toast.LENGTH_SHORT).show();
+		//Toast.makeText(this, "Starting mission", Toast.LENGTH_SHORT).show();
+		
+		new MissionThread(comms).start();
 	}
-
+	
 	private void sendSensorData(byte sensor, int value) {
 		groundStation.send(sensor, value);
 	}

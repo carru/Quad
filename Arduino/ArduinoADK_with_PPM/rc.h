@@ -3,7 +3,7 @@
 #define MODE_LOITTER 1296
 #define MODE_AUTO    1426
 #define MODE_STB     1556
-#define MODE_ALTHOLD 1685 //1683? REVISAR!
+#define MODE_ALTHOLD 1685
 #define MODE_RTL     1900
 
 // Channels

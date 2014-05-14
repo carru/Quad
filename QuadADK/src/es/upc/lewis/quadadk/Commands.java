@@ -1,6 +1,8 @@
 package es.upc.lewis.quadadk;
 
 public interface Commands {
+	// [ SAME AS ARDUINO ]
+	
 	// SENSOR RELATED COMMANDS
 	public static final byte READ_SENSOR_1 = 0x01;
 	public static final byte DATA_SENSOR_1 = 0x11;
@@ -22,6 +24,11 @@ public interface Commands {
 	public static final byte SET_CH7 = (byte) 0xF7;
 	public static final byte SET_CH8 = (byte) 0xF8;
 	
+	public static final byte SET_MODE_ALTHOLD = (byte) 0xE0;
+	public static final byte SET_MODE_LOITTER = (byte) 0xE1;
+	
+	
+	// [/ SAME AS ARDUINO ]	
 	
 	// GROUNDSTATION COMMANDS
 	public static final byte START_MISSION = 0x01;
