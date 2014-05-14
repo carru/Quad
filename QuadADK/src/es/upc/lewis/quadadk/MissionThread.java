@@ -1,83 +1,93 @@
 package es.upc.lewis.quadadk;
 
+import android.widget.Toast;
+
 public class MissionThread extends Thread {
-	CommunicationsThread comms;
+	private static final int timeToArm = 4000; // Milliseconds
+	private static final int timeToDisarm = timeToArm; // Milliseconds
 	
-	public MissionThread(CommunicationsThread comms) {
-		this.comms = comms;
+	private CommunicationsThread arduino;
+	
+	// To show toasts (useful when testing)
+	private MainActivity activity;
+
+	public MissionThread(CommunicationsThread comms, MainActivity activity) {
+		arduino = comms;
+		this.activity = activity;
+
+		if (comms == null) { return; }
+		start();
 	}
-	
+
 	@Override
 	public void run() {
+		showToast("Arming...");
 		arm();
-		
-		try {
-			sleep((4+5) * 1000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
+
+		wait(5000);
+
+		showToast("Disarming...");
 		disarm();
 	}
-	
+
+	/**
+	 * Arms motors. Blocks for 'timeToArm' milliseconds.
+	 */
 	private void arm() {
-		final int timeToArm = 4; // Seconds
-		
-		//if (mAccessory == null) { return; }
-		
-		//Toast.makeText(this, "Arming...", Toast.LENGTH_SHORT).show();
-		
-		new Thread() {
-			public void run() {
-				comms.send(Commands.SET_MODE_ALTHOLD);
-				
-				comms.send(Commands.SET_CH1, 1500);
-				comms.send(Commands.SET_CH2, 1500);
-				comms.send(Commands.SET_CH3, 1000);
-				comms.send(Commands.SET_CH4, 2000);
-				
-				try {
-					sleep(timeToArm * 1000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-				comms.send(Commands.SET_CH1, 1500);
-				comms.send(Commands.SET_CH2, 1500);
-				comms.send(Commands.SET_CH3, 1000);
-				comms.send(Commands.SET_CH4, 1500);
-			};
-		}.start();
+		// Set flight mode to altitude hold (can't arm in loitter)
+		arduino.send(Commands.SET_MODE_ALTHOLD);
+
+		arduino.send(Commands.SET_CH1, 1500);
+		arduino.send(Commands.SET_CH2, 1500);
+		arduino.send(Commands.SET_CH3, 1000);
+		arduino.send(Commands.SET_CH4, 2000);
+
+		wait(timeToArm);
+
+		arduino.send(Commands.SET_CH1, 1500);
+		arduino.send(Commands.SET_CH2, 1500);
+		arduino.send(Commands.SET_CH3, 1000);
+		arduino.send(Commands.SET_CH4, 1500);
+	}
+
+	/**
+	 * Disarms motors. Blocks for 'timeToDisarm' milliseconds.
+	 */
+	private void disarm() {
+		arduino.send(Commands.SET_CH1, 1500);
+		arduino.send(Commands.SET_CH2, 1500);
+		arduino.send(Commands.SET_CH3, 1000);
+		arduino.send(Commands.SET_CH4, 1000);
+
+		wait(timeToDisarm);
+
+		arduino.send(Commands.SET_CH1, 1500);
+		arduino.send(Commands.SET_CH2, 1500);
+		arduino.send(Commands.SET_CH3, 1000);
+		arduino.send(Commands.SET_CH4, 1500);
+	}
+
+	/**
+	 * Sleep
+	 * @param time in milliseconds
+	 */
+	private void wait(int time) {
+		try {
+			sleep(time);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 	
-	private void disarm() {
-		final int timeToArm = 4; // Seconds
-		
-		//if (mAccessory == null) { return; }
-		
-		//Toast.makeText(this, "Disarming...", Toast.LENGTH_SHORT).show();
-		
-		new Thread() {
+	/**
+	 * Show a Toast
+	 * @param text to show
+	 */
+	private void showToast(final String text) {
+		activity.runOnUiThread(new Runnable() {
 			public void run() {
-				comms.send(Commands.SET_CH1, 1500);
-				comms.send(Commands.SET_CH2, 1500);
-				comms.send(Commands.SET_CH3, 1000);
-				comms.send(Commands.SET_CH4, 1000);
-				
-				try {
-					sleep(timeToArm * 1000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-				comms.send(Commands.SET_CH1, 1500);
-				comms.send(Commands.SET_CH2, 1500);
-				comms.send(Commands.SET_CH3, 1000);
-				comms.send(Commands.SET_CH4, 1500);
-			};
-		}.start();
+				Toast.makeText(activity, text, Toast.LENGTH_SHORT).show();
+			}
+		});
 	}
 }

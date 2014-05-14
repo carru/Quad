@@ -354,7 +354,7 @@ public class MainActivity extends Activity {
 		Log.i(TAG, "Starting mission");
 		//Toast.makeText(this, "Starting mission", Toast.LENGTH_SHORT).show();
 		
-		new MissionThread(comms).start();
+		new MissionThread(comms, this);
 	}
 	
 	private void sendSensorData(byte sensor, int value) {
