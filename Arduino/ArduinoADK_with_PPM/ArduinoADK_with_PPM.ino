@@ -128,6 +128,10 @@ void attendCommand(byte command, int value) {
   case SET_MODE_LOITTER:
     setFlightMode(MODE_LOITTER);
     break;
+    
+  case SET_MODE_RTL:
+    setFlightMode(MODE_RTL);
+    break;
   
   case SET_CH1:
   case SET_CH2:

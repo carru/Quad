@@ -24,4 +24,5 @@ public interface ArduinoCommands {
 	
 	public static final byte SET_MODE_ALTHOLD = (byte) 0xE0;
 	public static final byte SET_MODE_LOITTER = (byte) 0xE1;
+	public static final byte SET_MODE_RTL     = (byte) 0xE2;
 }

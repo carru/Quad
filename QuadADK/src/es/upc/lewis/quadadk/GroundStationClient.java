@@ -24,6 +24,7 @@ public class GroundStationClient extends Thread {
 	public static final String DISCONNECTED = "disconnected";
 	public static final String CANT_RESOLVE_HOST = "host_error";
 	public static final String START_MISSION = "start";
+	public static final String ABORT_MISSION = "abort";
 	
 	private String ip;
 	private int port;
@@ -134,6 +135,10 @@ public class GroundStationClient extends Thread {
 		switch(data[0]) {
 		case GroundStationCommands.START_MISSION:
 			notifyAction(START_MISSION);
+			break;
+			
+		case GroundStationCommands.ABORT_MISSION:
+			notifyAction(ABORT_MISSION);
 			break;
 		}
 	}

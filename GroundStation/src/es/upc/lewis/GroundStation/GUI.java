@@ -12,6 +12,7 @@ public class GUI {
 	private static JLabel statusLabel;
 	private static JButton startButton;
 	private static JButton btnStartMission;
+	private static JButton btnAbort;
 	private static JLabel sensor1Label;
 	private static JLabel sensor2Label;
 	private static JLabel sensor3Label;
@@ -112,6 +113,16 @@ public class GUI {
 		portText.setBounds(47, 8, 68, 20);
 		frmGroundstation.getContentPane().add(portText);
 		portText.setColumns(10);
+		
+		btnAbort = new JButton("Abort (return to launch)");
+		btnAbort.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				server.send(GroundStationCommands.ABORT_MISSION);
+			}
+		});
+		btnAbort.setEnabled(false);
+		btnAbort.setBounds(10, 179, 269, 23);
+		frmGroundstation.getContentPane().add(btnAbort);
 	}
 	
 	public static void showErrorDialog(String message, String title) {
@@ -170,17 +181,21 @@ public class GUI {
 			statusLabel.setText("Status: Connected");
 			startButton.setText("Stop server");
 			btnStartMission.setEnabled(true);
-			
+			btnAbort.setEnabled(true);
 			break;
+			
 		case DISCONNECTED:
 			statusLabel.setText("Status: Disconnected");
 			startButton.setText("Start server");
 			btnStartMission.setEnabled(false);
+			btnAbort.setEnabled(false);
 			break;
+			
 		case LISTENING:
 			statusLabel.setText("Status: Listening");
 			startButton.setText("Stop server");
 			btnStartMission.setEnabled(false);
+			btnAbort.setEnabled(false);
 			break;
 		}
 	}
