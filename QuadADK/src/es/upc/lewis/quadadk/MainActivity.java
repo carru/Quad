@@ -131,13 +131,13 @@ public class MainActivity extends Activity {
 
 			switch (v.getId()) {
 			case R.id.read_sensor_1_button:
-				comms.send(Commands.READ_SENSOR_1);
+				comms.send(ArduinoCommands.READ_SENSOR_1);
 				break;
 			case R.id.read_sensor_2_button:
-				comms.send(Commands.READ_SENSOR_2);
+				comms.send(ArduinoCommands.READ_SENSOR_2);
 				break;
 			case R.id.read_sensor_3_button:
-				comms.send(Commands.READ_SENSOR_3);
+				comms.send(ArduinoCommands.READ_SENSOR_3);
 				break;
 			}
 		}
@@ -152,28 +152,28 @@ public class MainActivity extends Activity {
 
 			switch (v.getId()) {
 			case R.id.button1:
-				comms.send(Commands.SET_CH1, 1250);
+				comms.send(ArduinoCommands.SET_CH1, 1250);
 				break;
 			case R.id.button2:
-				comms.send(Commands.SET_CH1, 1750);
+				comms.send(ArduinoCommands.SET_CH1, 1750);
 				break;
 			case R.id.button3:
-				comms.send(Commands.SET_CH2, 1250);
+				comms.send(ArduinoCommands.SET_CH2, 1250);
 				break;
 			case R.id.button4:
-				comms.send(Commands.SET_CH2, 1750);
+				comms.send(ArduinoCommands.SET_CH2, 1750);
 				break;
 			case R.id.button5:
-				comms.send(Commands.SET_CH3, 1250);
+				comms.send(ArduinoCommands.SET_CH3, 1250);
 				break;
 			case R.id.button6:
-				comms.send(Commands.SET_CH3, 1750);
+				comms.send(ArduinoCommands.SET_CH3, 1750);
 				break;
 			case R.id.button7:
-				comms.send(Commands.SET_CH4, 1250);
+				comms.send(ArduinoCommands.SET_CH4, 1250);
 				break;
 			case R.id.button8:
-				comms.send(Commands.SET_CH4, 1750);
+				comms.send(ArduinoCommands.SET_CH4, 1750);
 				break;
 			}
 		}
@@ -431,15 +431,15 @@ public class MainActivity extends Activity {
 			if (action
 					.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_1)) {
 				sensor1Text.setText(Integer.toString(value));
-				sendSensorData(Commands.SENSOR_1, value);
+				sendSensorData(GroundStationCommands.SENSOR_1, value);
 			} else if (action
 					.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_2)) {
 				sensor2Text.setText(Integer.toString(value));
-				sendSensorData(Commands.SENSOR_2, value);
+				sendSensorData(GroundStationCommands.SENSOR_2, value);
 			} else if (action
 					.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_3)) {
 				sensor3Text.setText(Integer.toString(value));
-				sendSensorData(Commands.SENSOR_3, value);
+				sendSensorData(GroundStationCommands.SENSOR_3, value);
 			}
 		}
 	};

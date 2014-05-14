@@ -35,36 +35,36 @@ public class MissionThread extends Thread {
 	 */
 	private void arm() {
 		// Set flight mode to altitude hold (can't arm in loitter)
-		arduino.send(Commands.SET_MODE_ALTHOLD);
+		arduino.send(ArduinoCommands.SET_MODE_ALTHOLD);
 
-		arduino.send(Commands.SET_CH1, 1500);
-		arduino.send(Commands.SET_CH2, 1500);
-		arduino.send(Commands.SET_CH3, 1000);
-		arduino.send(Commands.SET_CH4, 2000);
+		arduino.send(ArduinoCommands.SET_CH1, 1500);
+		arduino.send(ArduinoCommands.SET_CH2, 1500);
+		arduino.send(ArduinoCommands.SET_CH3, 1000);
+		arduino.send(ArduinoCommands.SET_CH4, 2000);
 
 		wait(timeToArm);
 
-		arduino.send(Commands.SET_CH1, 1500);
-		arduino.send(Commands.SET_CH2, 1500);
-		arduino.send(Commands.SET_CH3, 1000);
-		arduino.send(Commands.SET_CH4, 1500);
+		arduino.send(ArduinoCommands.SET_CH1, 1500);
+		arduino.send(ArduinoCommands.SET_CH2, 1500);
+		arduino.send(ArduinoCommands.SET_CH3, 1000);
+		arduino.send(ArduinoCommands.SET_CH4, 1500);
 	}
 
 	/**
 	 * Disarms motors. Blocks for 'timeToDisarm' milliseconds.
 	 */
 	private void disarm() {
-		arduino.send(Commands.SET_CH1, 1500);
-		arduino.send(Commands.SET_CH2, 1500);
-		arduino.send(Commands.SET_CH3, 1000);
-		arduino.send(Commands.SET_CH4, 1000);
+		arduino.send(ArduinoCommands.SET_CH1, 1500);
+		arduino.send(ArduinoCommands.SET_CH2, 1500);
+		arduino.send(ArduinoCommands.SET_CH3, 1000);
+		arduino.send(ArduinoCommands.SET_CH4, 1000);
 
 		wait(timeToDisarm);
 
-		arduino.send(Commands.SET_CH1, 1500);
-		arduino.send(Commands.SET_CH2, 1500);
-		arduino.send(Commands.SET_CH3, 1000);
-		arduino.send(Commands.SET_CH4, 1500);
+		arduino.send(ArduinoCommands.SET_CH1, 1500);
+		arduino.send(ArduinoCommands.SET_CH2, 1500);
+		arduino.send(ArduinoCommands.SET_CH3, 1000);
+		arduino.send(ArduinoCommands.SET_CH4, 1500);
 	}
 
 	/**

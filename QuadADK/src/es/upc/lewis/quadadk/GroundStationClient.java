@@ -132,7 +132,7 @@ public class GroundStationClient extends Thread {
 	
 	private void parse(byte[] data, int bytes) {
 		switch(data[0]) {
-		case Commands.START_MISSION:
+		case GroundStationCommands.START_MISSION:
 			notifyAction(START_MISSION);
 			break;
 		}

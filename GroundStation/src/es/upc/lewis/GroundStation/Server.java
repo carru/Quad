@@ -7,7 +7,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 
-import es.upc.lewis.quadadk.Commands;
+import es.upc.lewis.quadadk.GroundStationCommands;
 
 public class Server extends Thread {
 	private ServerSocket serverSocket;
@@ -94,9 +94,9 @@ public class Server extends Thread {
 	
 	private void parse(byte[] data, int bytes) {
 		switch(data[0]) {
-		case Commands.SENSOR_1:
-		case Commands.SENSOR_2:
-		case Commands.SENSOR_3:
+		case GroundStationCommands.SENSOR_1:
+		case GroundStationCommands.SENSOR_2:
+		case GroundStationCommands.SENSOR_3:
 			if (bytes != 5) { break; }
 			
 			// Get integer (4 bytes)

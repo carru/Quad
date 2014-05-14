@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
-import es.upc.lewis.quadadk.Commands;
+import es.upc.lewis.quadadk.GroundStationCommands;
 
 public class GUI {
 	// UI
@@ -84,7 +84,7 @@ public class GUI {
 		btnStartMission.setEnabled(false);
 		btnStartMission.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				server.send(Commands.START_MISSION);
+				server.send(GroundStationCommands.START_MISSION);
 			}
 		});
 		btnStartMission.setBounds(10, 70, 269, 23);
@@ -130,15 +130,15 @@ public class GUI {
 		}
 		
 		switch(sensor) {
-		case Commands.SENSOR_1:
+		case GroundStationCommands.SENSOR_1:
 			sensor1Label.setText("Sensor 1: " + Integer.toString(value));
 			break;
 			
-		case Commands.SENSOR_2:
+		case GroundStationCommands.SENSOR_2:
 			sensor2Label.setText("Sensor 2: " + Integer.toString(value));
 			break;
 			
-		case Commands.SENSOR_3:
+		case GroundStationCommands.SENSOR_3:
 			sensor3Label.setText("Sensor 3: " + Integer.toString(value));
 			break;
 		}

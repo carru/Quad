@@ -1,8 +1,7 @@
 package es.upc.lewis.quadadk;
 
-public interface Commands {
-	// [ SAME AS ARDUINO ]
-	
+// These constants have to be the same as commands.h (Arduino source)
+public interface ArduinoCommands {
 	// SENSOR RELATED COMMANDS
 	public static final byte READ_SENSOR_1 = 0x01;
 	public static final byte DATA_SENSOR_1 = 0x11;
@@ -12,7 +11,6 @@ public interface Commands {
 	
 	public static final byte READ_SENSOR_3 = 0x03;
 	public static final byte DATA_SENSOR_3 = 0x13;
-	
 	
 	// RC RELATED COMMANDS
 	public static final byte SET_CH1 = (byte) 0xF1;
@@ -26,13 +24,4 @@ public interface Commands {
 	
 	public static final byte SET_MODE_ALTHOLD = (byte) 0xE0;
 	public static final byte SET_MODE_LOITTER = (byte) 0xE1;
-	
-	
-	// [/ SAME AS ARDUINO ]	
-	
-	// GROUNDSTATION COMMANDS
-	public static final byte START_MISSION = 0x01;
-	public static final byte SENSOR_1 = 0x11;
-	public static final byte SENSOR_2 = 0x12;
-	public static final byte SENSOR_3 = 0x13;
 }

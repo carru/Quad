@@ -83,15 +83,15 @@ public class CommunicationsThread extends Thread {
 		Intent intent;
 		
 		switch (buffer[0]) {
-		case Commands.DATA_SENSOR_1:
+		case ArduinoCommands.DATA_SENSOR_1:
 			intent = new Intent(ACTION_DATA_AVAILABLE_SENSOR_1);
 			break;
 			
-		case Commands.DATA_SENSOR_2:
+		case ArduinoCommands.DATA_SENSOR_2:
 			intent = new Intent(ACTION_DATA_AVAILABLE_SENSOR_2);
 			break;
 			
-		case Commands.DATA_SENSOR_3:
+		case ArduinoCommands.DATA_SENSOR_3:
 			intent = new Intent(ACTION_DATA_AVAILABLE_SENSOR_3);
 			break;
 			
