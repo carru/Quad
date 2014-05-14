@@ -18,8 +18,11 @@ AndroidAccessory acc("UPC", "ArduinoADK", "Description","1.0", "URI", "Serial");
 #define PPM_FrLen 27000  // PPM frame length in microseconds
 #define PPM_PulseLen 400 // Pulse length in microseconds
 #define onState 0        // Polarity of the pulses: 1 is positive, 0 is negative
-#define ppmOutPin 49     // PPM signal output pin on the arduino
-#define ppmInPin 41       // PPM signal input pin on the arduino
+
+#define ppmOutPin 49 // PPM signal output pin on the arduino
+#define ppmInPin 41  // PPM signal input pin on the arduino
+
+#define PULSEIN_TIMEOUT 1000 // Timeout to read RC frames in microseconds
 
 int ppm[chanel_number];    // PPM generator reads these values
 int ppm_in[chanel_number]; // RC PPM values are stored here
@@ -178,10 +181,10 @@ void loop() {
   byte receivedCommand;
 
   // Read PPM frame
-  if (pulseIn(ppmInPin, HIGH) > 3000) // New PPM frame starts after this long pulse
+  if (pulseIn(ppmInPin, HIGH, PULSEIN_TIMEOUT) > 3000) // New PPM frame starts after this long pulse
   {
     for (int i = 0; i <= chanel_number-1; i++) { // Read channels
-      ppm_in[i] = pulseIn(ppmInPin, HIGH) + PPM_PulseLen;
+      ppm_in[i] = pulseIn(ppmInPin, HIGH, PULSEIN_TIMEOUT) + PPM_PulseLen;
     }
   }
   
