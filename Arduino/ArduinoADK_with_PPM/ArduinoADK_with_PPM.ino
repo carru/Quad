@@ -22,10 +22,15 @@ AndroidAccessory acc("UPC", "ArduinoADK", "Description","1.0", "URI", "Serial");
 #define ppmOutPin 49 // PPM signal output pin on the arduino
 #define ppmInPin 41  // PPM signal input pin on the arduino
 
-#define PULSEIN_TIMEOUT 1000 // Timeout to read RC frames in microseconds
+#define PULSEIN_TIMEOUT 50000 // Timeout to read RC frames in microseconds
 
 int ppm[chanel_number];    // PPM generator reads these values
 int ppm_in[chanel_number]; // RC PPM values are stored here
+
+boolean ledFramesToToggle = 5; // Toggle LED when we've received this many RC frames
+int ledPort = 13;
+int ledCount = 0;
+boolean ledStatus = true;
 
 boolean mode;
 #define AUTO true
@@ -36,6 +41,8 @@ void setup() {
   Serial.begin(115200);
   Serial.println("Start");
 
+  // Blinking LED (RC)
+  pinMode(ledPort, OUTPUT);
 
   // ADK
   acc.powerOn();
@@ -56,8 +63,8 @@ void setup() {
   TCCR1B |= (1 << CS11);  // 8 prescaler: 0,5 microseconds at 16mhz
   TIMSK1 |= (1 << OCIE1A); // enable timer compare interrupt
   sei();
-  
-  
+
+
   // Initialize ppm values
   setFlightMode(MODE_LOITTER); // Will probably have to change to MODE_ALTHOLD to arm motors
   setSlidersNeutralNoThrotle();
@@ -81,11 +88,15 @@ void sendSensorData(byte sensor, long value) {
 }
 
 void setPPMChannel(int channel, int value) {
-  if (mode == MANUAL) { return; }
-  
+  if (mode == MANUAL) { 
+    return; 
+  }
+
   // Reject out of range values
-  if (value < 1000 || value > 2000) { return; }
-  
+  if (value < 1000 || value > 2000) { 
+    return; 
+  }
+
   ppm[channel-1] = value;
 }
 
@@ -124,15 +135,15 @@ void attendCommand(byte command, int value) {
   case SET_MODE_ALTHOLD:
     setFlightMode(MODE_ALTHOLD);
     break;
-    
+
   case SET_MODE_LOITTER:
     setFlightMode(MODE_LOITTER);
     break;
-    
+
   case SET_MODE_RTL:
     setFlightMode(MODE_RTL);
     break;
-  
+
   case SET_CH1:
   case SET_CH2:
   case SET_CH3:
@@ -156,9 +167,9 @@ void setSlidersNeutral() {
   setPPMChannel(CH_PITCH, 1500);
   setPPMChannel(CH_THROTLE, 1500);
   setPPMChannel(CH_YAW, 1500);
-  
+
   setPPMChannel(CH_SWITCH, 1000); // No simple mode
-  
+
   // Unused channels
   setPPMChannel(6, 1000);
   setPPMChannel(8, 1000);
@@ -169,9 +180,9 @@ void setSlidersNeutralNoThrotle() {
   setPPMChannel(CH_PITCH, 1500);
   setPPMChannel(CH_THROTLE, 1000);
   setPPMChannel(CH_YAW, 1500);
-  
+
   setPPMChannel(CH_SWITCH, 1000); // No simple mode
-  
+
   // Unused channels
   setPPMChannel(6, 1000);
   setPPMChannel(8, 1000);
@@ -190,8 +201,23 @@ void loop() {
     for (int i = 0; i <= chanel_number-1; i++) { // Read channels
       ppm_in[i] = pulseIn(ppmInPin, HIGH, PULSEIN_TIMEOUT) + PPM_PulseLen;
     }
+    
+    // Blink LED
+    ledCount++;
+    if (ledCount > ledFramesToToggle) {
+      ledCount = 0;
+
+      if (ledStatus) {
+        ledStatus = false;
+        digitalWrite(ledPort, HIGH);
+      } 
+      else {
+        ledStatus = true;
+        digitalWrite(ledPort, LOW);
+      }
+    }
   }
-  
+
   // Check RC mode
   if (ppm_in[CH_SWITCH-1] > 1500) { // Switch on high position (auto)
     if (mode == MANUAL) {
@@ -200,7 +226,8 @@ void loop() {
       // Set channels to neutral position (loitter).
       setFlightMode(MODE_LOITTER);
       setSlidersNeutral();
-    } else {
+    } 
+    else {
       // Was already in auto mode
       // Do nothing
     }
@@ -229,7 +256,7 @@ void loop() {
       int value = bufferI[1];
       value = value << 8; // HSB read
       value = value + bufferI[2]; // LSB read
-      
+
       attendCommand(receivedCommand, value);
     }
     else {
@@ -269,4 +296,5 @@ ISR(TIMER1_COMPA_vect){
     }     
   }
 }
+
 
