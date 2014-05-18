@@ -125,7 +125,10 @@ public class MainActivity extends Activity {
 	private OnClickListener readSensorButtonListener = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
-			if (mAccessory == null) {
+			// Debug
+			sendSensorData(GroundStationCommands.SENSOR_1, 123456789);
+			
+			/*if (mAccessory == null) {
 				return;
 			}
 
@@ -139,7 +142,7 @@ public class MainActivity extends Activity {
 			case R.id.read_sensor_3_button:
 				comms.send(ArduinoCommands.READ_SENSOR_3);
 				break;
-			}
+			}*/
 		}
 	};
 

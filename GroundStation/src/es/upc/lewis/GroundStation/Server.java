@@ -109,9 +109,8 @@ public class Server extends Thread {
 			bBuffer = ByteBuffer.wrap(buffer, 0, 4);
 			int value = bBuffer.getInt();
 			
+			SaveData.saveSensor1(value); // This is just a placeholder
 			GUI.displaySensorData(command, value);
-			
-			//TODO: save sensor data
 			
 			break;
 			
@@ -124,11 +123,8 @@ public class Server extends Thread {
 			// Read picture
 			byte[] picture = new byte[length];
 			for (int i=0; i<length; i++) { picture[i] = (byte) input.read(); }
-			
-			//TODO: show picture in the GUI
-			//TODO: save picture
-			
-			GUI.showErrorDialog(Integer.toString(picture.length), "Picture");
+
+			SaveData.savePicture(picture);
 			
 			break;
 		}
