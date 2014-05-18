@@ -41,10 +41,10 @@ public class MainActivity extends Activity {
 	private CommunicationsThread comms;
 
 	// Class to communicate with the GroundStation
-	private GroundStationClient groundStation;
+	public static GroundStationClient groundStation;
 
 	// Camera
-	private SimpleCamera camera;
+	public static SimpleCamera camera;
 	
 	// Location
 	private MyLocation locationProvider;

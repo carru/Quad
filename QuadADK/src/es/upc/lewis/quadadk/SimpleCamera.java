@@ -87,6 +87,7 @@ public class SimpleCamera {
 	    public void onPictureTaken(byte[] data, Camera camera) {
 	    	Log.i(TAG, "Picture taken");
 
+	    	// Save picture
 	        File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
 	        if (pictureFile == null){
 	            Log.d(TAG, "Error creating media file.");
@@ -102,8 +103,15 @@ public class SimpleCamera {
 	        } catch (IOException e) {
 	            Log.d(TAG, "Error accessing file: " + e.getMessage());
 	        }
+	        
+	        // Send picture to GroundStation
+	        sendPicture(data);
 	    }
 	};
+	
+	private void sendPicture(byte[] data) {
+		if (MainActivity.groundStation != null) { MainActivity.groundStation.sendPicture(data); }
+	}
 	
 	/*private Uri getOutputMediaFileUri(int type){
 	      return Uri.fromFile(getOutputMediaFile(type));

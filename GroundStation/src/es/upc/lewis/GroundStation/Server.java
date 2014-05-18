@@ -6,7 +6,6 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-
 import es.upc.lewis.quadadk.GroundStationCommands;
 
 public class Server extends Thread {
@@ -18,7 +17,7 @@ public class Server extends Thread {
 	private OutputStream output;
 	// Buffer for read operations (bytes)
 	private final int READ_BUFFER_SIZE = 1024;
-
+	
 	public Server(int port) {
 		this.port = port;
 		GUI.serverIsWorking = true;
@@ -77,14 +76,15 @@ public class Server extends Thread {
 	}
 
 	private void readLoop() {
-		//String string;
-		byte[] buffer = new byte[READ_BUFFER_SIZE];
-		int bytes;
+		//byte[] buffer = new byte[READ_BUFFER_SIZE];
+		//int bytes;
 
 		while (true) {
 			try {
-				bytes = input.read(buffer);
-				parse(buffer, bytes);
+				//bytes = input.read(buffer);
+				//parse(buffer, bytes);
+				
+				attendCommand((byte) input.read());
 			} catch (IOException e) {
 				GUI.setUi(GUI.DISCONNECTED);
 				return;
@@ -92,18 +92,43 @@ public class Server extends Thread {
 		}
 	}
 	
-	private void parse(byte[] data, int bytes) {
-		switch(data[0]) {
+	private void attendCommand(byte command) throws IOException {
+		byte[] buffer = new byte[READ_BUFFER_SIZE];
+		int bytes;
+		
+		ByteBuffer bBuffer;
+		
+		switch(command) {
 		case GroundStationCommands.SENSOR_1:
 		case GroundStationCommands.SENSOR_2:
 		case GroundStationCommands.SENSOR_3:
-			if (bytes != 5) { break; }
+			bytes = input.read(buffer);
+			if (bytes < 4) { break; }
 			
 			// Get integer (4 bytes)
-			ByteBuffer bBuffer = ByteBuffer.wrap(data, 1, 4);
+			bBuffer = ByteBuffer.wrap(buffer, 0, 4);
 			int value = bBuffer.getInt();
 			
-			GUI.displaySensorData(data[0], value);
+			GUI.displaySensorData(command, value);
+			
+			//TODO: save sensor data
+			
+			break;
+			
+		case GroundStationCommands.PICTURE_START:
+			// Get data length (4 bytes)
+			for (int i=0; i<4; i++) { buffer[i] = (byte) input.read(); }
+			bBuffer = ByteBuffer.wrap(buffer, 0, 4);
+			int length = bBuffer.getInt();
+			
+			// Read picture
+			byte[] picture = new byte[length];
+			for (int i=0; i<length; i++) { picture[i] = (byte) input.read(); }
+			
+			//TODO: show picture in the GUI
+			//TODO: save picture
+			
+			GUI.showErrorDialog(Integer.toString(picture.length), "Picture");
 			
 			break;
 		}
