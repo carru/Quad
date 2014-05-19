@@ -146,4 +146,15 @@ public class MissionUtils {
 			}
 		});
 	}
+	
+	/**
+	 * End mission. Must be called at the end of your mission
+	 */
+	public void endMission() {
+		// Clear / stop additional threads that were working
+		// (maybe added in the future)
+		
+		// Notify mission is over
+		MainActivity.isMissionRunning = false;
+	}
 }

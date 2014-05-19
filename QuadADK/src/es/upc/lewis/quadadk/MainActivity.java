@@ -58,6 +58,9 @@ public class MainActivity extends Activity {
 	private MyLocation locationProvider;
 	private Location location;
 
+	// Is mission running? (Allow only one instance)
+	public static volatile boolean isMissionRunning = false;
+	
 	// Preferences to store socket details
 	SharedPreferences sharedPreferences;
 	SharedPreferences.Editor sharedPreferencesEditor;
@@ -363,9 +366,11 @@ public class MainActivity extends Activity {
 
 	private void mission() {
 		Log.i(TAG, "Starting mission");
-		//Toast.makeText(this, "Starting mission", Toast.LENGTH_SHORT).show();
 		
-		new MissionThread(comms, this);
+		if (!isMissionRunning) {
+			isMissionRunning = true;
+			new MissionThread(comms, this);
+		}
 	}
 	
 	private void sendSensorData(byte sensor, int value) {

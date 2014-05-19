@@ -54,8 +54,9 @@ public class MissionThread extends Thread {
 			utils.disarm();
 		} catch (AbortException e) {
 			// Mission has been aborted
-			return;
 		}
+		
+		utils.endMission();
 	}
 
 	/**
