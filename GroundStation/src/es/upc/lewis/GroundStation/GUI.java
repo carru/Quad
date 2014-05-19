@@ -1,14 +1,21 @@
 package es.upc.lewis.GroundStation;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
+
+import java.awt.Image;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 import es.upc.lewis.quadadk.GroundStationCommands;
 
 public class GUI {
 	// UI
-	private JFrame frmGroundstation;
+	private static JFrame frmGroundstation;
 	private static JLabel statusLabel;
 	private static JButton startButton;
 	private static JButton btnStartMission;
@@ -18,6 +25,7 @@ public class GUI {
 	private static JLabel sensor3Label;
 	private JLabel lblPort;
 	private JTextField portText;
+	private static JLabel pictureLabel;
 	// UI states
 	public static final int CONNECTED = 1;
 	public static final int DISCONNECTED = 2;
@@ -34,8 +42,10 @@ public class GUI {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					GUI window = new GUI();
-					window.frmGroundstation.setVisible(true);
+					//GUI window = new GUI();
+					//window.frmGroundstation.setVisible(true);
+					new GUI();
+					GUI.frmGroundstation.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -57,12 +67,12 @@ public class GUI {
 		frmGroundstation = new JFrame();
 		frmGroundstation.setResizable(false);
 		frmGroundstation.setTitle("GroundStation");
-		frmGroundstation.setBounds(100, 100, 295, 300);
+		frmGroundstation.setBounds(100, 100, 618, 363);
 		frmGroundstation.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmGroundstation.getContentPane().setLayout(null);
 		
 		statusLabel = new JLabel("Status: Disconnected");
-		statusLabel.setBounds(125, 40, 154, 14);
+		statusLabel.setBounds(125, 40, 125, 14);
 		frmGroundstation.getContentPane().add(statusLabel);
 		
 		startButton = new JButton("Start server");
@@ -88,19 +98,19 @@ public class GUI {
 				server.send(GroundStationCommands.START_MISSION);
 			}
 		});
-		btnStartMission.setBounds(10, 70, 269, 23);
+		btnStartMission.setBounds(10, 90, 240, 40);
 		frmGroundstation.getContentPane().add(btnStartMission);
 		
 		sensor1Label = new JLabel("Sensor 1: ");
-		sensor1Label.setBounds(10, 104, 269, 14);
+		sensor1Label.setBounds(20, 259, 230, 14);
 		frmGroundstation.getContentPane().add(sensor1Label);
 		
 		sensor2Label = new JLabel("Sensor 2: ");
-		sensor2Label.setBounds(10, 129, 269, 14);
+		sensor2Label.setBounds(20, 284, 230, 14);
 		frmGroundstation.getContentPane().add(sensor2Label);
 		
 		sensor3Label = new JLabel("Sensor 3: ");
-		sensor3Label.setBounds(10, 154, 269, 14);
+		sensor3Label.setBounds(20, 309, 230, 14);
 		frmGroundstation.getContentPane().add(sensor3Label);
 		
 		lblPort = new JLabel("Port");
@@ -121,8 +131,16 @@ public class GUI {
 			}
 		});
 		btnAbort.setEnabled(false);
-		btnAbort.setBounds(10, 179, 269, 23);
+		btnAbort.setBounds(10, 141, 240, 40);
 		frmGroundstation.getContentPane().add(btnAbort);
+		
+		pictureLabel = new JLabel("Last taken picture will appear here", SwingConstants.CENTER);
+		pictureLabel.setBounds(260, 11, 342, 312);
+		frmGroundstation.getContentPane().add(pictureLabel);
+		
+		JLabel lblSensorValues = new JLabel("Sensor values");
+		lblSensorValues.setBounds(10, 230, 240, 14);
+		frmGroundstation.getContentPane().add(lblSensorValues);
 	}
 	
 	public static void showErrorDialog(String message, String title) {
@@ -153,16 +171,30 @@ public class GUI {
 			sensor3Label.setText("Sensor 3: " + Integer.toString(value));
 			break;
 		}
+	}
+	
+	public static void displayPicture(final byte[] picture) {
+		// Make sure we are in the proper thread
+		if (!SwingUtilities.isEventDispatchThread()) {
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					displayPicture(picture);
+				}
+			});
+		}
 		
-		/*if (sensor.equals(Commands.SENSOR_1)) {
-			sensor1Label.setText("Sensor 1: " + Integer.toString(value));
+		// Image needs to be scaled
+		InputStream in = new ByteArrayInputStream(picture);
+		BufferedImage image;
+		try {
+			image = ImageIO.read(in);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return;
 		}
-		else if (sensor.equals(Commands.SENSOR_2)) {
-			sensor2Label.setText("Sensor 2: " + Integer.toString(value));
-		}
-		else if (sensor.equals(Commands.SENSOR_3)) {
-			sensor3Label.setText("Sensor 3: " + Integer.toString(value));
-		}*/
+		Image scaledImage = image.getScaledInstance(pictureLabel.getWidth(), pictureLabel.getHeight(), Image.SCALE_SMOOTH);
+		pictureLabel.setIcon(new ImageIcon(scaledImage));
 	}
 
 	public static void setUi(final int type) {

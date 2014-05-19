@@ -72,51 +72,7 @@ public class GroundStationClient extends Thread {
 		}
 	}
 	
-	/*public void sendPicture(byte[] data) {
-		int PACKET_SIZE = 1024;
-
-		Log.d(TAG, "Picture size: " + Integer.toString(data.length) + " bytes");
-		
-		ArrayList<Byte> picture = new ArrayList<Byte>(data.length);
-		for (int i=0; i<data.length; i++) { picture.add(data[i]); }
-		
-		byte[] buffer = new byte[PACKET_SIZE];
-		// Send picture as blocks of PACKET_SIZE bytes (1 of them being a header)
-		while(picture.size() > (PACKET_SIZE - 1)) {
-			Log.d(TAG, "Sending picture block");
-			
-			buffer[0] = GroundStationCommands.PICTURE_START;
-			for (int i=1; i<PACKET_SIZE; i++) { buffer[i] = picture.remove(0); }
-			
-			try {
-				output.write(buffer);
-				output.flush();
-			} catch (IOException e) {
-				e.printStackTrace();
-				return;
-			}
-		}
-		
-		// Send the last block
-		if (picture.size() > 0) {
-			buffer = new byte[picture.size() + 1];
-			
-			buffer[0] = GroundStationCommands.PICTURE_END;
-			for (int i=0; i<picture.size(); i++) { buffer[i+1] = picture.remove(0); }
-			
-			try {
-				output.write(buffer);
-				output.flush();
-			} catch (IOException e) {
-				e.printStackTrace();
-				return;
-			}
-		}
-	}*/
-	
 	public void sendPicture(byte[] data) {
-		Log.d(TAG, "Picture size: " + Integer.toString(data.length) + " bytes");
-		
 		send(GroundStationCommands.PICTURE_START, data.length);
 		
 		try {

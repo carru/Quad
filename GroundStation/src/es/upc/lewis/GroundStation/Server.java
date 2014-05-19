@@ -125,6 +125,7 @@ public class Server extends Thread {
 			for (int i=0; i<length; i++) { picture[i] = (byte) input.read(); }
 
 			SaveData.savePicture(picture);
+			GUI.displayPicture(picture);
 			
 			break;
 		}

@@ -125,8 +125,8 @@ public class MainActivity extends Activity {
 	private OnClickListener readSensorButtonListener = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
-			// Debug
-			sendSensorData(GroundStationCommands.SENSOR_1, 123456789);
+			// Debug. Send predefined sensor value to the server
+			sendSensorData(GroundStationCommands.SENSOR_1, -123456789);
 			
 			/*if (mAccessory == null) {
 				return;

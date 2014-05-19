@@ -28,7 +28,7 @@ public class SaveData {
 	}
 	
 	public static void savePicture(byte[] picture) {
-		String fileName = new SimpleDateFormat("'IMG_'yyyyMMdd_hhmm'.jpg'").format(new Date());
+		String fileName = new SimpleDateFormat("'IMG_'yyyyMMdd_hhmmss'.jpg'").format(new Date());
 		FileOutputStream writer;
 		
 		try {
