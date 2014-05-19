@@ -6,7 +6,8 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import es.upc.lewis.quadadk.GroundStationCommands;
+
+import es.upc.lewis.quadadk.comms.GroundStationCommands;
 
 public class Server extends Thread {
 	private ServerSocket serverSocket;
@@ -109,7 +110,7 @@ public class Server extends Thread {
 			bBuffer = ByteBuffer.wrap(buffer, 0, 4);
 			int value = bBuffer.getInt();
 			
-			SaveData.saveSensor1(value); // This is just a placeholder
+			SaveData.saveSensor1(value); //TODO: This is just a placeholder (uses always the same sensor file)
 			GUI.displaySensorData(command, value);
 			
 			break;

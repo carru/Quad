@@ -1,4 +1,4 @@
-package es.upc.lewis.quadadk;
+package es.upc.lewis.quadadk.comms;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,8 +7,6 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;

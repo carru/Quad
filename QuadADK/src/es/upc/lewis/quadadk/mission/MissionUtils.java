@@ -1,13 +1,11 @@
-package es.upc.lewis.quadadk;
+package es.upc.lewis.quadadk.mission;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.support.v4.content.LocalBroadcastManager;
+import es.upc.lewis.quadadk.MainActivity;
+import es.upc.lewis.quadadk.comms.ArduinoCommands;
+import es.upc.lewis.quadadk.comms.CommunicationsThread;
 import android.widget.Toast;
 
-public class MissionThread extends Thread {
+public class MissionUtils {
 	private static final int timeToArm = 4000; // Milliseconds
 	private static final int timeToDisarm = timeToArm; // Milliseconds
 	
@@ -19,64 +17,39 @@ public class MissionThread extends Thread {
 	
 	// To show toasts (useful when testing)
 	private MainActivity activity;
-
-	public MissionThread(CommunicationsThread comms, MainActivity activity) {
+	
+	public MissionUtils(CommunicationsThread comms, MainActivity activity) {
 		arduino = comms;
 		this.activity = activity;
-
-		if (comms == null) { return; }
-
-		// Register BroadcastReceiver
-		LocalBroadcastManager.getInstance(activity).registerReceiver(
-				broadcastReceiver, broadcastIntentFilter());
-
-		start();
 	}
-
-	@Override
-	public void run() {
-		// Arm motors
-		showToast("Arming...");
-		arm();
-
-		// Set loitter flight mode
-		send(ArduinoCommands.SET_MODE_LOITTER);
-		
-		// Go up for 2 seconds
-		send(ArduinoCommands.SET_CH3, 1750);
-		wait(2000);
-		
-		// Hover for 5 seconds
-		hover();
-		wait(5000);		
-
-		// Disarm motors
-		// NOTE: this is just a test. Don't disarm while flying!!
-		showToast("Disarming...");
-		disarm();
-	}
-
+	
 	/**
 	 * Send a command (1 byte) to the Arduino if the mission is not aborted.
 	 * @param command
+	 * @throws AbortException 
 	 */
-	private void send(byte command) {
+	public void send(byte command) throws AbortException {
 		if (!isAborted) { arduino.send(command); }
+		else { throw new AbortException(); }
 	}
 	
 	/**
 	 * Send a command (1 byte) and a 4 bytes int to the Arduino if the mission is not aborted.
 	 * @param command
 	 * @param value
+	 * @throws AbortException 
 	 */
-	private void send(byte command, int value) {
+	public void send(byte command, int value) throws AbortException {
 		if (!isAborted) { arduino.send(command, value); }
+		else { throw new AbortException(); }
 	}
 	
 	/**
-	 * Return to launch
+	 * Abort mission, return to launch and disarm
 	 */
-	private void abortMission() {
+	public void abortMission() {
+		isAborted = true;
+		
 		// Set all sticks to neutral (hover)
 		arduino.send(ArduinoCommands.SET_CH1, 1500);
 		arduino.send(ArduinoCommands.SET_CH2, 1500);
@@ -85,13 +58,16 @@ public class MissionThread extends Thread {
 		
 		// Return to launch
 		arduino.send(ArduinoCommands.SET_MODE_RTL);
+		
+		// Set throttle to low (auto disarm)
+		arduino.send(ArduinoCommands.SET_CH3, 1000);
 	}
 	
 	/**
 	 * Arms motors. Blocks for 'timeToArm' milliseconds.
 	 * Leaves roll, pitch and yaw in neutral (1500) and throttle at minimum (1000).
 	 */
-	private void arm() {
+	public void arm() throws AbortException {
 		// Set flight mode to altitude hold (can't arm in loitter)
 		send(ArduinoCommands.SET_MODE_ALTHOLD);
 
@@ -102,9 +78,6 @@ public class MissionThread extends Thread {
 
 		wait(timeToArm);
 
-		//send(ArduinoCommands.SET_CH1, 1500);
-		//send(ArduinoCommands.SET_CH2, 1500);
-		//send(ArduinoCommands.SET_CH3, 1000);
 		send(ArduinoCommands.SET_CH4, 1500);
 	}
 
@@ -112,7 +85,7 @@ public class MissionThread extends Thread {
 	 * Disarms motors. Blocks for 'timeToDisarm' milliseconds.
 	 * Leaves roll, pitch and yaw in neutral (1500) and throttle at minimum (1000).
 	 */
-	private void disarm() {
+	public void disarm() throws AbortException {
 		send(ArduinoCommands.SET_CH1, 1500);
 		send(ArduinoCommands.SET_CH2, 1500);
 		send(ArduinoCommands.SET_CH3, 1000);
@@ -120,16 +93,13 @@ public class MissionThread extends Thread {
 
 		wait(timeToDisarm);
 
-		//arduino.send(ArduinoCommands.SET_CH1, 1500);
-		//arduino.send(ArduinoCommands.SET_CH2, 1500);
-		//arduino.send(ArduinoCommands.SET_CH3, 1000);
 		send(ArduinoCommands.SET_CH4, 1500);
 	}
 
 	/**
 	 * Set roll, pitch, throttle and yaw to neutral (hover)
 	 */
-	private void hover() {
+	public void hover() throws AbortException {
 		send(ArduinoCommands.SET_CH1, 1500);
 		send(ArduinoCommands.SET_CH2, 1500);
 		send(ArduinoCommands.SET_CH3, 1500);
@@ -139,49 +109,23 @@ public class MissionThread extends Thread {
 	/**
 	 * Sleep
 	 * @param time in milliseconds
+	 * @throws AbortException 
 	 */
-	private void wait(int time) {
-		try {
-			sleep(time);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+	public void wait(int time) throws AbortException {
+		try { Thread.sleep(time); }
+		// Abort mission if thread is interrupted
+		catch (InterruptedException e) { throw new AbortException(); }
 	}
 	
 	/**
 	 * Show a Toast
 	 * @param text to show
 	 */
-	private void showToast(final String text) {
+	public void showToast(final String text) {
 		activity.runOnUiThread(new Runnable() {
 			public void run() {
 				Toast.makeText(activity, text, Toast.LENGTH_SHORT).show();
 			}
 		});
-	}
-
-	/**
-	 * Receive important events
-	 */
-	private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			String action = intent.getAction();
-
-			if (action.equals(GroundStationClient.ABORT_MISSION)) {
-				isAborted = true;
-				showToast("Mission aborted!");
-				abortMission();
-			}
-		}
-	};
-
-	/**
-	 * Intents to listen to
-	 */
-	private static IntentFilter broadcastIntentFilter() {
-		final IntentFilter intentFilter = new IntentFilter();
-		intentFilter.addAction(GroundStationClient.ABORT_MISSION);
-		return intentFilter;
 	}
 }

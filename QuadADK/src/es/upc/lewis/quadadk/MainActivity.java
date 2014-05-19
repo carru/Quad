@@ -26,6 +26,14 @@ import android.widget.Toast;
 import com.android.future.usb.UsbAccessory;
 import com.android.future.usb.UsbManager;
 
+import es.upc.lewis.quadadk.comms.ArduinoCommands;
+import es.upc.lewis.quadadk.comms.CommunicationsThread;
+import es.upc.lewis.quadadk.comms.GroundStationClient;
+import es.upc.lewis.quadadk.comms.GroundStationCommands;
+import es.upc.lewis.quadadk.mission.MissionThread;
+import es.upc.lewis.quadadk.tools.MyLocation;
+import es.upc.lewis.quadadk.tools.SimpleCamera;
+
 public class MainActivity extends Activity {
 	private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -126,9 +134,9 @@ public class MainActivity extends Activity {
 		@Override
 		public void onClick(View v) {
 			// Debug. Send predefined sensor value to the server
-			sendSensorData(GroundStationCommands.SENSOR_1, -123456789);
+			//sendSensorData(GroundStationCommands.SENSOR_1, -123456789);
 			
-			/*if (mAccessory == null) {
+			if (mAccessory == null) {
 				return;
 			}
 
@@ -142,7 +150,7 @@ public class MainActivity extends Activity {
 			case R.id.read_sensor_3_button:
 				comms.send(ArduinoCommands.READ_SENSOR_3);
 				break;
-			}*/
+			}
 		}
 	};
 

@@ -1,4 +1,4 @@
-package es.upc.lewis.quadadk;
+package es.upc.lewis.quadadk.comms;
 
 // These constants have to be the same as commands.h (Arduino source)
 public interface ArduinoCommands {

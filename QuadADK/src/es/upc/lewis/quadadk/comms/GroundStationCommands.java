@@ -1,4 +1,4 @@
-package es.upc.lewis.quadadk;
+package es.upc.lewis.quadadk.comms;
 
 public interface GroundStationCommands {
 	public static final byte START_MISSION = 0x01;

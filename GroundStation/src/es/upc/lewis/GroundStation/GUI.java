@@ -11,7 +11,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import es.upc.lewis.quadadk.GroundStationCommands;
+import es.upc.lewis.quadadk.comms.GroundStationCommands;
 
 public class GUI {
 	// UI
@@ -195,6 +195,7 @@ public class GUI {
 		}
 		Image scaledImage = image.getScaledInstance(pictureLabel.getWidth(), pictureLabel.getHeight(), Image.SCALE_SMOOTH);
 		pictureLabel.setIcon(new ImageIcon(scaledImage));
+		pictureLabel.setText("");
 	}
 
 	public static void setUi(final int type) {

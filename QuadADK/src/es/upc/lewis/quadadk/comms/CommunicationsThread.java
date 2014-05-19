@@ -1,4 +1,4 @@
-package es.upc.lewis.quadadk;
+package es.upc.lewis.quadadk.comms;
 
 import java.io.FileDescriptor;
 import java.io.FileInputStream;

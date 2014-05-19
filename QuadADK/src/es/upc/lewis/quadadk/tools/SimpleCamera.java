@@ -1,10 +1,11 @@
-package es.upc.lewis.quadadk;
+package es.upc.lewis.quadadk.tools;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import es.upc.lewis.quadadk.MainActivity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
