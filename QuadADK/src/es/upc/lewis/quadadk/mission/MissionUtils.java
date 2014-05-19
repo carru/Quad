@@ -21,6 +21,8 @@ public class MissionUtils {
 	public MissionUtils(CommunicationsThread comms, MainActivity activity) {
 		arduino = comms;
 		this.activity = activity;
+		
+		isAborted = false;
 	}
 	
 	/**
@@ -104,6 +106,22 @@ public class MissionUtils {
 		send(ArduinoCommands.SET_CH2, 1500);
 		send(ArduinoCommands.SET_CH3, 1500);
 		send(ArduinoCommands.SET_CH4, 1500);
+	}
+	
+	/**
+	 * Take a picture and send it to the GroundStation
+	 */
+	public void takePicture() {
+		if (MainActivity.camera != null) {
+			if (MainActivity.camera.isReady()) { MainActivity.camera.takePicture(); }
+		}
+	}
+	
+	/**
+	 * Read sensor 1 and send value to the GroundStation
+	 */
+	public void readSensor1() {
+		arduino.send(ArduinoCommands.READ_SENSOR_1);
 	}
 	
 	/**
