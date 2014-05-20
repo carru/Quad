@@ -137,6 +137,14 @@ void attendCommand(byte command, int value) {
 
     sendSensorData(DATA_SENSOR_NO2, sensorData);
     break;
+    
+  case READ_SENSOR_CO:
+    sensorData = 0;
+    Serial.print("CO [ppb]: ");
+    Serial.println(sensorData);
+
+    sendSensorData(DATA_SENSOR_CO, sensorData);
+    break;
 
   case SET_MODE_ALTHOLD:
     setFlightMode(MODE_ALTHOLD);
