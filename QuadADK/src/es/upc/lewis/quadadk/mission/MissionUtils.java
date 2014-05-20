@@ -120,9 +120,9 @@ public class MissionUtils {
 	/**
 	 * Read sensor 1 and send value to the GroundStation
 	 */
-	public void readSensor1() {
+	/*public void readSensor1() {
 		arduino.send(ArduinoCommands.READ_SENSOR_1);
-	}
+	}*/ //TODO: add sensors
 	
 	/**
 	 * Sleep

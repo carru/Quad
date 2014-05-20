@@ -145,13 +145,13 @@ public class MainActivity extends Activity {
 
 			switch (v.getId()) {
 			case R.id.read_sensor_1_button:
-				comms.send(ArduinoCommands.READ_SENSOR_1);
+				comms.send(ArduinoCommands.READ_SENSOR_TEMPERATURE);
 				break;
 			case R.id.read_sensor_2_button:
-				comms.send(ArduinoCommands.READ_SENSOR_2);
+				comms.send(ArduinoCommands.READ_SENSOR_HUMIDITY);
 				break;
 			case R.id.read_sensor_3_button:
-				comms.send(ArduinoCommands.READ_SENSOR_3);
+				comms.send(ArduinoCommands.READ_SENSOR_NO2);
 				break;
 			}
 		}
@@ -442,20 +442,27 @@ public class MainActivity extends Activity {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String action = intent.getAction();
-			int value = intent.getIntExtra(CommunicationsThread.VALUE, 0);
-
+			// Get the value (4 bytes) as an int
+			int intBytes = intent.getIntExtra(CommunicationsThread.VALUE, 0);
+			// bytes to float
+			float value = Float.intBitsToFloat(intBytes);
+			
 			if (action
-					.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_1)) {
-				sensor1Text.setText(Integer.toString(value));
-				sendSensorData(GroundStationCommands.SENSOR_1, value);
+					.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_TEMPERATURE)) {
+				sensor1Text.setText(Float.toString(value)); //TODO: remove
+				sendSensorData(GroundStationCommands.SENSOR_TEMPERATURE, intBytes);
 			} else if (action
-					.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_2)) {
-				sensor2Text.setText(Integer.toString(value));
-				sendSensorData(GroundStationCommands.SENSOR_2, value);
+					.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_HUMIDITY)) {
+				sensor2Text.setText(Float.toString(value)); //TODO: remove
+				sendSensorData(GroundStationCommands.SENSOR_HUMIDITY, intBytes);
 			} else if (action
-					.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_3)) {
-				sensor3Text.setText(Integer.toString(value));
-				sendSensorData(GroundStationCommands.SENSOR_3, value);
+					.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_NO2)) {
+				sensor3Text.setText(Float.toString(value)); //TODO: remove
+				sendSensorData(GroundStationCommands.SENSOR_NO2, intBytes);
+			} else if (action
+					.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_CO)) {
+				//sensor3Text.setText(Float.toString(value)); //TODO: remove
+				sendSensorData(GroundStationCommands.SENSOR_CO, intBytes);
 			}
 		}
 	};
@@ -463,11 +470,11 @@ public class MainActivity extends Activity {
 	private static IntentFilter sensorDataIntentFilter() {
 		final IntentFilter intentFilter = new IntentFilter();
 		intentFilter
-				.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_1);
+				.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_TEMPERATURE);
 		intentFilter
-				.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_2);
+				.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_HUMIDITY);
 		intentFilter
-				.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_3);
+				.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_NO2);
 		return intentFilter;
 	}
 

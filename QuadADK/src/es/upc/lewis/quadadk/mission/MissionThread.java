@@ -40,9 +40,7 @@ public class MissionThread extends Thread {
 			utils.send(ArduinoCommands.SET_CH3, 1750);
 			utils.wait(2000);
 
-			utils.readSensor1();
 			utils.takePicture();
-			utils.readSensor1();
 			
 			// Hover for 5 seconds
 			utils.hover();

@@ -20,9 +20,10 @@ public class GUI {
 	private static JButton startButton;
 	private static JButton btnStartMission;
 	private static JButton btnAbort;
-	private static JLabel sensor1Label;
-	private static JLabel sensor2Label;
-	private static JLabel sensor3Label;
+	private static JLabel sensorTempLabel;
+	private static JLabel sensorHumLabel;
+	private static JLabel sensorNO2Label;
+	private static JLabel sensorCOLabel;
 	private JLabel lblPort;
 	private JTextField portText;
 	private static JLabel pictureLabel;
@@ -101,17 +102,21 @@ public class GUI {
 		btnStartMission.setBounds(10, 90, 240, 40);
 		frmGroundstation.getContentPane().add(btnStartMission);
 		
-		sensor1Label = new JLabel("Sensor 1: ");
-		sensor1Label.setBounds(20, 259, 230, 14);
-		frmGroundstation.getContentPane().add(sensor1Label);
+		sensorTempLabel = new JLabel("Temperature [\u00BAC]:");
+		sensorTempLabel.setBounds(20, 234, 230, 14);
+		frmGroundstation.getContentPane().add(sensorTempLabel);
 		
-		sensor2Label = new JLabel("Sensor 2: ");
-		sensor2Label.setBounds(20, 284, 230, 14);
-		frmGroundstation.getContentPane().add(sensor2Label);
+		sensorHumLabel = new JLabel("Humidity [%]:");
+		sensorHumLabel.setBounds(20, 259, 230, 14);
+		frmGroundstation.getContentPane().add(sensorHumLabel);
 		
-		sensor3Label = new JLabel("Sensor 3: ");
-		sensor3Label.setBounds(20, 309, 230, 14);
-		frmGroundstation.getContentPane().add(sensor3Label);
+		sensorNO2Label = new JLabel("NO2 [ppb]:");
+		sensorNO2Label.setBounds(20, 284, 230, 14);
+		frmGroundstation.getContentPane().add(sensorNO2Label);
+		
+		sensorCOLabel = new JLabel("CO [ppb]:");
+		sensorCOLabel.setBounds(20, 309, 230, 14);
+		frmGroundstation.getContentPane().add(sensorCOLabel);
 		
 		lblPort = new JLabel("Port");
 		lblPort.setBounds(10, 11, 33, 14);
@@ -137,17 +142,13 @@ public class GUI {
 		pictureLabel = new JLabel("Last taken picture will appear here", SwingConstants.CENTER);
 		pictureLabel.setBounds(260, 11, 342, 312);
 		frmGroundstation.getContentPane().add(pictureLabel);
-		
-		JLabel lblSensorValues = new JLabel("Sensor values");
-		lblSensorValues.setBounds(10, 230, 240, 14);
-		frmGroundstation.getContentPane().add(lblSensorValues);
 	}
 	
 	public static void showErrorDialog(String message, String title) {
 		JOptionPane.showMessageDialog(null, message, title, JOptionPane.ERROR_MESSAGE);
 	}
 	
-	public static void displaySensorData(final byte sensor, final int value) {
+	public static void displaySensorData(final byte sensor, final float value) {
 		// Make sure we are in the proper thread
 		if (!SwingUtilities.isEventDispatchThread()) {
 			SwingUtilities.invokeLater(new Runnable() {
@@ -159,16 +160,19 @@ public class GUI {
 		}
 		
 		switch(sensor) {
-		case GroundStationCommands.SENSOR_1:
-			sensor1Label.setText("Sensor 1: " + Integer.toString(value));
+		case GroundStationCommands.SENSOR_TEMPERATURE:
+			sensorTempLabel.setText("Temperature [ºC]: " + Float.toString(value));
 			break;
 			
-		case GroundStationCommands.SENSOR_2:
-			sensor2Label.setText("Sensor 2: " + Integer.toString(value));
+		case GroundStationCommands.SENSOR_HUMIDITY:
+			sensorHumLabel.setText("Humidity [%]: " + Float.toString(value));
 			break;
 			
-		case GroundStationCommands.SENSOR_3:
-			sensor3Label.setText("Sensor 3: " + Integer.toString(value));
+		case GroundStationCommands.SENSOR_NO2:
+			sensorNO2Label.setText("NO2 [ppb]: " + Float.toString(value));
+			break;
+		case GroundStationCommands.SENSOR_CO:
+			sensorCOLabel.setText("CO [ppb]: " + Float.toString(value));
 			break;
 		}
 	}

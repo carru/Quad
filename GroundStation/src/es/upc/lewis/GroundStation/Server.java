@@ -77,14 +77,8 @@ public class Server extends Thread {
 	}
 
 	private void readLoop() {
-		//byte[] buffer = new byte[READ_BUFFER_SIZE];
-		//int bytes;
-
 		while (true) {
 			try {
-				//bytes = input.read(buffer);
-				//parse(buffer, bytes);
-				
 				attendCommand((byte) input.read());
 			} catch (IOException e) {
 				GUI.setUi(GUI.DISCONNECTED);
@@ -100,17 +94,21 @@ public class Server extends Thread {
 		ByteBuffer bBuffer;
 		
 		switch(command) {
-		case GroundStationCommands.SENSOR_1:
-		case GroundStationCommands.SENSOR_2:
-		case GroundStationCommands.SENSOR_3:
+		case GroundStationCommands.SENSOR_TEMPERATURE:
+		case GroundStationCommands.SENSOR_HUMIDITY:
+		case GroundStationCommands.SENSOR_NO2:
+		case GroundStationCommands.SENSOR_CO:
 			bytes = input.read(buffer);
 			if (bytes < 4) { break; }
 			
-			// Get integer (4 bytes)
+			// Get 4 bytes as integer
 			bBuffer = ByteBuffer.wrap(buffer, 0, 4);
-			int value = bBuffer.getInt();
+			int intBytes = bBuffer.getInt();
 			
-			SaveData.saveSensor1(value); //TODO: This is just a placeholder (uses always the same sensor file)
+			// bytes to float
+			float value = Float.intBitsToFloat(intBytes);
+			
+			//SaveData.saveSensor1(value); //TODO: This is just a placeholder (uses always the same sensor file)
 			GUI.displaySensorData(command, value);
 			
 			break;

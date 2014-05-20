@@ -13,9 +13,10 @@ import android.support.v4.content.LocalBroadcastManager;
 public class CommunicationsThread extends Thread {
 	Context context;
 	// Broadcast types
-    public static final String ACTION_DATA_AVAILABLE_SENSOR_1 = "1";
-    public static final String ACTION_DATA_AVAILABLE_SENSOR_2 = "2";
-    public static final String ACTION_DATA_AVAILABLE_SENSOR_3 = "3";
+    public static final String ACTION_DATA_AVAILABLE_SENSOR_TEMPERATURE = "1";
+    public static final String ACTION_DATA_AVAILABLE_SENSOR_HUMIDITY = "2";
+    public static final String ACTION_DATA_AVAILABLE_SENSOR_NO2 = "3";
+    public static final String ACTION_DATA_AVAILABLE_SENSOR_CO = "4";
     // Fields
     public static final String VALUE = "4";
     
@@ -83,26 +84,31 @@ public class CommunicationsThread extends Thread {
 		Intent intent;
 		
 		switch (buffer[0]) {
-		case ArduinoCommands.DATA_SENSOR_1:
-			intent = new Intent(ACTION_DATA_AVAILABLE_SENSOR_1);
+		case ArduinoCommands.DATA_SENSOR_TEMPERATURE:
+			intent = new Intent(ACTION_DATA_AVAILABLE_SENSOR_TEMPERATURE);
 			break;
 			
-		case ArduinoCommands.DATA_SENSOR_2:
-			intent = new Intent(ACTION_DATA_AVAILABLE_SENSOR_2);
+		case ArduinoCommands.DATA_SENSOR_HUMIDITY:
+			intent = new Intent(ACTION_DATA_AVAILABLE_SENSOR_HUMIDITY);
 			break;
 			
-		case ArduinoCommands.DATA_SENSOR_3:
-			intent = new Intent(ACTION_DATA_AVAILABLE_SENSOR_3);
+		case ArduinoCommands.DATA_SENSOR_NO2:
+			intent = new Intent(ACTION_DATA_AVAILABLE_SENSOR_NO2);
+			break;
+			
+		case ArduinoCommands.DATA_SENSOR_CO:
+			intent = new Intent(ACTION_DATA_AVAILABLE_SENSOR_CO);
 			break;
 			
 		default:
 			return; // Do nothing
 		}
 		
-		// Get integer (4 bytes)
+		// Get 4 bytes as integer
 		ByteBuffer bBuffer = ByteBuffer.wrap(buffer, 1, 4);
-		intent.putExtra(VALUE, bBuffer.getInt());
+		int intBytes = bBuffer.getInt();
 		
+		intent.putExtra(VALUE, intBytes);
     	LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 	}
 }

@@ -3,6 +3,9 @@
 #include <AndroidAccessory.h>
 #include "commands.h"
 #include "rc.h"
+#include "Wire.h"
+#include "EggBus.h"
+#include "DHT.h"
 
 ///////////////////////// ADK CONFIG /////////////////////////////
 #define BUFFER_SIZE_FOR_IO 256
@@ -37,9 +40,19 @@ boolean mode;
 #define MANUAL false
 //////////////////////////////////////////////////////////////////
 
+///////////////////////// EGGSHIELD //////////////////////////////
+#define DHTPIN A3
+#define DHTTYPE DHT22
+DHT dht(DHTPIN, DHTTYPE);
+EggBus eggBus;
+//////////////////////////////////////////////////////////////////
+
 void setup() {
   Serial.begin(115200);
   Serial.println("Start");
+
+  // Eggshield
+  dht.begin();
 
   // Blinking LED (RC)
   pinMode(ledPort, OUTPUT);
@@ -70,19 +83,15 @@ void setup() {
   setSlidersNeutralNoThrotle();
 }
 
-long readSensor() {
-  //return random(-2147483648, 2147483647); // whole long range
-  return random(-1024000, 1024000);
-}
-
-void sendSensorData(byte sensor, long value) {
+void sendSensorData(byte sensor, float value) {
   bufferO[0] = sensor;
 
-  // long to bytes (4)
-  bufferO[4] = (byte) value;
-  bufferO[3] = (byte) (value >> 8);
-  bufferO[2] = (byte) (value >> 16);
-  bufferO[1] = (byte) (value >> 24);
+  // float to bytes (4)
+  byte *bytePointer = (byte*) &value;
+  bufferO[4] = *(bytePointer    );
+  bufferO[3] = *(bytePointer + 1);
+  bufferO[2] = *(bytePointer + 2);
+  bufferO[1] = *(bytePointer + 3);
 
   acc.write(bufferO, 5);
 }
@@ -101,35 +110,32 @@ void setPPMChannel(int channel, int value) {
 }
 
 void attendCommand(byte command, int value) {
-  long sensorData;
+  float sensorData;
   int ch;
 
   switch(command) {
-  case READ_SENSOR_1:
-    Serial.println("Reading sensor 1 ...");
-    sensorData = readSensor();
-    Serial.print("Sensor 1 value: ");
+  case READ_SENSOR_TEMPERATURE:
+    sensorData = dht.readTemperature();
+    Serial.print("Temperature [ºC]: ");
     Serial.println(sensorData);
 
-    sendSensorData(DATA_SENSOR_1, sensorData);
+    sendSensorData(DATA_SENSOR_TEMPERATURE, sensorData);
     break;
 
-  case READ_SENSOR_2:
-    Serial.println("Reading sensor 2 ...");
-    sensorData = readSensor();
-    Serial.print("Sensor 2 value: ");
+  case READ_SENSOR_HUMIDITY:
+    sensorData = dht.readHumidity();
+    Serial.print("Humidity [%]: ");
     Serial.println(sensorData);
 
-    sendSensorData(DATA_SENSOR_2, sensorData);
+    sendSensorData(DATA_SENSOR_HUMIDITY, sensorData);
     break;
 
-  case READ_SENSOR_3:
-    Serial.println("Reading sensor 3 ...");
-    sensorData = readSensor();
-    Serial.print("Sensor 3 value: ");
+  case READ_SENSOR_NO2:
+    sensorData = 0;
+    Serial.print("NO2 [ppb]: ");
     Serial.println(sensorData);
 
-    sendSensorData(DATA_SENSOR_3, sensorData);
+    sendSensorData(DATA_SENSOR_NO2, sensorData);
     break;
 
   case SET_MODE_ALTHOLD:
@@ -296,5 +302,4 @@ ISR(TIMER1_COMPA_vect){
     }     
   }
 }
-
 
