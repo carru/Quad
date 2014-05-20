@@ -110,19 +110,47 @@ public class MissionUtils {
 	
 	/**
 	 * Take a picture and send it to the GroundStation
+	 * @throws AbortException 
 	 */
-	public void takePicture() {
+	public void takePicture() throws AbortException {
+		if (isAborted) { throw new AbortException(); }
+
 		if (MainActivity.camera != null) {
 			if (MainActivity.camera.isReady()) { MainActivity.camera.takePicture(); }
 		}
 	}
 	
 	/**
-	 * Read sensor 1 and send value to the GroundStation
+	 * Read temperature sensor and send result to the GroundStation
+	 * @throws AbortException 
 	 */
-	/*public void readSensor1() {
-		arduino.send(ArduinoCommands.READ_SENSOR_1);
-	}*/ //TODO: add sensors
+	public void readSensorTemperature() throws AbortException {
+		send(ArduinoCommands.READ_SENSOR_TEMPERATURE);
+	}
+	
+	/**
+	 * Read humidity sensor and send result to the GroundStation
+	 * @throws AbortException 
+	 */
+	public void readSensorHumidity() throws AbortException {
+		send(ArduinoCommands.READ_SENSOR_HUMIDITY);
+	}
+	
+	/**
+	 * Read NO2 sensor and send result to the GroundStation
+	 * @throws AbortException 
+	 */
+	public void readSensorNO2() throws AbortException {
+		send(ArduinoCommands.READ_SENSOR_NO2);
+	}
+	
+	/**
+	 * Read CO sensor and send result to the GroundStation
+	 * @throws AbortException 
+	 */
+	public void readSensorCO() throws AbortException {
+		send(ArduinoCommands.READ_SENSOR_CO);
+	}
 	
 	/**
 	 * Sleep
