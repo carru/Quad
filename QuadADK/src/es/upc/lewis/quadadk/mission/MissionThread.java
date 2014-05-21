@@ -29,6 +29,17 @@ public class MissionThread extends Thread {
 	@Override
 	public void run() {
 		try {
+			while(true) {
+				utils.readSensorTemperature();
+				utils.readSensorHumidity();
+				utils.readSensorNO2();
+				utils.readSensorCO();
+				
+				utils.wait(500);
+			}
+			
+			
+			/*
 			// Arm motors
 			utils.showToast("Arming...");
 			utils.arm();
@@ -49,7 +60,7 @@ public class MissionThread extends Thread {
 			// Disarm motors
 			// NOTE: this is just a test. Don't disarm while flying!!
 			utils.showToast("Disarming...");
-			utils.disarm();
+			utils.disarm();*/
 		} catch (AbortException e) {
 			// Mission has been aborted
 		}

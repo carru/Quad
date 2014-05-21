@@ -14,11 +14,11 @@ public class CommunicationsThread extends Thread {
 	Context context;
 	// Broadcast types
     public static final String ACTION_DATA_AVAILABLE_SENSOR_TEMPERATURE = "1";
-    public static final String ACTION_DATA_AVAILABLE_SENSOR_HUMIDITY = "2";
-    public static final String ACTION_DATA_AVAILABLE_SENSOR_NO2 = "3";
-    public static final String ACTION_DATA_AVAILABLE_SENSOR_CO = "4";
+    public static final String ACTION_DATA_AVAILABLE_SENSOR_HUMIDITY    = "2";
+    public static final String ACTION_DATA_AVAILABLE_SENSOR_NO2         = "3";
+    public static final String ACTION_DATA_AVAILABLE_SENSOR_CO          = "4";
     // Fields
-    public static final String VALUE = "4";
+    public static final String VALUE = "5";
     
 	// Buffer for read operations (bytes)
 	private final int READ_BUFFER_SIZE = 1024;

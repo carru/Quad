@@ -151,7 +151,7 @@ public class MainActivity extends Activity {
 				comms.send(ArduinoCommands.READ_SENSOR_HUMIDITY);
 				break;
 			case R.id.read_sensor_3_button:
-				comms.send(ArduinoCommands.READ_SENSOR_NO2);
+				comms.send(ArduinoCommands.READ_SENSOR_CO);
 				break;
 			}
 		}
@@ -461,7 +461,7 @@ public class MainActivity extends Activity {
 				sendSensorData(GroundStationCommands.SENSOR_NO2, intBytes);
 			} else if (action
 					.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_CO)) {
-				//sensor3Text.setText(Float.toString(value)); //TODO: remove
+				sensor3Text.setText(Float.toString(value)); //TODO: remove
 				sendSensorData(GroundStationCommands.SENSOR_CO, intBytes);
 			}
 		}
@@ -475,6 +475,8 @@ public class MainActivity extends Activity {
 				.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_HUMIDITY);
 		intentFilter
 				.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_NO2);
+		intentFilter
+				.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_CO);
 		return intentFilter;
 	}
 

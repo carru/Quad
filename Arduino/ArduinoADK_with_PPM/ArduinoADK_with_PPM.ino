@@ -131,7 +131,9 @@ void attendCommand(byte command, int value) {
     break;
 
   case READ_SENSOR_NO2:
-    sensorData = 0;
+    eggBus.init();
+    eggBus.next();
+    sensorData = eggBus.getSensorValue(0);
     Serial.print("NO2 [ppb]: ");
     Serial.println(sensorData);
 
@@ -139,7 +141,9 @@ void attendCommand(byte command, int value) {
     break;
     
   case READ_SENSOR_CO:
-    sensorData = 0;
+    eggBus.init();
+    eggBus.next();
+    sensorData = eggBus.getSensorValue(1);
     Serial.print("CO [ppb]: ");
     Serial.println(sensorData);
 
