@@ -29,14 +29,10 @@ public class MissionThread extends Thread {
 	@Override
 	public void run() {
 		try {
-			while(true) {
-				utils.readSensorTemperature();
-				utils.readSensorHumidity();
-				utils.readSensorNO2();
-				utils.readSensorCO();
-				
-				utils.wait(500);
-			}
+			utils.takeoff();
+			
+			
+			utils.returnToLaunch();
 			
 			
 			/*

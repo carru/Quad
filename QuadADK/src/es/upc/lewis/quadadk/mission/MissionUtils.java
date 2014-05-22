@@ -6,8 +6,11 @@ import es.upc.lewis.quadadk.comms.CommunicationsThread;
 import android.widget.Toast;
 
 public class MissionUtils {
-	private static final int timeToArm = 4000; // Milliseconds
-	private static final int timeToDisarm = timeToArm; // Milliseconds
+	private static final int timeToArm            = 4000;      // Milliseconds
+	private static final int timeToDisarm         = timeToArm; // Milliseconds
+	private static final int TIME_TO_SEND_PICTURE = 2000;      // Milliseconds
+	private static final int TIME_TO_READ_SENSOR  = 100;       // Milliseconds
+	private static final int TIME_TO_TAKEOFF      = 10000;       // Milliseconds
 	
 	// To abort the mission
 	private static volatile boolean isAborted = false;
@@ -66,10 +69,10 @@ public class MissionUtils {
 	}
 	
 	/**
-	 * Arms motors. Blocks for 'timeToArm' milliseconds.
+	 * Arms motors. Blocks for 'timeToArm' milliseconds. Switches to Altitude Hold flight mode
 	 * Leaves roll, pitch and yaw in neutral (1500) and throttle at minimum (1000).
 	 */
-	public void arm() throws AbortException {
+	private void arm() throws AbortException {
 		// Set flight mode to altitude hold (can't arm in loitter)
 		send(ArduinoCommands.SET_MODE_ALTHOLD);
 
@@ -87,7 +90,8 @@ public class MissionUtils {
 	 * Disarms motors. Blocks for 'timeToDisarm' milliseconds.
 	 * Leaves roll, pitch and yaw in neutral (1500) and throttle at minimum (1000).
 	 */
-	public void disarm() throws AbortException {
+	@SuppressWarnings("unused")
+	private void disarm() throws AbortException {
 		send(ArduinoCommands.SET_CH1, 1500);
 		send(ArduinoCommands.SET_CH2, 1500);
 		send(ArduinoCommands.SET_CH3, 1000);
@@ -109,7 +113,40 @@ public class MissionUtils {
 	}
 	
 	/**
-	 * Take a picture and send it to the GroundStation
+	 * Arm motors and ascend to a predefined altitude
+	 * Ends after X milliseconds and with Loitter flight mode
+	 * @throws AbortException
+	 */
+	public void takeoff() throws AbortException {
+		// Arm motors
+		arm();
+		
+		// Switch to Auto mode
+		send(ArduinoCommands.SET_MODE_AUTO);
+		
+		// Raise throttle to start mission
+		send(ArduinoCommands.SET_CH3, 1500);
+		
+		// Wait so it has time to ascend
+		wait(TIME_TO_TAKEOFF);
+		
+		// Switch to Loitter mode
+		send(ArduinoCommands.SET_MODE_LOITTER);
+	}
+	
+	/**
+	 * Return to launch position, land and disarm
+	 */
+	public void returnToLaunch() {
+		// Set return to launch mode
+		arduino.send(ArduinoCommands.SET_MODE_RTL);
+				
+		// Set throttle to low (auto disarm)
+		arduino.send(ArduinoCommands.SET_CH3, 1000);
+	}
+	
+	/**
+	 * Take a picture and send it to the GroundStation. Blocks for TIME_TO_SEND_PICTURE milliseconds
 	 * @throws AbortException 
 	 */
 	public void takePicture() throws AbortException {
@@ -118,6 +155,9 @@ public class MissionUtils {
 		if (MainActivity.camera != null) {
 			if (MainActivity.camera.isReady()) { MainActivity.camera.takePicture(); }
 		}
+		
+		// Give some time for the picture to be transmitted
+		wait(TIME_TO_SEND_PICTURE);
 	}
 	
 	/**
@@ -126,6 +166,8 @@ public class MissionUtils {
 	 */
 	public void readSensorTemperature() throws AbortException {
 		send(ArduinoCommands.READ_SENSOR_TEMPERATURE);
+		
+		wait(TIME_TO_READ_SENSOR);
 	}
 	
 	/**
@@ -134,6 +176,8 @@ public class MissionUtils {
 	 */
 	public void readSensorHumidity() throws AbortException {
 		send(ArduinoCommands.READ_SENSOR_HUMIDITY);
+		
+		wait(TIME_TO_READ_SENSOR);
 	}
 	
 	/**
@@ -142,6 +186,8 @@ public class MissionUtils {
 	 */
 	public void readSensorNO2() throws AbortException {
 		send(ArduinoCommands.READ_SENSOR_NO2);
+		
+		wait(TIME_TO_READ_SENSOR);
 	}
 	
 	/**
@@ -150,6 +196,8 @@ public class MissionUtils {
 	 */
 	public void readSensorCO() throws AbortException {
 		send(ArduinoCommands.READ_SENSOR_CO);
+		
+		wait(TIME_TO_READ_SENSOR);
 	}
 	
 	/**
