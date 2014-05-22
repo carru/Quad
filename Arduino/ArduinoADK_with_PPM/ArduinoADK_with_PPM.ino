@@ -142,7 +142,7 @@ void setPPMChannel(int channel, int value) {
     return; 
   }
   if (channel == CH_THROTTLE && value < THROTTLE_MIN) {
-    return;
+    value = THROTTLE_MIN;
   }
 
   ppm[channel-1] = value;
@@ -256,46 +256,14 @@ void setFlightMode(int mode) {
 void loop() {
   byte receivedCommand;
 
-  // Read PPM frame
-  // THIS IS THE OLD METHOD (NOT ACCURATE)
-  /*if (pulseIn(ppmInPin, HIGH, PULSEIN_TIMEOUT) > 3000) // New PPM frame starts after this long pulse
-   {
-   for (int i = 0; i <= chanel_number-1; i++) { // Read channels
-   ppm_in[i] = pulseIn(ppmInPin, HIGH, PULSEIN_TIMEOUT) + PPM_PulseLen;
-   }
-   
-   // DEBUG Print pwm values
-   for (int i = 0; i <= chanel_number-1; i++) {
-   Serial.print(i+1);
-   Serial.print(": ");
-   Serial.print(ppm_in[i]);
-   Serial.print("  ");
-   }
-   Serial.println();
-   
-   // Blink LED
-   ledCount++;
-   if (ledCount > ledFramesToToggle) {
-   ledCount = 0;
-   
-   if (ledStatus) {
-   ledStatus = false;
-   digitalWrite(ledPort, HIGH);
-   } 
-   else {
-   ledStatus = true;
-   digitalWrite(ledPort, LOW);
-   }
-   }
-   }*/
-
-  for (int i = 0; i <= chanel_number-1; i++) {
+  // DEBUG print pwm values from the receiver
+  /*for (int i = 0; i <= chanel_number-1; i++) {
     Serial.print(i+1);
     Serial.print(": ");
     Serial.print(ppm_in[i]);
     Serial.print("  ");
   }
-  Serial.println();
+  Serial.println();*/
 
   // Check RC mode
   if (ppm_in[CH_SWITCH-1] > CH_NEUTRAL) { // Switch on high position (auto)
