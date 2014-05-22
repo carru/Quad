@@ -39,7 +39,7 @@ boolean mode;
 #define AUTO true
 #define MANUAL false
 
-#define THROTTLE_MIN 1100 // Throttle has a different minimum value
+#define THROTTLE_MIN 1150 // Throttle has a different minimum value
 #define CH_MIN       1000
 #define CH_NEUTRAL   1500
 #define CH_MAX       2000
@@ -234,6 +234,15 @@ void loop() {
     for (int i = 0; i <= chanel_number-1; i++) { // Read channels
       ppm_in[i] = pulseIn(ppmInPin, HIGH, PULSEIN_TIMEOUT) + PPM_PulseLen;
     }
+    
+    // DEBUG Print pwm values
+    for (int i = 0; i <= chanel_number-1; i++) {
+      Serial.print(i+1);
+      Serial.print(": ");
+      Serial.print(ppm_in[i]);
+      Serial.print("  ");
+    }
+    Serial.println();
     
     // Blink LED
     ledCount++;
