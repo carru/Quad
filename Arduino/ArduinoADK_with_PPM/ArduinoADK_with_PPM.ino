@@ -38,6 +38,11 @@ boolean ledStatus = true;
 boolean mode;
 #define AUTO true
 #define MANUAL false
+
+#define THROTTLE_MIN 1100 // Throttle has a different minimum value
+#define CH_MIN       1000
+#define CH_NEUTRAL   1500
+#define CH_MAX       2000
 //////////////////////////////////////////////////////////////////
 
 ///////////////////////// EGGSHIELD //////////////////////////////
@@ -79,8 +84,11 @@ void setup() {
 
 
   // Initialize ppm values
-  setFlightMode(MODE_LOITTER); // Will probably have to change to MODE_ALTHOLD to arm motors
-  setSlidersNeutralNoThrotle();
+  setFlightMode(MODE_LOITTER); // Motors can't arm in Loitter mode
+  setSlidersNeutralNoThrottle();
+  
+  // Start with auto mode (then it checks the switch)
+  mode = AUTO;
 }
 
 void sendSensorData(byte sensor, float value) {
@@ -102,8 +110,11 @@ void setPPMChannel(int channel, int value) {
   }
 
   // Reject out of range values
-  if (value < 1000 || value > 2000) { 
+  if (value < CH_MIN || value > CH_MAX) { 
     return; 
+  }
+  if (channel == CH_THROTTLE && value < THROTTLE_MIN) {
+    return;
   }
 
   ppm[channel-1] = value;
@@ -158,6 +169,10 @@ void attendCommand(byte command, int value) {
     setFlightMode(MODE_LOITTER);
     break;
 
+  case SET_MODE_AUTO:
+    setFlightMode(MODE_AUTO);
+    break;
+    
   case SET_MODE_RTL:
     setFlightMode(MODE_RTL);
     break;
@@ -181,29 +196,29 @@ void attendCommand(byte command, int value) {
 }
 
 void setSlidersNeutral() {
-  setPPMChannel(CH_ROLL, 1500);
-  setPPMChannel(CH_PITCH, 1500);
-  setPPMChannel(CH_THROTLE, 1500);
-  setPPMChannel(CH_YAW, 1500);
+  setPPMChannel(CH_ROLL, CH_NEUTRAL);
+  setPPMChannel(CH_PITCH, CH_NEUTRAL);
+  setPPMChannel(CH_THROTTLE, CH_NEUTRAL);
+  setPPMChannel(CH_YAW, CH_NEUTRAL);
 
-  setPPMChannel(CH_SWITCH, 1000); // No simple mode
+  setPPMChannel(CH_SWITCH, CH_MIN); // No simple mode
 
   // Unused channels
-  setPPMChannel(6, 1000);
-  setPPMChannel(8, 1000);
+  setPPMChannel(6, CH_MIN);
+  setPPMChannel(8, CH_MIN);
 }
 
-void setSlidersNeutralNoThrotle() {
-  setPPMChannel(CH_ROLL, 1500);
-  setPPMChannel(CH_PITCH, 1500);
-  setPPMChannel(CH_THROTLE, 1000);
-  setPPMChannel(CH_YAW, 1500);
+void setSlidersNeutralNoThrottle() {
+  setPPMChannel(CH_ROLL, CH_NEUTRAL);
+  setPPMChannel(CH_PITCH, CH_NEUTRAL);
+  setPPMChannel(CH_THROTTLE, THROTTLE_MIN);
+  setPPMChannel(CH_YAW, CH_NEUTRAL);
 
-  setPPMChannel(CH_SWITCH, 1000); // No simple mode
+  setPPMChannel(CH_SWITCH, CH_MIN); // No simple mode
 
   // Unused channels
-  setPPMChannel(6, 1000);
-  setPPMChannel(8, 1000);
+  setPPMChannel(6, CH_MIN);
+  setPPMChannel(8, CH_MIN);
 }
 
 void setFlightMode(int mode) {
@@ -237,7 +252,7 @@ void loop() {
   }
 
   // Check RC mode
-  if (ppm_in[CH_SWITCH-1] > 1500) { // Switch on high position (auto)
+  if (ppm_in[CH_SWITCH-1] > CH_NEUTRAL) { // Switch on high position (auto)
     if (mode == MANUAL) {
       // Toggled from manual to auto
       mode = AUTO;

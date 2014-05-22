@@ -23,4 +23,5 @@
 
 #define SET_MODE_ALTHOLD 0xE0
 #define SET_MODE_LOITTER 0xE1
-#define SET_MODE_RTL     0xE2
+#define SET_MODE_AUTO    0xE2
+#define SET_MODE_RTL     0xE3
