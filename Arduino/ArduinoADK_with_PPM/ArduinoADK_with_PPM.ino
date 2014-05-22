@@ -23,9 +23,10 @@ AndroidAccessory acc("UPC", "ArduinoADK", "Description","1.0", "URI", "Serial");
 #define onState 0        // Polarity of the pulses: 1 is positive, 0 is negative
 
 #define ppmOutPin 49 // PPM signal output pin on the arduino
-#define ppmInPin 41  // PPM signal input pin on the arduino
+#define ppmInPin  18 // PPM signal input pin on the arduino
+#define interrupt  5 // Interrupt associated with PPM_in_pin (http://arduino.cc/en/Reference/AttachInterrupt)
 
-#define PULSEIN_TIMEOUT 50000 // Timeout to read RC frames in microseconds
+//#define PULSEIN_TIMEOUT 50000 // Timeout to read RC frames in microseconds
 
 int ppm[chanel_number];    // PPM generator reads these values
 int ppm_in[chanel_number]; // RC PPM values are stored here
@@ -39,6 +40,12 @@ boolean mode;
 #define AUTO true
 #define MANUAL false
 
+// For the interrupt
+volatile int16_t timeNow = 0;
+volatile int16_t timeBefore = 0;
+volatile int delta = 0;
+volatile int currentChannel = 0;
+
 #define THROTTLE_MIN 1150 // Throttle has a different minimum value
 #define CH_MIN       1000
 #define CH_NEUTRAL   1500
@@ -51,6 +58,26 @@ boolean mode;
 DHT dht(DHTPIN, DHTTYPE);
 EggBus eggBus;
 //////////////////////////////////////////////////////////////////
+
+void intHandler() {
+  timeNow = micros();
+
+  // How long since last interrupt?
+  delta = timeNow - timeBefore;
+
+  if (delta > 3000) {
+    currentChannel = 0; // Channel 1 will be in the next interrupt
+  }
+  else {
+    currentChannel++;
+    if (currentChannel > 0 && currentChannel <= chanel_number) {
+      ppm_in[currentChannel - 1] = delta;
+    }
+  }
+
+  // Save timeNOW for the next interrupt
+  timeBefore = timeNow;
+}
 
 void setup() {
   Serial.begin(115200);
@@ -68,6 +95,7 @@ void setup() {
 
   // PPM
   pinMode(ppmInPin, INPUT);
+  attachInterrupt(interrupt, intHandler, RISING);
   pinMode(ppmOutPin, OUTPUT);
   digitalWrite(ppmOutPin, !onState);  //set the PPM signal pin to the default state (off)
 
@@ -86,7 +114,7 @@ void setup() {
   // Initialize ppm values
   setFlightMode(MODE_LOITTER); // Motors can't arm in Loitter mode
   setSlidersNeutralNoThrottle();
-  
+
   // Start with auto mode (then it checks the switch)
   mode = AUTO;
 }
@@ -150,7 +178,7 @@ void attendCommand(byte command, int value) {
 
     sendSensorData(DATA_SENSOR_NO2, sensorData);
     break;
-    
+
   case READ_SENSOR_CO:
     eggBus.init();
     eggBus.next();
@@ -172,7 +200,7 @@ void attendCommand(byte command, int value) {
   case SET_MODE_AUTO:
     setFlightMode(MODE_AUTO);
     break;
-    
+
   case SET_MODE_RTL:
     setFlightMode(MODE_RTL);
     break;
@@ -229,36 +257,45 @@ void loop() {
   byte receivedCommand;
 
   // Read PPM frame
-  if (pulseIn(ppmInPin, HIGH, PULSEIN_TIMEOUT) > 3000) // New PPM frame starts after this long pulse
-  {
-    for (int i = 0; i <= chanel_number-1; i++) { // Read channels
-      ppm_in[i] = pulseIn(ppmInPin, HIGH, PULSEIN_TIMEOUT) + PPM_PulseLen;
-    }
-    
-    // DEBUG Print pwm values
-    for (int i = 0; i <= chanel_number-1; i++) {
-      Serial.print(i+1);
-      Serial.print(": ");
-      Serial.print(ppm_in[i]);
-      Serial.print("  ");
-    }
-    Serial.println();
-    
-    // Blink LED
-    ledCount++;
-    if (ledCount > ledFramesToToggle) {
-      ledCount = 0;
+  // THIS IS THE OLD METHOD (NOT ACCURATE)
+  /*if (pulseIn(ppmInPin, HIGH, PULSEIN_TIMEOUT) > 3000) // New PPM frame starts after this long pulse
+   {
+   for (int i = 0; i <= chanel_number-1; i++) { // Read channels
+   ppm_in[i] = pulseIn(ppmInPin, HIGH, PULSEIN_TIMEOUT) + PPM_PulseLen;
+   }
+   
+   // DEBUG Print pwm values
+   for (int i = 0; i <= chanel_number-1; i++) {
+   Serial.print(i+1);
+   Serial.print(": ");
+   Serial.print(ppm_in[i]);
+   Serial.print("  ");
+   }
+   Serial.println();
+   
+   // Blink LED
+   ledCount++;
+   if (ledCount > ledFramesToToggle) {
+   ledCount = 0;
+   
+   if (ledStatus) {
+   ledStatus = false;
+   digitalWrite(ledPort, HIGH);
+   } 
+   else {
+   ledStatus = true;
+   digitalWrite(ledPort, LOW);
+   }
+   }
+   }*/
 
-      if (ledStatus) {
-        ledStatus = false;
-        digitalWrite(ledPort, HIGH);
-      } 
-      else {
-        ledStatus = true;
-        digitalWrite(ledPort, LOW);
-      }
-    }
+  for (int i = 0; i <= chanel_number-1; i++) {
+    Serial.print(i+1);
+    Serial.print(": ");
+    Serial.print(ppm_in[i]);
+    Serial.print("  ");
   }
+  Serial.println();
 
   // Check RC mode
   if (ppm_in[CH_SWITCH-1] > CH_NEUTRAL) { // Switch on high position (auto)
@@ -338,4 +375,5 @@ ISR(TIMER1_COMPA_vect){
     }     
   }
 }
+
 
