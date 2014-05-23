@@ -53,12 +53,6 @@ public class SimpleCamera {
 	
 	public void takePicture() {
         mCamera.takePicture(null, null, mPicture);
-        
-        try {
-        	mCamera.startPreview();
-        } catch(Exception e) {
-        	Log.e(TAG, "Error restarting preview");
-        }
 	}
 	
 	private boolean checkCameraHardware(Context context) {
@@ -87,6 +81,14 @@ public class SimpleCamera {
 	    @Override
 	    public void onPictureTaken(byte[] data, Camera camera) {
 	    	Log.i(TAG, "Picture taken");
+	    	
+	    	// Restart preview
+	    	try {
+	        	mCamera.startPreview();
+	        } catch(Exception e) {
+	        	Log.e(TAG, "Error restarting preview. Closing camera");
+	        	close();
+	        }
 
 	    	// Save picture
 	        File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);

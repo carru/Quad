@@ -15,7 +15,7 @@ public class MissionThread extends Thread {
 	private MissionUtils utils;
 	
 	public MissionThread(CommunicationsThread comms, GroundStationClient server, MainActivity activity) {
-		if (comms == null) { return; }
+		//if (comms == null) { return; }
 		
 		// Utils class
 		utils = new MissionUtils(comms, server, activity);
@@ -33,7 +33,13 @@ public class MissionThread extends Thread {
 	@Override
 	public void run() {
 		try {
-			utils.wait(2000);
+			/*utils.readSensorCO();
+			utils.readSensorHumidity();
+			utils.readSensorNO2();
+			utils.readSensorTemperature();*/
+			utils.takePicture();
+			
+			//utils.wait(4000);
 			
 			
 			//utils.takeoff();

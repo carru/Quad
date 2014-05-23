@@ -238,6 +238,8 @@ public class GUI {
 			});
 		}
 
+		displayMissionIsRunning(false);
+		
 		switch (type) {
 		case CONNECTED:
 			statusLabel.setText("Status: Connected");
