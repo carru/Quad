@@ -3,6 +3,8 @@ package es.upc.lewis.quadadk.mission;
 import es.upc.lewis.quadadk.MainActivity;
 import es.upc.lewis.quadadk.comms.ArduinoCommands;
 import es.upc.lewis.quadadk.comms.CommunicationsThread;
+import es.upc.lewis.quadadk.comms.GroundStationClient;
+import es.upc.lewis.quadadk.comms.GroundStationCommands;
 import android.widget.Toast;
 
 public class MissionUtils {
@@ -18,12 +20,16 @@ public class MissionUtils {
 	// To communicate with the Arduino
 	private CommunicationsThread arduino;
 	
+	// To communicate with the GroundStation
+	private GroundStationClient server;
+	
 	// To show toasts (useful when testing)
 	private MainActivity activity;
 	
-	public MissionUtils(CommunicationsThread comms, MainActivity activity) {
+	public MissionUtils(CommunicationsThread comms, GroundStationClient server, MainActivity activity) {
 		arduino = comms;
 		this.activity = activity;
+		this.server = server;
 		
 		isAborted = false;
 	}
@@ -232,5 +238,6 @@ public class MissionUtils {
 		
 		// Notify mission is over
 		MainActivity.isMissionRunning = false;
+		server.send(GroundStationCommands.MISSION_END);
 	}
 }

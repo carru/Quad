@@ -94,6 +94,14 @@ public class Server extends Thread {
 		ByteBuffer bBuffer;
 		
 		switch(command) {
+		case GroundStationCommands.MISSION_START:
+			GUI.displayMissionIsRunning(true);
+			break;
+			
+		case GroundStationCommands.MISSION_END:
+			GUI.displayMissionIsRunning(false);
+			break;
+			
 		case GroundStationCommands.SENSOR_TEMPERATURE:
 		case GroundStationCommands.SENSOR_HUMIDITY:
 		case GroundStationCommands.SENSOR_NO2:

@@ -367,9 +367,9 @@ public class MainActivity extends Activity {
 	private void mission() {
 		Log.i(TAG, "Starting mission");
 		
-		if (!isMissionRunning) {
+		if (isMissionRunning == false && comms != null) {
 			isMissionRunning = true;
-			new MissionThread(comms, this);
+			new MissionThread(comms, groundStation, this);
 		}
 	}
 	

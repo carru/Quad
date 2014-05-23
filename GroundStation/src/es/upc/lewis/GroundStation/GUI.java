@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import es.upc.lewis.quadadk.comms.GroundStationCommands;
+import java.awt.Font;
+import java.awt.Color;
 
 public class GUI {
 	// UI
@@ -27,6 +29,7 @@ public class GUI {
 	private JLabel lblPort;
 	private JTextField portText;
 	private static JLabel pictureLabel;
+	private static JLabel lblMissionIsRunning;
 	// UI states
 	public static final int CONNECTED = 1;
 	public static final int DISCONNECTED = 2;
@@ -99,7 +102,7 @@ public class GUI {
 				server.send(GroundStationCommands.START_MISSION);
 			}
 		});
-		btnStartMission.setBounds(10, 90, 240, 40);
+		btnStartMission.setBounds(10, 115, 240, 40);
 		frmGroundstation.getContentPane().add(btnStartMission);
 		
 		sensorTempLabel = new JLabel("Temperature [\u00BAC]:");
@@ -136,12 +139,34 @@ public class GUI {
 			}
 		});
 		btnAbort.setEnabled(false);
-		btnAbort.setBounds(10, 141, 240, 40);
+		btnAbort.setBounds(10, 166, 240, 40);
 		frmGroundstation.getContentPane().add(btnAbort);
 		
 		pictureLabel = new JLabel("Last taken picture will appear here", SwingConstants.CENTER);
 		pictureLabel.setBounds(260, 11, 342, 312);
 		frmGroundstation.getContentPane().add(pictureLabel);
+		
+		lblMissionIsRunning = new JLabel("Mission is RUNNING");
+		lblMissionIsRunning.setForeground(Color.GREEN);
+		lblMissionIsRunning.setHorizontalAlignment(SwingConstants.CENTER);
+		lblMissionIsRunning.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		lblMissionIsRunning.setBounds(10, 90, 240, 14);
+		frmGroundstation.getContentPane().add(lblMissionIsRunning);
+		lblMissionIsRunning.setVisible(false);
+	}
+	
+	public static void displayMissionIsRunning(final boolean running) {
+		// Make sure we are in the proper thread
+				if (!SwingUtilities.isEventDispatchThread()) {
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							displayMissionIsRunning(running);
+						}
+					});
+				}
+		
+		lblMissionIsRunning.setVisible(running);
 	}
 	
 	public static void showErrorDialog(String message, String title) {

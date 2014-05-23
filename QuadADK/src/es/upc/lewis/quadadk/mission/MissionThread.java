@@ -4,6 +4,7 @@ import es.upc.lewis.quadadk.MainActivity;
 import es.upc.lewis.quadadk.comms.ArduinoCommands;
 import es.upc.lewis.quadadk.comms.CommunicationsThread;
 import es.upc.lewis.quadadk.comms.GroundStationClient;
+import es.upc.lewis.quadadk.comms.GroundStationCommands;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -13,26 +14,30 @@ import android.support.v4.content.LocalBroadcastManager;
 public class MissionThread extends Thread {
 	private MissionUtils utils;
 	
-	public MissionThread(CommunicationsThread comms, MainActivity activity) {
+	public MissionThread(CommunicationsThread comms, GroundStationClient server, MainActivity activity) {
 		if (comms == null) { return; }
-
+		
 		// Utils class
-		utils = new MissionUtils(comms, activity);
+		utils = new MissionUtils(comms, server, activity);
 		
 		// Register BroadcastReceiver
 		LocalBroadcastManager.getInstance(activity).registerReceiver(
 				broadcastReceiver, broadcastIntentFilter());
 
+		// Notify GroundStation mission has started
+		server.send(GroundStationCommands.MISSION_START);
+		
 		start();
 	}
 
 	@Override
 	public void run() {
 		try {
-			utils.takeoff();
+			utils.wait(2000);
 			
 			
-			utils.returnToLaunch();
+			//utils.takeoff();
+			//utils.returnToLaunch();
 			
 			
 			/*

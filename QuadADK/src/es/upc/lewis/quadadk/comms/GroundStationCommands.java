@@ -11,4 +11,7 @@ public interface GroundStationCommands {
 	
 	public static final byte PICTURE_START = 0x20;
 	public static final byte PICTURE_END   = 0x21;
+	
+	public static final byte MISSION_START = 0x30;
+	public static final byte MISSION_END   = 0x31;
 }
