@@ -136,5 +136,8 @@ public class Server extends Thread {
 			
 			break;
 		}
+		
+		// Send ACK
+		send(GroundStationCommands.ACK);
 	}
 }

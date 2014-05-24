@@ -7,6 +7,8 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+
+import es.upc.lewis.quadadk.mission.MissionUtils;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
@@ -24,6 +26,7 @@ public class GroundStationClient extends Thread {
 	public static final String CANT_RESOLVE_HOST = "host_error";
 	public static final String START_MISSION = "start";
 	public static final String ABORT_MISSION = "abort";
+	public static final String ACK = "ack";
 	
 	private String ip;
 	private int port;
@@ -47,6 +50,8 @@ public class GroundStationClient extends Thread {
 		try {
 			output.write(new byte[]{command});
 			output.flush();
+			
+			MissionUtils.readyToSend = false;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -64,6 +69,8 @@ public class GroundStationClient extends Thread {
 		try {
 			output.write(buffer);
 			output.flush();
+			
+			MissionUtils.readyToSend = false;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -154,6 +161,10 @@ public class GroundStationClient extends Thread {
 			
 		case GroundStationCommands.ABORT_MISSION:
 			notifyAction(ABORT_MISSION);
+			break;
+			
+		case GroundStationCommands.ACK:
+			notifyAction(ACK);
 			break;
 		}
 	}

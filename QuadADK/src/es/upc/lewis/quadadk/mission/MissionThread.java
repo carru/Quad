@@ -33,13 +33,16 @@ public class MissionThread extends Thread {
 	@Override
 	public void run() {
 		try {
-			/*utils.readSensorCO();
-			utils.readSensorHumidity();
-			utils.readSensorNO2();
-			utils.readSensorTemperature();*/
-			utils.takePicture();
-			
-			//utils.wait(4000);
+			while (true) {
+				//utils.readSensor(MissionUtils.TEMPERATURE);
+				//utils.readSensor(MissionUtils.HUMIDITY);
+				//utils.readSensor(MissionUtils.NO2);
+				//utils.readSensor(MissionUtils.CO);
+
+				utils.takePicture();
+
+				utils.wait(1000);
+			}
 			
 			
 			//utils.takeoff();
@@ -87,6 +90,9 @@ public class MissionThread extends Thread {
 				utils.abortMission();
 				utils.showToast("Mission aborted!");
 			}
+			else if (action.equals(GroundStationClient.ACK)) {
+				MissionUtils.readyToSend = true;
+			}
 		}
 	};
 
@@ -96,6 +102,7 @@ public class MissionThread extends Thread {
 	private static IntentFilter broadcastIntentFilter() {
 		final IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction(GroundStationClient.ABORT_MISSION);
+		intentFilter.addAction(GroundStationClient.ACK);
 		return intentFilter;
 	}
 }

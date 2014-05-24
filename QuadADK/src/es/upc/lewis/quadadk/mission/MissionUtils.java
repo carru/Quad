@@ -5,14 +5,22 @@ import es.upc.lewis.quadadk.comms.ArduinoCommands;
 import es.upc.lewis.quadadk.comms.CommunicationsThread;
 import es.upc.lewis.quadadk.comms.GroundStationClient;
 import es.upc.lewis.quadadk.comms.GroundStationCommands;
+import android.util.Log;
 import android.widget.Toast;
 
 public class MissionUtils {
 	private static final int timeToArm            = 4000;      // Milliseconds
 	private static final int timeToDisarm         = timeToArm; // Milliseconds
 	private static final int TIME_TO_SEND_PICTURE = 2000;      // Milliseconds
-	private static final int TIME_TO_READ_SENSOR  = 100;       // Milliseconds
-	private static final int TIME_TO_TAKEOFF      = 10000;       // Milliseconds
+	private static final int TIME_TO_READ_SENSOR  = 0;       // Milliseconds
+	private static final int TIME_TO_TAKEOFF      = 10000;     // Milliseconds
+	
+	public static volatile boolean readyToSend = true;
+	
+	public static final byte TEMPERATURE = 0x01;
+	public static final byte HUMIDITY    = 0x02;
+	public static final byte NO2         = 0x03;
+	public static final byte CO          = 0x04;
 	
 	// To abort the mission
 	private static volatile boolean isAborted = false;
@@ -61,17 +69,17 @@ public class MissionUtils {
 	public void abortMission() {
 		isAborted = true;
 		
-		// Set all sticks to neutral (hover)
-		arduino.send(ArduinoCommands.SET_CH1, 1500);
-		arduino.send(ArduinoCommands.SET_CH2, 1500);
-		arduino.send(ArduinoCommands.SET_CH3, 1500);
-		arduino.send(ArduinoCommands.SET_CH4, 1500);
-		
-		// Return to launch
-		arduino.send(ArduinoCommands.SET_MODE_RTL);
-		
-		// Set throttle to low (auto disarm)
-		arduino.send(ArduinoCommands.SET_CH3, 1000);
+//		// Set all sticks to neutral (hover)
+//		arduino.send(ArduinoCommands.SET_CH1, 1500);
+//		arduino.send(ArduinoCommands.SET_CH2, 1500);
+//		arduino.send(ArduinoCommands.SET_CH3, 1500);
+//		arduino.send(ArduinoCommands.SET_CH4, 1500);
+//		
+//		// Return to launch
+//		arduino.send(ArduinoCommands.SET_MODE_RTL);
+//		
+//		// Set throttle to low (auto disarm)
+//		arduino.send(ArduinoCommands.SET_CH3, 1000);
 	}
 	
 	/**
@@ -158,6 +166,8 @@ public class MissionUtils {
 	public void takePicture() throws AbortException {
 		if (isAborted) { throw new AbortException(); }
 
+		if (!readyToSend) { Log.e("MissionUtils", "Can't send picture. Server not ready"); return; }
+		
 		if (MainActivity.camera != null) {
 			if (MainActivity.camera.isReady()) { MainActivity.camera.takePicture(); }
 		}
@@ -167,43 +177,30 @@ public class MissionUtils {
 	}
 	
 	/**
-	 * Read temperature sensor and send result to the GroundStation
+	 * Read sensor and send result to the GroundStation
 	 * @throws AbortException 
 	 */
-	public void readSensorTemperature() throws AbortException {
-		send(ArduinoCommands.READ_SENSOR_TEMPERATURE);
-		
-		wait(TIME_TO_READ_SENSOR);
-	}
-	
-	/**
-	 * Read humidity sensor and send result to the GroundStation
-	 * @throws AbortException 
-	 */
-	public void readSensorHumidity() throws AbortException {
-		send(ArduinoCommands.READ_SENSOR_HUMIDITY);
-		
-		wait(TIME_TO_READ_SENSOR);
-	}
-	
-	/**
-	 * Read NO2 sensor and send result to the GroundStation
-	 * @throws AbortException 
-	 */
-	public void readSensorNO2() throws AbortException {
-		send(ArduinoCommands.READ_SENSOR_NO2);
-		
-		wait(TIME_TO_READ_SENSOR);
-	}
-	
-	/**
-	 * Read CO sensor and send result to the GroundStation
-	 * @throws AbortException 
-	 */
-	public void readSensorCO() throws AbortException {
-		send(ArduinoCommands.READ_SENSOR_CO);
-		
-		wait(TIME_TO_READ_SENSOR);
+	public void readSensor(byte sensor) throws AbortException {
+		if (readyToSend) {
+			switch(sensor) {
+			case TEMPERATURE:
+				send(ArduinoCommands.READ_SENSOR_TEMPERATURE);
+				break;
+			case HUMIDITY:
+				send(ArduinoCommands.READ_SENSOR_HUMIDITY);
+				break;
+			case NO2:
+				send(ArduinoCommands.READ_SENSOR_NO2);
+				break;
+			case CO:
+				send(ArduinoCommands.READ_SENSOR_CO);
+				break;
+			}
+			wait(TIME_TO_READ_SENSOR);
+		} else {
+			// Not ready to send. Do nothing
+			Log.e("MissionUtils", "Can't send sensor reading. Server not ready");
+		}
 	}
 	
 	/**

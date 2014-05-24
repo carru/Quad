@@ -14,4 +14,6 @@ public interface GroundStationCommands {
 	
 	public static final byte MISSION_START = 0x30;
 	public static final byte MISSION_END   = 0x31;
+	
+	public static final byte ACK = (byte) 0xFF;
 }
