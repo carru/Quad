@@ -15,7 +15,7 @@ public class MissionThread extends Thread {
 	private MissionUtils utils;
 	
 	public MissionThread(CommunicationsThread comms, GroundStationClient server, MainActivity activity) {
-		//if (comms == null) { return; }
+		if (comms == null) { return; }
 		
 		// Utils class
 		utils = new MissionUtils(comms, server, activity);
@@ -33,44 +33,11 @@ public class MissionThread extends Thread {
 	@Override
 	public void run() {
 		try {
-			while (true) {
-				//utils.readSensor(MissionUtils.TEMPERATURE);
-				//utils.readSensor(MissionUtils.HUMIDITY);
-				//utils.readSensor(MissionUtils.NO2);
-				//utils.readSensor(MissionUtils.CO);
-
-				utils.takePicture();
-
-				utils.wait(1000);
-			}
+			utils.takeoff();
 			
-			
-			//utils.takeoff();
-			//utils.returnToLaunch();
-			
-			
-			/*
-			// Arm motors
-			utils.showToast("Arming...");
-			utils.arm();
-
-			// Set loitter flight mode
-			utils.send(ArduinoCommands.SET_MODE_LOITTER);
-
-			// Go up for 2 seconds
-			utils.send(ArduinoCommands.SET_CH3, 1750);
-			utils.wait(2000);
-
-			utils.takePicture();
-			
-			// Hover for 5 seconds
-			utils.hover();
 			utils.wait(5000);
-
-			// Disarm motors
-			// NOTE: this is just a test. Don't disarm while flying!!
-			utils.showToast("Disarming...");
-			utils.disarm();*/
+			
+			utils.returnToLaunch();
 		} catch (AbortException e) {
 			// Mission has been aborted
 		}

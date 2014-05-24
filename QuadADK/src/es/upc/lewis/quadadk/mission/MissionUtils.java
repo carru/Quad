@@ -13,7 +13,7 @@ public class MissionUtils {
 	private static final int timeToDisarm         = timeToArm; // Milliseconds
 	private static final int TIME_TO_SEND_PICTURE = 2000;      // Milliseconds
 	private static final int TIME_TO_READ_SENSOR  = 0;       // Milliseconds
-	private static final int TIME_TO_TAKEOFF      = 10000;     // Milliseconds
+	private static final int TIME_TO_TAKEOFF      = 20000;     // Milliseconds
 	
 	public static volatile boolean readyToSend = true;
 	
@@ -69,17 +69,17 @@ public class MissionUtils {
 	public void abortMission() {
 		isAborted = true;
 		
-//		// Set all sticks to neutral (hover)
-//		arduino.send(ArduinoCommands.SET_CH1, 1500);
-//		arduino.send(ArduinoCommands.SET_CH2, 1500);
-//		arduino.send(ArduinoCommands.SET_CH3, 1500);
-//		arduino.send(ArduinoCommands.SET_CH4, 1500);
-//		
-//		// Return to launch
-//		arduino.send(ArduinoCommands.SET_MODE_RTL);
-//		
-//		// Set throttle to low (auto disarm)
-//		arduino.send(ArduinoCommands.SET_CH3, 1000);
+		// Set all sticks to neutral (hover)
+		arduino.send(ArduinoCommands.SET_CH1, 1500);
+		arduino.send(ArduinoCommands.SET_CH2, 1500);
+		arduino.send(ArduinoCommands.SET_CH3, 1500);
+		arduino.send(ArduinoCommands.SET_CH4, 1500);
+		
+		// Return to launch
+		arduino.send(ArduinoCommands.SET_MODE_RTL);
+		
+		// Set throttle to low (auto disarm)
+		arduino.send(ArduinoCommands.SET_CH3, 1000);
 	}
 	
 	/**
