@@ -55,8 +55,8 @@ public class MainActivity extends Activity {
 	public static SimpleCamera camera;
 	
 	// Location
-	private MyLocation locationProvider;
-	private Location location;
+	//private MyLocation locationProvider;
+	//private Location location;
 
 	// Is mission running? (Allow only one instance)
 	public static volatile boolean isMissionRunning = false;
@@ -279,7 +279,8 @@ public class MainActivity extends Activity {
 		camera = new SimpleCamera(this,
 				(FrameLayout) findViewById(R.id.camera_preview));
 
-		locationProvider = new MyLocation(this);
+		//locationProvider = new MyLocation(this);
+		GetLocation.request_location(this);
 		
 		// Get last socket details
 		sharedPreferences = getPreferences(Context.MODE_PRIVATE);
@@ -306,7 +307,8 @@ public class MainActivity extends Activity {
 
 		if (camera != null) { camera.close(); }
 		
-		if (locationProvider != null) { locationProvider.stop(); locationProvider = null; }
+		//if (locationProvider != null) { locationProvider.stop(); locationProvider = null; }
+		GetLocation.stop_location();
 	}
 
 	private void getUiReferences() {
@@ -396,8 +398,8 @@ public class MainActivity extends Activity {
 				groundStationClientReceiver, groundStationClientIntentFilter());
 		
 		// Location receiver
-		LocalBroadcastManager.getInstance(this).registerReceiver(
-				locationReceiver, locationIntentFilter());
+//		LocalBroadcastManager.getInstance(this).registerReceiver(
+//				locationReceiver, locationIntentFilter());
 
 		// USB events
 		IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
@@ -415,28 +417,28 @@ public class MainActivity extends Activity {
 				groundStationClientReceiver);
 
 		// Location receiver
-		LocalBroadcastManager.getInstance(this).unregisterReceiver(
-				locationReceiver);
+//		LocalBroadcastManager.getInstance(this).unregisterReceiver(
+//				locationReceiver);
 
 		// USB events
 		unregisterReceiver(usbReceiver);
 	}
 
 	// Receiver for location updates
-		private BroadcastReceiver locationReceiver = new BroadcastReceiver() {
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				location = locationProvider.getLastLocation();
-				
-				displayLocation(location);
-			}
-		};
-
-		private static IntentFilter locationIntentFilter() {
-			final IntentFilter intentFilter = new IntentFilter();
-			intentFilter.addAction(MyLocation.GPS_UPDATE);
-			return intentFilter;
-		}
+//		private BroadcastReceiver locationReceiver = new BroadcastReceiver() {
+//			@Override
+//			public void onReceive(Context context, Intent intent) {
+//				location = locationProvider.getLastLocation();
+//				
+//				displayLocation(location);
+//			}
+//		};
+//
+//		private static IntentFilter locationIntentFilter() {
+//			final IntentFilter intentFilter = new IntentFilter();
+//			intentFilter.addAction(MyLocation.GPS_UPDATE);
+//			return intentFilter;
+//		}
 	
 	// Receiver for Arduino application
 	private BroadcastReceiver sensorDataReceiver = new BroadcastReceiver() {

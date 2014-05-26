@@ -9,7 +9,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 public class MissionUtils {
-	private static final int timeToArm            = 4000;      // Milliseconds
+	private static final int timeToArm            = 5000;      // Milliseconds
 	private static final int timeToDisarm         = timeToArm; // Milliseconds
 	private static final int TIME_TO_SEND_PICTURE = 2000;      // Milliseconds
 	private static final int TIME_TO_READ_SENSOR  = 0;       // Milliseconds
@@ -21,6 +21,11 @@ public class MissionUtils {
 	public static final byte HUMIDITY    = 0x02;
 	public static final byte NO2         = 0x03;
 	public static final byte CO          = 0x04;
+	
+	private static final int THROTTLE_MIN = 1150; // Throttle has a different minimum value
+	private static final int CH_MIN       = 1000;
+	private static final int CH_NEUTRAL   = 1500;
+	private static final int CH_MAX       = 2000;
 	
 	// To abort the mission
 	private static volatile boolean isAborted = false;
@@ -69,61 +74,71 @@ public class MissionUtils {
 	public void abortMission() {
 		isAborted = true;
 		
+		// DEBUG disarm
+		arduino.send(ArduinoCommands.SET_CH1, CH_NEUTRAL);
+		arduino.send(ArduinoCommands.SET_CH2, CH_NEUTRAL);
+		arduino.send(ArduinoCommands.SET_CH3, THROTTLE_MIN);
+		arduino.send(ArduinoCommands.SET_CH4, CH_MIN);
+
+		waitWithoutException(timeToDisarm);
+
+		arduino.send(ArduinoCommands.SET_CH4, CH_NEUTRAL);
+		
+		//TODO: change back to RTL
 		// Set all sticks to neutral (hover)
-		arduino.send(ArduinoCommands.SET_CH1, 1500);
-		arduino.send(ArduinoCommands.SET_CH2, 1500);
-		arduino.send(ArduinoCommands.SET_CH3, 1500);
-		arduino.send(ArduinoCommands.SET_CH4, 1500);
-		
-		// Return to launch
-		arduino.send(ArduinoCommands.SET_MODE_RTL);
-		
-		// Set throttle to low (auto disarm)
-		arduino.send(ArduinoCommands.SET_CH3, 1000);
+//		arduino.send(ArduinoCommands.SET_CH1, CH_NEUTRAL);
+//		arduino.send(ArduinoCommands.SET_CH2, CH_NEUTRAL);
+//		arduino.send(ArduinoCommands.SET_CH3, CH_NEUTRAL);
+//		arduino.send(ArduinoCommands.SET_CH4, CH_NEUTRAL);
+//		
+//		// Return to launch
+//		arduino.send(ArduinoCommands.SET_MODE_RTL);
+//		
+//		// Set throttle to low (auto disarm)
+//		arduino.send(ArduinoCommands.SET_CH3, THROTTLE_MIN);
 	}
 	
 	/**
 	 * Arms motors. Blocks for 'timeToArm' milliseconds. Switches to Altitude Hold flight mode
 	 * Leaves roll, pitch and yaw in neutral (1500) and throttle at minimum (1000).
 	 */
-	private void arm() throws AbortException {
+	public void arm() throws AbortException {
 		// Set flight mode to altitude hold (can't arm in loitter)
 		send(ArduinoCommands.SET_MODE_ALTHOLD);
 
-		send(ArduinoCommands.SET_CH1, 1500);
-		send(ArduinoCommands.SET_CH2, 1500);
-		send(ArduinoCommands.SET_CH3, 1000);
-		send(ArduinoCommands.SET_CH4, 2000);
+		send(ArduinoCommands.SET_CH1, CH_NEUTRAL);
+		send(ArduinoCommands.SET_CH2, CH_NEUTRAL);
+		send(ArduinoCommands.SET_CH3, THROTTLE_MIN);
+		send(ArduinoCommands.SET_CH4, CH_MAX);
 
 		wait(timeToArm);
 
-		send(ArduinoCommands.SET_CH4, 1500);
+		send(ArduinoCommands.SET_CH4, CH_NEUTRAL);
 	}
 
 	/**
 	 * Disarms motors. Blocks for 'timeToDisarm' milliseconds.
 	 * Leaves roll, pitch and yaw in neutral (1500) and throttle at minimum (1000).
 	 */
-	@SuppressWarnings("unused")
-	private void disarm() throws AbortException {
-		send(ArduinoCommands.SET_CH1, 1500);
-		send(ArduinoCommands.SET_CH2, 1500);
-		send(ArduinoCommands.SET_CH3, 1000);
-		send(ArduinoCommands.SET_CH4, 1000);
+	public void disarm() throws AbortException {
+		send(ArduinoCommands.SET_CH1, CH_NEUTRAL);
+		send(ArduinoCommands.SET_CH2, CH_NEUTRAL);
+		send(ArduinoCommands.SET_CH3, THROTTLE_MIN);
+		send(ArduinoCommands.SET_CH4, CH_MIN);
 
 		wait(timeToDisarm);
 
-		send(ArduinoCommands.SET_CH4, 1500);
+		send(ArduinoCommands.SET_CH4, CH_NEUTRAL);
 	}
 
 	/**
 	 * Set roll, pitch, throttle and yaw to neutral (hover)
 	 */
 	public void hover() throws AbortException {
-		send(ArduinoCommands.SET_CH1, 1500);
-		send(ArduinoCommands.SET_CH2, 1500);
-		send(ArduinoCommands.SET_CH3, 1500);
-		send(ArduinoCommands.SET_CH4, 1500);
+		send(ArduinoCommands.SET_CH1, CH_NEUTRAL);
+		send(ArduinoCommands.SET_CH2, CH_NEUTRAL);
+		send(ArduinoCommands.SET_CH3, CH_NEUTRAL);
+		send(ArduinoCommands.SET_CH4, CH_NEUTRAL);
 	}
 	
 	/**
@@ -139,7 +154,7 @@ public class MissionUtils {
 		send(ArduinoCommands.SET_MODE_AUTO);
 		
 		// Raise throttle to start mission
-		send(ArduinoCommands.SET_CH3, 1500);
+		send(ArduinoCommands.SET_CH3, CH_NEUTRAL);
 		
 		// Wait so it has time to ascend
 		wait(TIME_TO_TAKEOFF);
@@ -156,7 +171,7 @@ public class MissionUtils {
 		arduino.send(ArduinoCommands.SET_MODE_RTL);
 				
 		// Set throttle to low (auto disarm)
-		arduino.send(ArduinoCommands.SET_CH3, 1000);
+		arduino.send(ArduinoCommands.SET_CH3, THROTTLE_MIN);
 	}
 	
 	/**
@@ -212,6 +227,12 @@ public class MissionUtils {
 		try { Thread.sleep(time); }
 		// Abort mission if thread is interrupted
 		catch (InterruptedException e) { throw new AbortException(); }
+	}
+	
+	public void waitWithoutException(int time) {
+		try { Thread.sleep(time); }
+		// Abort mission if thread is interrupted
+		catch (InterruptedException e) { return; }
 	}
 	
 	/**
