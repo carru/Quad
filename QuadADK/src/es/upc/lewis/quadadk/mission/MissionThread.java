@@ -39,42 +39,79 @@ public class MissionThread extends Thread {
 	@Override
 	public void run() {
 		try {
-			//utils.takeoff();
+			Location myloc;
+			Double difflat;
+			Double difflong;
 			
-			utils.arm();
-			canToggle = true;
+//			utils.arm();
+//			canToggle = true;
+//			
+//			utils.send(ArduinoCommands.SET_MODE_STB);
+//			utils.send(ArduinoCommands.SET_CH3, 1250);
+//			
+//			new FixYaw(utils, 0);
+//			
+//			Location init_loc = GetLocation.currentLocation();
+//			Location waypoint= new Location(init_loc);
+//			waypoint.setLongitude(10);
+//			
+//			int s=0;
+//			while (true) {
+//				Location myloc = GetLocation.currentLocation();
+//				Double difflat = myloc.getLatitude() - waypoint.getLatitude();
+//				Double difflong = myloc.getLongitude() - waypoint.getLongitude();
+//				
+//				if (Math.abs(difflong) > (double) 1) {
+//					// toggle dreta esquerra
+//					toggle();
+//				} else {
+//					break;
+//				}
+//				
+//				s++;
+//				if(s==5) waypoint = init_loc;
+//				
+//				utils.wait(2000);
+//			}
+//			
+//			canToggle = false;
+//			utils.disarm();
 			
-			utils.send(ArduinoCommands.SET_MODE_STB);
-			utils.send(ArduinoCommands.SET_CH3, 1250);
 			
-			Location init_loc = GetLocation.currentLocation();
-			Location waypoint= new Location(init_loc);
-			waypoint.setLongitude(10);
 			
-			int s=0;
+			
+			utils.takeoff();
+			
+			Location inici = GetLocation.currentLocation();
+			Location target = new Location(inici);
+			target.setLongitude(inici.getLongitude()+0.0002);
+			
 			while (true) {
-				Location myloc = GetLocation.currentLocation();
-				Double difflat = myloc.getLatitude() - waypoint.getLatitude();
-				Double difflong = myloc.getLongitude() - waypoint.getLongitude();
+				myloc = GetLocation.currentLocation();
 				
-				if (Math.abs(difflong) > (double) 1) {
-					// toggle dreta esquerra
-					toggle();
+				difflat = myloc.getLatitude() - target.getLatitude();
+				difflong = myloc.getLongitude() - target.getLongitude();
+				
+				if (Math.abs(difflong) > (double) 0.0001) {
+					// tira cap a la dreta
+					if(difflong<(double) 0)
+						utils.send(ArduinoCommands.SET_CH1, 1800);
+					else
+						utils.send(ArduinoCommands.SET_CH1, 1200);
 				} else {
+					utils.takePicture();
 					break;
 				}
 				
-				s++;
-				if(s==5) waypoint = init_loc;
-				
-				utils.wait(2000);
+				utils.wait(500);
 			}
 			
-			canToggle = false;
-			utils.disarm();
+			utils.returnToLaunch();
 			
 			
-			//utils.returnToLaunch();
+			
+			
+			
 		} catch (AbortException e) {
 			canToggle = false;
 			// Mission has been aborted

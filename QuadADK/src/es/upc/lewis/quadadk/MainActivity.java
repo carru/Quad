@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.location.Location;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.support.v4.content.LocalBroadcastManager;
@@ -31,7 +30,6 @@ import es.upc.lewis.quadadk.comms.CommunicationsThread;
 import es.upc.lewis.quadadk.comms.GroundStationClient;
 import es.upc.lewis.quadadk.comms.GroundStationCommands;
 import es.upc.lewis.quadadk.mission.MissionThread;
-import es.upc.lewis.quadadk.tools.MyLocation;
 import es.upc.lewis.quadadk.tools.SimpleCamera;
 
 public class MainActivity extends Activity {
@@ -86,8 +84,8 @@ public class MainActivity extends Activity {
 	private Button connectToServerButton;
 	private EditText ipEditText;
 	private EditText portEditText;
-	private TextView latitude;
-	private TextView longitude;
+//	private TextView latitude;
+//	private TextView longitude;
 	// UI states
 	public static final int CONNECTED = 1;
 	public static final int CONNECTING = 2;
@@ -332,8 +330,8 @@ public class MainActivity extends Activity {
 		connectToServerButton = (Button) findViewById(R.id.server_connect_button);
 		ipEditText = (EditText) findViewById(R.id.server_ip);
 		portEditText = (EditText) findViewById(R.id.server_port);
-		latitude = (TextView) findViewById(R.id.latitudeText);
-		longitude = (TextView) findViewById(R.id.longitudeText);
+//		latitude = (TextView) findViewById(R.id.latitudeText);
+//		longitude = (TextView) findViewById(R.id.longitudeText);
 	}
 
 	private void setADKStatus(int type) {
@@ -381,12 +379,12 @@ public class MainActivity extends Activity {
 		groundStation.send(sensor, value);
 	}
 
-	private void displayLocation(Location location) {
-		if (location == null) { return; }
-		
-		latitude.setText(Double.toString(location.getLatitude()));
-		longitude.setText(Double.toString(location.getLongitude()));
-	}
+//	private void displayLocation(Location location) {
+//		if (location == null) { return; }
+//		
+//		latitude.setText(Double.toString(location.getLatitude()));
+//		longitude.setText(Double.toString(location.getLongitude()));
+//	}
 	
 	private void registerReceivers() {
 		// Sensor data receiver
