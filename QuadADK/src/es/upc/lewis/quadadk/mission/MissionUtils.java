@@ -104,7 +104,7 @@ public class MissionUtils {
 	 * Arms motors. Blocks for 'timeToArm' milliseconds. Switches to Altitude Hold flight mode
 	 * Leaves roll, pitch and yaw in neutral (1500) and throttle at minimum (1000).
 	 */
-	public void arm() throws AbortException {
+	private void arm() throws AbortException {
 		// Set flight mode to altitude hold (can't arm in loitter)
 		send(ArduinoCommands.SET_MODE_ALTHOLD);
 
@@ -122,7 +122,8 @@ public class MissionUtils {
 	 * Disarms motors. Blocks for 'timeToDisarm' milliseconds.
 	 * Leaves roll, pitch and yaw in neutral (1500) and throttle at minimum (1000).
 	 */
-	public void disarm() throws AbortException {
+	@SuppressWarnings("unused")
+	private void disarm() throws AbortException {
 		send(ArduinoCommands.SET_CH1, CH_NEUTRAL);
 		send(ArduinoCommands.SET_CH2, CH_NEUTRAL);
 		send(ArduinoCommands.SET_CH3, THROTTLE_MIN);
@@ -145,7 +146,7 @@ public class MissionUtils {
 	
 	/**
 	 * Arm motors and ascend to a predefined altitude
-	 * Ends after X milliseconds and with Loitter flight mode
+	 * Ends after (TIME_TO_TAKEOFF + 1000) milliseconds and with Loitter flight mode
 	 * @throws AbortException
 	 */
 	public void takeoff() throws AbortException {
@@ -169,7 +170,7 @@ public class MissionUtils {
 	}
 	
 	/**
-	 * Return to launch position, land and disarm
+	 * Return to launch position, land and disarm. Executes even if mission is aborted
 	 */
 	public void returnToLaunch() {
 		// Set return to launch mode
