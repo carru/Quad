@@ -3,7 +3,7 @@ package es.upc.lewis.navigationtest;
 import android.location.Location;
 
 public class MissionThread extends Thread {
-	private double WAYPOINT_RADIUS = 0.00005;
+	private double WAYPOINT_RADIUS = 0.00007; // 9.7 meters
 	
 	private volatile boolean enabled = true;
 	
@@ -41,28 +41,26 @@ public class MissionThread extends Thread {
 		// Enter mission waypoints here (latitude, longitude)
 		// Not used yet
 		double[] waypoints = new double[]{
-				41.0000, 2.0000,
-				41.0002, 2.0002,
-				41.0004, 2.0004
+				41.38802, 2.11325,
+				41.00000, 2.00000,
+				41.00000, 2.00000
 		};
 		
 		// utils.takeoff();
 
 		
 		// Get starting location
-		do {
-			startWP = locationProvider.getLastLocation();
-
-			if (!enabled) {
-				end();
-				return;
-			}
-
+		startWP = locationProvider.getLastLocation();
+		while (startWP == null) {
 			// GPS not ready, wait and try again
 			try { sleep(1000); } catch (InterruptedException e) { }
-		} while (startWP == null);
+						
+			startWP = locationProvider.getLastLocation();
 
-		// Set target about 17 meters to the east of the starting location
+			if (!enabled) { end(); return; }
+		}
+
+		// Set target, about 27 meters to the east
 		targetWP = new Location(startWP);
 		targetWP.setLongitude(startWP.getLongitude() + 0.0002);
 
@@ -113,7 +111,7 @@ public class MissionThread extends Thread {
 
 			// utils.wait(500);
 			try {
-				sleep(500);
+				sleep(250);
 			} catch (InterruptedException e) {
 			}
 		}
@@ -125,11 +123,15 @@ public class MissionThread extends Thread {
 	private int decideMovement() {
 		int movement = 0;
 		
-		if (latitudeDelta < 0) { movement = movement + FORWARD; }
-		else if (latitudeDelta > 0) { movement = movement + BACKWARD; }
+		if (Math.abs(latitudeDelta) > WAYPOINT_RADIUS) {
+			if (latitudeDelta < 0) { movement = movement + FORWARD; }
+			else if (latitudeDelta > 0) { movement = movement + BACKWARD; }
+		}
 		
-		if (longitudeDelta < 0) { movement = movement + RIGHT; }
-		else if (longitudeDelta > 0) { movement = movement + LEFT; }
+		if (Math.abs(longitudeDelta) > WAYPOINT_RADIUS) {
+			if (longitudeDelta < 0) { movement = movement + RIGHT; }
+			else if (longitudeDelta > 0) { movement = movement + LEFT; }
+		}
 		
 		return movement;
 	}

@@ -76,28 +76,7 @@ public class MissionUtils {
 	public void abortMission() {
 		isAborted = true;
 		
-		// DEBUG disarm
-//		arduino.send(ArduinoCommands.SET_CH1, CH_NEUTRAL);
-//		arduino.send(ArduinoCommands.SET_CH2, CH_NEUTRAL);
-//		arduino.send(ArduinoCommands.SET_CH3, THROTTLE_MIN);
-//		arduino.send(ArduinoCommands.SET_CH4, CH_MIN);
-//
-//		waitWithoutException(timeToDisarm);
-//
-//		arduino.send(ArduinoCommands.SET_CH4, CH_NEUTRAL);
-		
-		//TODO: change back to RTL
-		// Set all sticks to neutral (hover)
-		arduino.send(ArduinoCommands.SET_CH1, CH_NEUTRAL);
-		arduino.send(ArduinoCommands.SET_CH2, CH_NEUTRAL);
-		arduino.send(ArduinoCommands.SET_CH3, THROTTLE_NEUTRAL);
-		arduino.send(ArduinoCommands.SET_CH4, CH_NEUTRAL);
-		
-		// Return to launch
-		arduino.send(ArduinoCommands.SET_MODE_RTL);
-		
-		// Set throttle to low (auto disarm)
-		arduino.send(ArduinoCommands.SET_CH3, THROTTLE_MIN);
+		returnToLaunch();
 	}
 	
 	/**
@@ -173,6 +152,12 @@ public class MissionUtils {
 	 * Return to launch position, land and disarm. Executes even if mission is aborted
 	 */
 	public void returnToLaunch() {
+		// Hover
+		arduino.send(ArduinoCommands.SET_CH1, CH_NEUTRAL);
+		arduino.send(ArduinoCommands.SET_CH2, CH_NEUTRAL);
+		arduino.send(ArduinoCommands.SET_CH3, THROTTLE_NEUTRAL);
+		arduino.send(ArduinoCommands.SET_CH4, CH_NEUTRAL);
+		
 		// Set return to launch mode
 		arduino.send(ArduinoCommands.SET_MODE_RTL);
 		
@@ -261,7 +246,7 @@ public class MissionUtils {
 	 */
 	public void endMission() {
 		// Clear / stop additional threads that were working
-		// (maybe added in the future)
+		// (may be added in the future)
 		
 		// Notify mission is over
 		MainActivity.isMissionRunning = false;

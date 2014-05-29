@@ -30,6 +30,7 @@ import es.upc.lewis.quadadk.comms.CommunicationsThread;
 import es.upc.lewis.quadadk.comms.GroundStationClient;
 import es.upc.lewis.quadadk.comms.GroundStationCommands;
 import es.upc.lewis.quadadk.mission.MissionThread;
+import es.upc.lewis.quadadk.tools.MyLocation;
 import es.upc.lewis.quadadk.tools.SimpleCamera;
 
 public class MainActivity extends Activity {
@@ -53,8 +54,7 @@ public class MainActivity extends Activity {
 	public static SimpleCamera camera;
 	
 	// Location
-	//private MyLocation locationProvider;
-	//private Location location;
+	private MyLocation locationProvider;
 
 	// Is mission running? (Allow only one instance)
 	public static volatile boolean isMissionRunning = false;
@@ -277,8 +277,7 @@ public class MainActivity extends Activity {
 		camera = new SimpleCamera(this,
 				(FrameLayout) findViewById(R.id.camera_preview));
 
-		//locationProvider = new MyLocation(this);
-		GetLocation.request_location(this);
+		locationProvider = new MyLocation(this);
 		
 		// Get last socket details
 		sharedPreferences = getPreferences(Context.MODE_PRIVATE);
@@ -305,8 +304,7 @@ public class MainActivity extends Activity {
 
 		if (camera != null) { camera.close(); }
 		
-		//if (locationProvider != null) { locationProvider.stop(); locationProvider = null; }
-		GetLocation.stop_location();
+		if (locationProvider != null) { locationProvider.stop(); locationProvider = null; }
 	}
 
 	private void getUiReferences() {
@@ -370,7 +368,7 @@ public class MainActivity extends Activity {
 		if (isMissionRunning == false && comms != null) {
 		//if (isMissionRunning == false) {
 			isMissionRunning = true;
-			new MissionThread(comms, groundStation, this);
+			new MissionThread(comms, groundStation, this, locationProvider);
 		}
 	}
 	
