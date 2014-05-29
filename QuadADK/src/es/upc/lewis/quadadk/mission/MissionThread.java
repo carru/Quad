@@ -121,26 +121,26 @@ public class MissionThread extends Thread {
 						utils.send(ArduinoCommands.SET_CH1, 1800);
 						break;
 					case FORWARD:
-						utils.send(ArduinoCommands.SET_CH2, 1800);
+						utils.send(ArduinoCommands.SET_CH2, 1200);
 						break;
 					case BACKWARD:
-						utils.send(ArduinoCommands.SET_CH2, 1200);
+						utils.send(ArduinoCommands.SET_CH2, 1800);
 						break;
 					case LEFT + FORWARD:
 						utils.send(ArduinoCommands.SET_CH1, 1200);
-						utils.send(ArduinoCommands.SET_CH2, 1800);
+						utils.send(ArduinoCommands.SET_CH2, 1200);
 						break;
 					case LEFT + BACKWARD:
 						utils.send(ArduinoCommands.SET_CH1, 1200);
-						utils.send(ArduinoCommands.SET_CH2, 1200);
+						utils.send(ArduinoCommands.SET_CH2, 1800);
 						break;
 					case RIGHT + FORWARD:
 						utils.send(ArduinoCommands.SET_CH1, 1800);
-						utils.send(ArduinoCommands.SET_CH2, 1800);
+						utils.send(ArduinoCommands.SET_CH2, 1200);
 						break;
 					case RIGHT + BACKWARD:
 						utils.send(ArduinoCommands.SET_CH1, 1800);
-						utils.send(ArduinoCommands.SET_CH2, 1200);
+						utils.send(ArduinoCommands.SET_CH2, 1800);
 						break;
 					}
 				}
