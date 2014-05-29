@@ -1,10 +1,12 @@
 package es.upc.lewis.quadadk.tools;
 
 import android.content.Context;
+import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 
 public class MyLocation implements LocationListener {
 	private long MIN_TIME_BETWEEN_UPDATES = 100;   // Milliseconds, not accurate
@@ -14,8 +16,14 @@ public class MyLocation implements LocationListener {
 	
 	private LocationManager locationManager;
 	private Location lastLocation = null;
+	
+	public static final String GPS_UPDATE = "g";
+	private Intent intent;
+	private Context context;
 
 	public MyLocation(Context context) {
+		this.context = context;
+		
 		locationManager = (LocationManager) context
 				.getSystemService(Context.LOCATION_SERVICE);
 		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
@@ -36,6 +44,10 @@ public class MyLocation implements LocationListener {
 		if (location.getAccuracy() > MAX_ERROR_IN_METERS) { return; }
 		
 		lastLocation = location;
+		
+		// Notify there's an update
+		intent = new Intent(GPS_UPDATE);
+		LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 	}
 
 	@Override

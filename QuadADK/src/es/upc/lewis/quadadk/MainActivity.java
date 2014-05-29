@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.support.v4.content.LocalBroadcastManager;
@@ -55,6 +56,7 @@ public class MainActivity extends Activity {
 	
 	// Location
 	private MyLocation locationProvider;
+	private Location location;
 
 	// Is mission running? (Allow only one instance)
 	public static volatile boolean isMissionRunning = false;
@@ -84,8 +86,8 @@ public class MainActivity extends Activity {
 	private Button connectToServerButton;
 	private EditText ipEditText;
 	private EditText portEditText;
-//	private TextView latitude;
-//	private TextView longitude;
+	private TextView latitude;
+	private TextView longitude;
 	// UI states
 	public static final int CONNECTED = 1;
 	public static final int CONNECTING = 2;
@@ -328,8 +330,8 @@ public class MainActivity extends Activity {
 		connectToServerButton = (Button) findViewById(R.id.server_connect_button);
 		ipEditText = (EditText) findViewById(R.id.server_ip);
 		portEditText = (EditText) findViewById(R.id.server_port);
-//		latitude = (TextView) findViewById(R.id.latitudeText);
-//		longitude = (TextView) findViewById(R.id.longitudeText);
+		latitude = (TextView) findViewById(R.id.latitudeText);
+		longitude = (TextView) findViewById(R.id.longitudeText);
 	}
 
 	private void setADKStatus(int type) {
@@ -377,12 +379,12 @@ public class MainActivity extends Activity {
 		groundStation.send(sensor, value);
 	}
 
-//	private void displayLocation(Location location) {
-//		if (location == null) { return; }
-//		
-//		latitude.setText(Double.toString(location.getLatitude()));
-//		longitude.setText(Double.toString(location.getLongitude()));
-//	}
+	private void displayLocation(Location location) {
+		if (location == null) { return; }
+		
+		latitude.setText(Double.toString(location.getLatitude()));
+		longitude.setText(Double.toString(location.getLongitude()));
+	}
 	
 	private void registerReceivers() {
 		// Sensor data receiver
@@ -394,8 +396,8 @@ public class MainActivity extends Activity {
 				groundStationClientReceiver, groundStationClientIntentFilter());
 		
 		// Location receiver
-//		LocalBroadcastManager.getInstance(this).registerReceiver(
-//				locationReceiver, locationIntentFilter());
+		LocalBroadcastManager.getInstance(this).registerReceiver(
+				locationReceiver, locationIntentFilter());
 
 		// USB events
 		IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
@@ -413,28 +415,28 @@ public class MainActivity extends Activity {
 				groundStationClientReceiver);
 
 		// Location receiver
-//		LocalBroadcastManager.getInstance(this).unregisterReceiver(
-//				locationReceiver);
+		LocalBroadcastManager.getInstance(this).unregisterReceiver(
+				locationReceiver);
 
 		// USB events
 		unregisterReceiver(usbReceiver);
 	}
 
 	// Receiver for location updates
-//		private BroadcastReceiver locationReceiver = new BroadcastReceiver() {
-//			@Override
-//			public void onReceive(Context context, Intent intent) {
-//				location = locationProvider.getLastLocation();
-//				
-//				displayLocation(location);
-//			}
-//		};
-//
-//		private static IntentFilter locationIntentFilter() {
-//			final IntentFilter intentFilter = new IntentFilter();
-//			intentFilter.addAction(MyLocation.GPS_UPDATE);
-//			return intentFilter;
-//		}
+		private BroadcastReceiver locationReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				location = locationProvider.getLastLocation();
+				
+				displayLocation(location);
+			}
+		};
+
+		private static IntentFilter locationIntentFilter() {
+			final IntentFilter intentFilter = new IntentFilter();
+			intentFilter.addAction(MyLocation.GPS_UPDATE);
+			return intentFilter;
+		}
 	
 	// Receiver for Arduino application
 	private BroadcastReceiver sensorDataReceiver = new BroadcastReceiver() {
