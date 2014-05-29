@@ -100,7 +100,6 @@ public class MissionThread extends Thread {
 			utils.takeoff();
 			
 			
-			
 			// Navigation loop
 			while (true) {
 				// Get current location
@@ -150,11 +149,7 @@ public class MissionThread extends Thread {
 					utils.hover();
 				}
 
-				// utils.wait(500);
-				try {
-					sleep(NAVIGATION_LOOP_PERIOD);
-				} catch (InterruptedException e) {
-				}
+				utils.wait(NAVIGATION_LOOP_PERIOD);
 			}
 			
 			
