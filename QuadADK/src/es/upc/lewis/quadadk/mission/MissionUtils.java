@@ -9,22 +9,21 @@ import android.util.Log;
 import android.widget.Toast;
 
 public class MissionUtils {
-	private static final int timeToArm            = 5000;      // Milliseconds
-	private static final int timeToDisarm         = timeToArm; // Milliseconds
-	private static final int TIME_TO_SEND_PICTURE = 2000;      // Milliseconds
-	private static final int TIME_TO_READ_SENSOR  = 0;       // Milliseconds
-	private static final int TIME_TO_TAKEOFF      = 20000;     // Milliseconds
+	private static final int TIME_TO_ARM     = 5000;        // Milliseconds
+	private static final int TIME_TO_DISARM  = TIME_TO_ARM; // Milliseconds
+	private static final int TIME_TO_TAKEOFF = 20000;       // Milliseconds
 	
 	public static volatile boolean readyToSend = true;
 	
+	// Sensors
 	public static final byte TEMPERATURE = 0x01;
 	public static final byte HUMIDITY    = 0x02;
 	public static final byte NO2         = 0x03;
 	public static final byte CO          = 0x04;
 	
+	// Channel values
 	private static final int THROTTLE_MIN     = 1150; // Throttle has a different minimum value
 	private static final int THROTTLE_NEUTRAL = 1650;
-	
 	private static final int CH_MIN       = 1000;
 	private static final int CH_NEUTRAL   = 1500;
 	private static final int CH_MAX       = 2000;
@@ -92,7 +91,7 @@ public class MissionUtils {
 		send(ArduinoCommands.SET_CH3, THROTTLE_MIN);
 		send(ArduinoCommands.SET_CH4, CH_MAX);
 
-		wait(timeToArm);
+		wait(TIME_TO_ARM);
 
 		send(ArduinoCommands.SET_CH4, CH_NEUTRAL);
 	}
@@ -108,7 +107,7 @@ public class MissionUtils {
 		send(ArduinoCommands.SET_CH3, THROTTLE_MIN);
 		send(ArduinoCommands.SET_CH4, CH_MIN);
 
-		wait(timeToDisarm);
+		wait(TIME_TO_DISARM);
 
 		send(ArduinoCommands.SET_CH4, CH_NEUTRAL);
 	}
@@ -180,9 +179,6 @@ public class MissionUtils {
 		if (MainActivity.camera != null) {
 			if (MainActivity.camera.isReady()) { MainActivity.camera.takePicture(); }
 		}
-		
-		// Give some time for the picture to be transmitted
-		wait(TIME_TO_SEND_PICTURE);
 	}
 	
 	/**
@@ -205,7 +201,6 @@ public class MissionUtils {
 				send(ArduinoCommands.READ_SENSOR_CO);
 				break;
 			}
-			wait(TIME_TO_READ_SENSOR);
 		} else {
 			// Not ready to send. Do nothing
 			Log.e("MissionUtils", "Can't send sensor reading. Server not ready");
