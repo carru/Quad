@@ -1,5 +1,7 @@
 package es.upc.lewis.quadadk.mission;
 
+import java.util.ArrayList;
+
 import es.upc.lewis.quadadk.MainActivity;
 import es.upc.lewis.quadadk.comms.ArduinoCommands;
 import es.upc.lewis.quadadk.comms.CommunicationsThread;
@@ -14,16 +16,29 @@ import android.location.Location;
 import android.support.v4.content.LocalBroadcastManager;
 
 public class MissionThread extends Thread {
-	private double WAYPOINT_RADIUS = 0.00007; // 9.7 meters
-	private double latitudeDelta, longitudeDelta;
-	
 	private int NAVIGATION_LOOP_PERIOD = 250; // Milliseconds
+	
+	private double WAYPOINT_LATITUDE_ERROR  = 0.00005; // 9.3 meters
+	private double WAYPOINT_LONGITUDE_ERROR = 0.00007; // 9.7 meters
+	
+	private double latitudeDelta, longitudeDelta;
 	
 	// Movements. Can be combined, i.e.: RIGHT + FORWARD
 	private final int LEFT     = 1;
 	private final int RIGHT    = 2;
 	private final int FORWARD  = 4;
 	private final int BACKWARD = 8;
+	
+	// Store mission waypoints here
+	ArrayList<Waypoint> waypoints;
+	private class Waypoint {
+		public double latitude;
+		public double longitude;
+		public Waypoint(double latitude, double longitude) {
+			this.latitude = latitude;
+			this.longitude = longitude;
+		}
+	}
 	
 	private MissionUtils utils;
 	private MyLocation locationProvider;
@@ -43,18 +58,30 @@ public class MissionThread extends Thread {
 		// Notify GroundStation mission has started
 		server.send(GroundStationCommands.MISSION_START);
 		
+		loadWaypoints();
+		
 		start();
 	}
 
+	private void loadWaypoints() {
+		waypoints = new ArrayList<Waypoint>();
+		
+		// Square
+		waypoints.add(new Waypoint(41.388193, 2.113258));
+		waypoints.add(new Waypoint(41.388062, 2.113528));
+		waypoints.add(new Waypoint(41.387869, 2.113328));
+		waypoints.add(new Waypoint(41.387967, 2.113098));
+	}
+	
 	private int decideMovement() {
 		int movement = 0;
 		
-		if (Math.abs(latitudeDelta) > WAYPOINT_RADIUS) {
+		if (Math.abs(latitudeDelta) > WAYPOINT_LATITUDE_ERROR) {
 			if (latitudeDelta < 0) { movement = movement + FORWARD; }
 			else if (latitudeDelta > 0) { movement = movement + BACKWARD; }
 		}
 		
-		if (Math.abs(longitudeDelta) > WAYPOINT_RADIUS) {
+		if (Math.abs(longitudeDelta) > WAYPOINT_LONGITUDE_ERROR) {
 			if (longitudeDelta < 0) { movement = movement + RIGHT; }
 			else if (longitudeDelta > 0) { movement = movement + LEFT; }
 		}
@@ -63,38 +90,44 @@ public class MissionThread extends Thread {
 	}
 	
 	private boolean waypointReached() {
-		if (Math.abs(latitudeDelta) > WAYPOINT_RADIUS) { return false; }
-		if (Math.abs(longitudeDelta) > WAYPOINT_RADIUS) { return false; }
+		if (Math.abs(latitudeDelta) > WAYPOINT_LATITUDE_ERROR) { return false; }
+		if (Math.abs(longitudeDelta) > WAYPOINT_LONGITUDE_ERROR) { return false; }
 		return true;
+	}
+	
+	private Location getNextWaypoint() {
+		if (waypoints.size() == 0) { return null; }
+		
+		Waypoint waypoint = waypoints.remove(0);
+		Location location = new Location("");
+		location.setLatitude(waypoint.latitude);
+		location.setLongitude(waypoint.longitude);
+		return location;
 	}
 	
 	@Override
 	public void run() {
-		Location currentLocation, startWP, targetWP;
-		
-		// Enter mission waypoints here (latitude, longitude)
-		// Not used yet
-		@SuppressWarnings("unused")
-		double[] waypoints = new double[]{
-				41.38802, 2.11325,
-				41.00000, 2.00000,
-				41.00000, 2.00000
-		};
+		Location currentLocation, startLocation, targetLocation;
+		boolean waypointPhotographed = false;
 		
 		
 		try {
 			// Get starting location
-			startWP = locationProvider.getLastLocation();
-			while (startWP == null) {
+			startLocation = locationProvider.getLastLocation();
+			while (startLocation == null) {
 				// GPS not ready, wait and try again
-				try { sleep(1000); } catch (InterruptedException e) { }
+				utils.wait(1000);
 							
-				startWP = locationProvider.getLastLocation();
+				startLocation = locationProvider.getLastLocation();
 			}
 
-			// Set target, about 27 meters to the east
-			targetWP = new Location(startWP);
-			targetWP.setLongitude(startWP.getLongitude() + 0.0002);
+			// Set first target
+			targetLocation = getNextWaypoint();
+			if (targetLocation == null) {
+				// First waypoint must never be null
+				utils.endMission();
+				return;
+			}
 			
 			
 			utils.takeoff();
@@ -106,8 +139,8 @@ public class MissionThread extends Thread {
 				currentLocation = locationProvider.getLastLocation();
 
 				// Calculate distance, in degrees, to the target
-				latitudeDelta  = currentLocation.getLatitude()  - targetWP.getLatitude();
-				longitudeDelta = currentLocation.getLongitude() - targetWP.getLongitude();
+				latitudeDelta  = currentLocation.getLatitude()  - targetLocation.getLatitude();
+				longitudeDelta = currentLocation.getLongitude() - targetLocation.getLongitude();
 
 				// Have we reached the target?
 				if (!waypointReached()) {
@@ -147,17 +180,34 @@ public class MissionThread extends Thread {
 				else {
 					// We reached the target
 					utils.hover();
+					
+					// Take a picture and wait 1 cycle
+					if (waypointPhotographed) {
+						targetLocation = getNextWaypoint();
+						if (targetLocation == null) {
+							// All waypoints have been reached, mission has to end
+							break;
+						}
+						
+						waypointPhotographed = false;
+					}
+					else {
+						utils.takePicture();
+						waypointPhotographed = true;
+					}
 				}
 
 				utils.wait(NAVIGATION_LOOP_PERIOD);
 			}
 			
 			
-			//utils.returnToLaunch();
+			utils.returnToLaunch();
+			
 			
 		} catch (AbortException e) {
 			// Mission has been aborted
 		}
+		
 		
 		utils.endMission();
 	}
