@@ -66,11 +66,15 @@ public class MissionThread extends Thread {
 	private void loadWaypoints() {
 		waypoints = new ArrayList<Waypoint>();
 		
+		/*
+		 * Starting location is 41.38798718, 2.1132787
+		 */
+		
 		// Square
-		waypoints.add(new Waypoint(41.388193, 2.113258));
-		waypoints.add(new Waypoint(41.388062, 2.113528));
-		waypoints.add(new Waypoint(41.387869, 2.113328));
-		waypoints.add(new Waypoint(41.387967, 2.113098));
+		waypoints.add(new Waypoint(41.38825229, 2.11327331));
+		waypoints.add(new Waypoint(41.38809966, 2.11348435));
+		waypoints.add(new Waypoint(41.38793185, 2.11331496));
+		waypoints.add(new Waypoint(41.38796800, 2.11310139));
 	}
 	
 	private int decideMovement() {
