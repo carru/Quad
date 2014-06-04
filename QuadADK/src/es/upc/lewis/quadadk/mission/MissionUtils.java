@@ -22,11 +22,11 @@ public class MissionUtils {
 	public static final byte CO          = 0x04;
 	
 	// Channel values
-	private static final int THROTTLE_MIN     = 1150; // Throttle has a different minimum value
-	private static final int THROTTLE_NEUTRAL = 1650;
-	private static final int CH_MIN       = 1000;
-	private static final int CH_NEUTRAL   = 1500;
-	private static final int CH_MAX       = 2000;
+	public static final int THROTTLE_MIN     = 1150; // Throttle has a different minimum value
+	public static final int THROTTLE_NEUTRAL = 1650;
+	public static final int CH_MIN       = 1000;
+	public static final int CH_NEUTRAL   = 1500;
+	public static final int CH_MAX       = 2000;
 	
 	// To abort the mission
 	private static volatile boolean isAborted = false;

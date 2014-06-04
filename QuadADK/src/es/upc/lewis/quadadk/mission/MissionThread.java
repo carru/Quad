@@ -23,11 +23,8 @@ public class MissionThread extends Thread {
 	
 	private double latitudeDelta, longitudeDelta;
 	
-	// Movements. Can be combined, i.e.: RIGHT + FORWARD
-	private final int LEFT     = 1;
-	private final int RIGHT    = 2;
-	private final int FORWARD  = 4;
-	private final int BACKWARD = 8;
+	// Slider position from neutral (MissionUtils.CH_NEUTRAL)
+	private final int HORIZONTAL_MOVEMENT_SLIDER = 300;
 	
 	// Store mission waypoints here
 	ArrayList<Waypoint> waypoints;
@@ -77,20 +74,24 @@ public class MissionThread extends Thread {
 		waypoints.add(new Waypoint(41.38796800, 2.11310139));
 	}
 	
-	private int decideMovement() {
-		int movement = 0;
-		
+	private void performMovement() throws AbortException {
 		if (Math.abs(latitudeDelta) > WAYPOINT_LATITUDE_ERROR) {
-			if (latitudeDelta < 0) { movement = movement + FORWARD; }
-			else if (latitudeDelta > 0) { movement = movement + BACKWARD; }
+			if (latitudeDelta < 0) {
+				utils.send(ArduinoCommands.SET_CH2, MissionUtils.CH_NEUTRAL - HORIZONTAL_MOVEMENT_SLIDER);
+			}
+			else if (latitudeDelta > 0) {
+				utils.send(ArduinoCommands.SET_CH2, MissionUtils.CH_NEUTRAL + HORIZONTAL_MOVEMENT_SLIDER);
+			}
 		}
 		
 		if (Math.abs(longitudeDelta) > WAYPOINT_LONGITUDE_ERROR) {
-			if (longitudeDelta < 0) { movement = movement + RIGHT; }
-			else if (longitudeDelta > 0) { movement = movement + LEFT; }
+			if (longitudeDelta < 0) {
+				utils.send(ArduinoCommands.SET_CH1, MissionUtils.CH_NEUTRAL + HORIZONTAL_MOVEMENT_SLIDER);
+			}
+			else if (longitudeDelta > 0) {
+				utils.send(ArduinoCommands.SET_CH1, MissionUtils.CH_NEUTRAL - HORIZONTAL_MOVEMENT_SLIDER);
+			}
 		}
-		
-		return movement;
 	}
 	
 	private boolean waypointReached() {
@@ -148,38 +149,9 @@ public class MissionThread extends Thread {
 
 				// Have we reached the target?
 				if (!waypointReached()) {
-					// Not yet reached. Decide movement
+					// Not yet reached
 					utils.hover();
-					switch (decideMovement()) {
-					case LEFT:
-						utils.send(ArduinoCommands.SET_CH1, 1200);
-						break;
-					case RIGHT:
-						utils.send(ArduinoCommands.SET_CH1, 1800);
-						break;
-					case FORWARD:
-						utils.send(ArduinoCommands.SET_CH2, 1200);
-						break;
-					case BACKWARD:
-						utils.send(ArduinoCommands.SET_CH2, 1800);
-						break;
-					case LEFT + FORWARD:
-						utils.send(ArduinoCommands.SET_CH1, 1200);
-						utils.send(ArduinoCommands.SET_CH2, 1200);
-						break;
-					case LEFT + BACKWARD:
-						utils.send(ArduinoCommands.SET_CH1, 1200);
-						utils.send(ArduinoCommands.SET_CH2, 1800);
-						break;
-					case RIGHT + FORWARD:
-						utils.send(ArduinoCommands.SET_CH1, 1800);
-						utils.send(ArduinoCommands.SET_CH2, 1200);
-						break;
-					case RIGHT + BACKWARD:
-						utils.send(ArduinoCommands.SET_CH1, 1800);
-						utils.send(ArduinoCommands.SET_CH2, 1800);
-						break;
-					}
+					performMovement();
 				}
 				else {
 					// We reached the target
