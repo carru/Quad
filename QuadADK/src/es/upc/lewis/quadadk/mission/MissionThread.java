@@ -200,9 +200,6 @@ public class MissionThread extends Thread {
 				utils.abortMission();
 				utils.showToast("Mission aborted!");
 			}
-			else if (action.equals(GroundStationClient.ACK)) {
-				MissionUtils.readyToSend = true;
-			}
 		}
 	};
 
@@ -212,7 +209,6 @@ public class MissionThread extends Thread {
 	private static IntentFilter broadcastIntentFilter() {
 		final IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction(GroundStationClient.ABORT_MISSION);
-		intentFilter.addAction(GroundStationClient.ACK);
 		return intentFilter;
 	}
 }

@@ -5,15 +5,12 @@ import es.upc.lewis.quadadk.comms.ArduinoCommands;
 import es.upc.lewis.quadadk.comms.CommunicationsThread;
 import es.upc.lewis.quadadk.comms.GroundStationClient;
 import es.upc.lewis.quadadk.comms.GroundStationCommands;
-import android.util.Log;
 import android.widget.Toast;
 
 public class MissionUtils {
 	private static final int TIME_TO_ARM     = 5000;        // Milliseconds
 	private static final int TIME_TO_DISARM  = TIME_TO_ARM; // Milliseconds
 	private static final int TIME_TO_TAKEOFF = 20000;       // Milliseconds
-	
-	public static volatile boolean readyToSend = true;
 	
 	// Sensors
 	public static final byte TEMPERATURE = 0x01;
@@ -173,8 +170,6 @@ public class MissionUtils {
 	 */
 	public void takePicture() throws AbortException {
 		if (isAborted) { throw new AbortException(); }
-
-		if (!readyToSend) { Log.e("MissionUtils", "Can't send picture. Server not ready"); return; }
 		
 		if (MainActivity.camera != null) {
 			if (MainActivity.camera.isReady()) { MainActivity.camera.takePicture(); }
@@ -186,24 +181,19 @@ public class MissionUtils {
 	 * @throws AbortException 
 	 */
 	public void readSensor(byte sensor) throws AbortException {
-		if (readyToSend) {
-			switch(sensor) {
-			case TEMPERATURE:
-				send(ArduinoCommands.READ_SENSOR_TEMPERATURE);
-				break;
-			case HUMIDITY:
-				send(ArduinoCommands.READ_SENSOR_HUMIDITY);
-				break;
-			case NO2:
-				send(ArduinoCommands.READ_SENSOR_NO2);
-				break;
-			case CO:
-				send(ArduinoCommands.READ_SENSOR_CO);
-				break;
-			}
-		} else {
-			// Not ready to send. Do nothing
-			Log.e("MissionUtils", "Can't send sensor reading. Server not ready");
+		switch (sensor) {
+		case TEMPERATURE:
+			send(ArduinoCommands.READ_SENSOR_TEMPERATURE);
+			break;
+		case HUMIDITY:
+			send(ArduinoCommands.READ_SENSOR_HUMIDITY);
+			break;
+		case NO2:
+			send(ArduinoCommands.READ_SENSOR_NO2);
+			break;
+		case CO:
+			send(ArduinoCommands.READ_SENSOR_CO);
+			break;
 		}
 	}
 	
