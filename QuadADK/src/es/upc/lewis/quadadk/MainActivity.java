@@ -26,7 +26,6 @@ import android.widget.Toast;
 import com.android.future.usb.UsbAccessory;
 import com.android.future.usb.UsbManager;
 
-import es.upc.lewis.quadadk.comms.ArduinoCommands;
 import es.upc.lewis.quadadk.comms.CommunicationsThread;
 import es.upc.lewis.quadadk.comms.GroundStationClient;
 import es.upc.lewis.quadadk.comms.GroundStationCommands;
@@ -68,20 +67,6 @@ public class MainActivity extends Activity {
 	// UI references
 	private TextView adkStatusText;
 	private TextView serverStatusText;
-	private TextView sensor1Text;
-	private TextView sensor2Text;
-	private TextView sensor3Text;
-	private Button readSensor1Button;
-	private Button readSensor2Button;
-	private Button readSensor3Button;
-	private Button ch1aButton;
-	private Button ch1bButton;
-	private Button ch2aButton;
-	private Button ch2bButton;
-	private Button ch3aButton;
-	private Button ch3bButton;
-	private Button ch4aButton;
-	private Button ch4bButton;
 	private Button CameraButton;
 	private Button connectToServerButton;
 	private EditText ipEditText;
@@ -132,66 +117,6 @@ public class MainActivity extends Activity {
 
 		setADKStatus(DISCONNECTED);
 	}
-
-	private OnClickListener readSensorButtonListener = new OnClickListener() {
-		@Override
-		public void onClick(View v) {
-			// Debug. Send predefined sensor value to the server
-			//sendSensorData(GroundStationCommands.SENSOR_1, -123456789);
-			
-			if (mAccessory == null) {
-				return;
-			}
-
-			switch (v.getId()) {
-			case R.id.read_sensor_1_button:
-				comms.send(ArduinoCommands.READ_SENSOR_TEMPERATURE);
-				break;
-			case R.id.read_sensor_2_button:
-				comms.send(ArduinoCommands.READ_SENSOR_HUMIDITY);
-				break;
-			case R.id.read_sensor_3_button:
-				comms.send(ArduinoCommands.READ_SENSOR_CO);
-				break;
-			}
-		}
-	};
-
-	private OnClickListener setCHButtonListener = new OnClickListener() {
-		@Override
-		public void onClick(View v) {
-			if (mAccessory == null) {
-				return;
-			}
-
-			switch (v.getId()) {
-			case R.id.button1:
-				comms.send(ArduinoCommands.SET_CH1, 1250);
-				break;
-			case R.id.button2:
-				comms.send(ArduinoCommands.SET_CH1, 1750);
-				break;
-			case R.id.button3:
-				comms.send(ArduinoCommands.SET_CH2, 1250);
-				break;
-			case R.id.button4:
-				comms.send(ArduinoCommands.SET_CH2, 1750);
-				break;
-			case R.id.button5:
-				comms.send(ArduinoCommands.SET_CH3, 1250);
-				break;
-			case R.id.button6:
-				comms.send(ArduinoCommands.SET_CH3, 1750);
-				break;
-			case R.id.button7:
-				comms.send(ArduinoCommands.SET_CH4, 1250);
-				break;
-			case R.id.button8:
-				comms.send(ArduinoCommands.SET_CH4, 1750);
-				break;
-			}
-		}
-	};
 
 	private OnClickListener cameraButtonListener = new OnClickListener() {
 		@Override
@@ -254,17 +179,6 @@ public class MainActivity extends Activity {
 
 		setContentView(R.layout.main_activity);
 		getUiReferences();
-		readSensor1Button.setOnClickListener(readSensorButtonListener);
-		readSensor2Button.setOnClickListener(readSensorButtonListener);
-		readSensor3Button.setOnClickListener(readSensorButtonListener);
-		ch1aButton.setOnClickListener(setCHButtonListener);
-		ch1bButton.setOnClickListener(setCHButtonListener);
-		ch2aButton.setOnClickListener(setCHButtonListener);
-		ch2bButton.setOnClickListener(setCHButtonListener);
-		ch3aButton.setOnClickListener(setCHButtonListener);
-		ch3bButton.setOnClickListener(setCHButtonListener);
-		ch4aButton.setOnClickListener(setCHButtonListener);
-		ch4bButton.setOnClickListener(setCHButtonListener);
 		CameraButton.setOnClickListener(cameraButtonListener);
 		connectToServerButton.setOnClickListener(connectToServerButtonListener);
 
@@ -312,20 +226,6 @@ public class MainActivity extends Activity {
 	private void getUiReferences() {
 		adkStatusText = (TextView) findViewById(R.id.adk_status);
 		serverStatusText = (TextView) findViewById(R.id.server_status);
-		sensor1Text = (TextView) findViewById(R.id.sensor_1_text);
-		sensor2Text = (TextView) findViewById(R.id.sensor_2_text);
-		sensor3Text = (TextView) findViewById(R.id.sensor_3_text);
-		readSensor1Button = (Button) findViewById(R.id.read_sensor_1_button);
-		readSensor2Button = (Button) findViewById(R.id.read_sensor_2_button);
-		readSensor3Button = (Button) findViewById(R.id.read_sensor_3_button);
-		ch1aButton = (Button) findViewById(R.id.button1);
-		ch1bButton = (Button) findViewById(R.id.button2);
-		ch2aButton = (Button) findViewById(R.id.button3);
-		ch2bButton = (Button) findViewById(R.id.button4);
-		ch3aButton = (Button) findViewById(R.id.button5);
-		ch3bButton = (Button) findViewById(R.id.button6);
-		ch4aButton = (Button) findViewById(R.id.button7);
-		ch4bButton = (Button) findViewById(R.id.button8);
 		CameraButton = (Button) findViewById(R.id.button9);
 		connectToServerButton = (Button) findViewById(R.id.server_connect_button);
 		ipEditText = (EditText) findViewById(R.id.server_ip);
@@ -443,26 +343,23 @@ public class MainActivity extends Activity {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String action = intent.getAction();
+			
 			// Get the value (4 bytes) as an int
 			int intBytes = intent.getIntExtra(CommunicationsThread.VALUE, 0);
 			// bytes to float
-			float value = Float.intBitsToFloat(intBytes);
+			//float value = Float.intBitsToFloat(intBytes);
 			
 			if (action
 					.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_TEMPERATURE)) {
-				sensor1Text.setText(Float.toString(value)); //TODO: remove
 				sendSensorData(GroundStationCommands.SENSOR_TEMPERATURE, intBytes);
 			} else if (action
 					.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_HUMIDITY)) {
-				sensor2Text.setText(Float.toString(value)); //TODO: remove
 				sendSensorData(GroundStationCommands.SENSOR_HUMIDITY, intBytes);
 			} else if (action
 					.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_NO2)) {
-				sensor3Text.setText(Float.toString(value)); //TODO: remove
 				sendSensorData(GroundStationCommands.SENSOR_NO2, intBytes);
 			} else if (action
 					.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_CO)) {
-				sensor3Text.setText(Float.toString(value)); //TODO: remove
 				sendSensorData(GroundStationCommands.SENSOR_CO, intBytes);
 			}
 		}
@@ -470,14 +367,10 @@ public class MainActivity extends Activity {
 
 	private static IntentFilter sensorDataIntentFilter() {
 		final IntentFilter intentFilter = new IntentFilter();
-		intentFilter
-				.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_TEMPERATURE);
-		intentFilter
-				.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_HUMIDITY);
-		intentFilter
-				.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_NO2);
-		intentFilter
-				.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_CO);
+		intentFilter.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_TEMPERATURE);
+		intentFilter.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_HUMIDITY);
+		intentFilter.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_NO2);
+		intentFilter.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_CO);
 		return intentFilter;
 	}
 
@@ -494,8 +387,7 @@ public class MainActivity extends Activity {
 			} else if (action.equals(GroundStationClient.DISCONNECTED)) {
 				setServerStatus(MainActivity.DISCONNECTED);
 			} else if (action.equals(GroundStationClient.CANT_RESOLVE_HOST)) {
-				Toast.makeText(getApplicationContext(), "Can't resolve host",
-						Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), "Can't resolve host", Toast.LENGTH_SHORT).show();
 			} else if (action.equals(GroundStationClient.START_MISSION)) {
 				mission();
 			}
@@ -522,12 +414,10 @@ public class MainActivity extends Activity {
 			if (ACTION_USB_PERMISSION.equals(action)) {
 				synchronized (this) {
 					UsbAccessory accessory = UsbManager.getAccessory(intent);
-					if (intent.getBooleanExtra(
-							UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+					if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
 						openAccessory(accessory);
 					} else {
-						Log.e(TAG, "Permission denied for accessory "
-								+ accessory);
+						Log.e(TAG, "Permission denied for accessory " + accessory);
 					}
 					mPermissionRequestPending = false;
 				}
