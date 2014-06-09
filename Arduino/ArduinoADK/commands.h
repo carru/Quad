@@ -1,8 +1,0 @@
-#define READ_SENSOR_1 0x01
-#define DATA_SENSOR_1 0x11
-
-#define READ_SENSOR_2 0x02
-#define DATA_SENSOR_2 0x12
-
-#define READ_SENSOR_3 0x03
-#define DATA_SENSOR_3 0x13
