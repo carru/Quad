@@ -195,10 +195,26 @@ public class MissionThread extends Thread {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String action = intent.getAction();
+			
+			// Get the value (4 bytes) as an int (seansor readings)
+			int intBytes = intent.getIntExtra(CommunicationsThread.VALUE, 0);
+			// bytes to float
+			float value = Float.intBitsToFloat(intBytes);
 
+			// From GroundStation
 			if (action.equals(GroundStationClient.ABORT_MISSION)) {
 				utils.abortMission();
 				utils.showToast("Mission aborted!");
+			}
+			// From Arduino
+			else if (action.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_TEMPERATURE)) {
+				// Reading stored in 'value' (float)
+			} else if (action.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_HUMIDITY)) {
+				// Reading stored in 'value' (float)
+			} else if (action.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_NO2)) {
+				// Reading stored in 'value' (float)
+			} else if (action.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_CO)) {
+				// Reading stored in 'value' (float)
 			}
 		}
 	};
@@ -208,7 +224,16 @@ public class MissionThread extends Thread {
 	 */
 	private static IntentFilter broadcastIntentFilter() {
 		final IntentFilter intentFilter = new IntentFilter();
+		
+		// From GroundStation
 		intentFilter.addAction(GroundStationClient.ABORT_MISSION);
+		
+		// From Arduino
+		intentFilter.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_TEMPERATURE);
+		intentFilter.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_HUMIDITY);
+		intentFilter.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_NO2);
+		intentFilter.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_CO);
+		
 		return intentFilter;
 	}
 }

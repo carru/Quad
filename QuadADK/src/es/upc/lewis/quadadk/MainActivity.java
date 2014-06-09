@@ -288,8 +288,8 @@ public class MainActivity extends Activity {
 	
 	private void registerReceivers() {
 		// Sensor data receiver
-		LocalBroadcastManager.getInstance(this).registerReceiver(
-				sensorDataReceiver, sensorDataIntentFilter());
+//		LocalBroadcastManager.getInstance(this).registerReceiver(
+//				sensorDataReceiver, sensorDataIntentFilter());
 
 		// GroundStation receiver
 		LocalBroadcastManager.getInstance(this).registerReceiver(
@@ -307,8 +307,8 @@ public class MainActivity extends Activity {
 
 	private void unregisterReceivers() {
 		// Sensor data receiver
-		LocalBroadcastManager.getInstance(this).unregisterReceiver(
-				sensorDataReceiver);
+//		LocalBroadcastManager.getInstance(this).unregisterReceiver(
+//				sensorDataReceiver);
 
 		// GroundStation receiver
 		LocalBroadcastManager.getInstance(this).unregisterReceiver(
@@ -339,40 +339,40 @@ public class MainActivity extends Activity {
 		}
 	
 	// Receiver for Arduino application
-	private BroadcastReceiver sensorDataReceiver = new BroadcastReceiver() {
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			String action = intent.getAction();
-			
-			// Get the value (4 bytes) as an int
-			int intBytes = intent.getIntExtra(CommunicationsThread.VALUE, 0);
-			// bytes to float
-			//float value = Float.intBitsToFloat(intBytes);
-			
-			if (action
-					.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_TEMPERATURE)) {
-				sendSensorData(GroundStationCommands.SENSOR_TEMPERATURE, intBytes);
-			} else if (action
-					.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_HUMIDITY)) {
-				sendSensorData(GroundStationCommands.SENSOR_HUMIDITY, intBytes);
-			} else if (action
-					.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_NO2)) {
-				sendSensorData(GroundStationCommands.SENSOR_NO2, intBytes);
-			} else if (action
-					.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_CO)) {
-				sendSensorData(GroundStationCommands.SENSOR_CO, intBytes);
-			}
-		}
-	};
-
-	private static IntentFilter sensorDataIntentFilter() {
-		final IntentFilter intentFilter = new IntentFilter();
-		intentFilter.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_TEMPERATURE);
-		intentFilter.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_HUMIDITY);
-		intentFilter.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_NO2);
-		intentFilter.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_CO);
-		return intentFilter;
-	}
+//	private BroadcastReceiver sensorDataReceiver = new BroadcastReceiver() {
+//		@Override
+//		public void onReceive(Context context, Intent intent) {
+//			String action = intent.getAction();
+//			
+//			// Get the value (4 bytes) as an int
+//			int intBytes = intent.getIntExtra(CommunicationsThread.VALUE, 0);
+//			// bytes to float
+//			//float value = Float.intBitsToFloat(intBytes);
+//			
+//			if (action
+//					.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_TEMPERATURE)) {
+//				sendSensorData(GroundStationCommands.SENSOR_TEMPERATURE, intBytes);
+//			} else if (action
+//					.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_HUMIDITY)) {
+//				sendSensorData(GroundStationCommands.SENSOR_HUMIDITY, intBytes);
+//			} else if (action
+//					.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_NO2)) {
+//				sendSensorData(GroundStationCommands.SENSOR_NO2, intBytes);
+//			} else if (action
+//					.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_CO)) {
+//				sendSensorData(GroundStationCommands.SENSOR_CO, intBytes);
+//			}
+//		}
+//	};
+//
+//	private static IntentFilter sensorDataIntentFilter() {
+//		final IntentFilter intentFilter = new IntentFilter();
+//		intentFilter.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_TEMPERATURE);
+//		intentFilter.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_HUMIDITY);
+//		intentFilter.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_NO2);
+//		intentFilter.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_CO);
+//		return intentFilter;
+//	}
 
 	// Receiver for GroundStation related intents
 	private BroadcastReceiver groundStationClientReceiver = new BroadcastReceiver() {
