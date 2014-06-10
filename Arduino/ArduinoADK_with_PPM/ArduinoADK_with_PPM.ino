@@ -291,14 +291,14 @@ void loop() {
     mode = MANUAL;
   }
   
-  // DEBUG print pwm values that go to the quad
-  for (int i = 0; i <= chanel_number-1; i++) {
+  // DEBUG print generated pwm values
+  /*for (int i = 0; i <= chanel_number-1; i++) {
     Serial.print(i+1);
     Serial.print(": ");
     Serial.print(ppm[i]);
     Serial.print("  ");
   }
-  Serial.println();
+  Serial.println();*/
 
   // Manage ADK connection
   if (acc.isConnected()) {

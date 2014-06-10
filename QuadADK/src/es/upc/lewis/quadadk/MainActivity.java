@@ -8,7 +8,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
@@ -59,10 +58,6 @@ public class MainActivity extends Activity {
 
 	// Is mission running? (Allow only one instance)
 	public static volatile boolean isMissionRunning = false;
-	
-	// Preferences to store socket details
-	SharedPreferences sharedPreferences;
-	SharedPreferences.Editor sharedPreferencesEditor;
 
 	// UI references
 	private TextView adkStatusText;
@@ -81,16 +76,14 @@ public class MainActivity extends Activity {
 		if (mFileDescriptor != null) {
 			mAccessory = accessory;
 
-			comms = new CommunicationsThread(this,
-					mFileDescriptor.getFileDescriptor());
+			comms = new CommunicationsThread(this, mFileDescriptor.getFileDescriptor());
 			comms.start();
 
 			setADKStatus(CONNECTED);
 			Toast.makeText(this, "Accessory opened", Toast.LENGTH_SHORT).show();
 			Log.i(TAG, "Accessory opened");
 		} else {
-			Toast.makeText(this, "Error opening accessory", Toast.LENGTH_SHORT)
-					.show();
+			Toast.makeText(this, "Error opening accessory", Toast.LENGTH_SHORT).show();
 			Log.e(TAG, "Error opening accessory");
 		}
 	}
@@ -119,9 +112,7 @@ public class MainActivity extends Activity {
 	private OnClickListener cameraButtonListener = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
-			if (camera.isReady()) {
-				camera.takePicture();
-			}
+			if (camera.isReady()) { camera.takePicture(); }
 		}
 	};
 
@@ -135,8 +126,7 @@ public class MainActivity extends Activity {
 			} else {
 				synchronized (usbReceiver) {
 					if (!mPermissionRequestPending) {
-						mUsbManager.requestPermission(accessory,
-								mPermissionIntent);
+						mUsbManager.requestPermission(accessory, mPermissionIntent);
 						mPermissionRequestPending = true;
 					}
 				}
@@ -171,7 +161,6 @@ public class MainActivity extends Activity {
 		
 		// Start polling server for mission start/abort
 		//pollingWorker = new MissionStatusPolling(this, QUAD_ID); //TODO: uncomment
-		
 		
 		// Debug buttons
 		Button b1 = (Button) findViewById(R.id.button1);
@@ -251,7 +240,7 @@ public class MainActivity extends Activity {
 		Log.i(TAG, "Starting mission");
 		
 		if (isMissionRunning == false && comms != null) {
-		//if (isMissionRunning == false) { //DEBUG
+		//if (isMissionRunning == false) { // DEBUG (to start mission without an Arduino)
 			isMissionRunning = true;
 			new MissionThread(comms, this, locationProvider);
 		}
@@ -323,9 +312,7 @@ public class MainActivity extends Activity {
 
 	private static IntentFilter groundStationClientIntentFilter() {
 		final IntentFilter intentFilter = new IntentFilter();
-		
 		intentFilter.addAction(MissionStatusPolling.START_MISSION);
-		
 		return intentFilter;
 	}
 

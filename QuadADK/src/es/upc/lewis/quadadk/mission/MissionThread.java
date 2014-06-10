@@ -124,7 +124,7 @@ public class MissionThread extends Thread {
 		utils.disarm_NO_EXCEPTION_DEBUG_ONLY();
 		endMission();
 		
-		// Remember to uncomment abortmission() !!!!
+		//TODO: Remember to uncomment code inside utils.abortmission() !!!!
 		
 		
 //		Location currentLocation, startLocation, targetLocation;
@@ -203,6 +203,9 @@ public class MissionThread extends Thread {
 //		endMission();
 	}
 	
+	/**
+	 * End mission. Must be called at the end of your mission
+	 */
 	private void endMission() {
 		// Unregister receiver
 		LocalBroadcastManager.getInstance(activity).unregisterReceiver(broadcastReceiver);
