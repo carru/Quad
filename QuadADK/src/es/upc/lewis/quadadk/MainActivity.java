@@ -29,11 +29,14 @@ import com.android.future.usb.UsbManager;
 import es.upc.lewis.quadadk.comms.CommunicationsThread;
 import es.upc.lewis.quadadk.comms.GroundStationClient;
 import es.upc.lewis.quadadk.comms.GroundStationCommands;
+import es.upc.lewis.quadadk.comms.MissionStatusPolling;
 import es.upc.lewis.quadadk.mission.MissionThread;
 import es.upc.lewis.quadadk.tools.MyLocation;
 import es.upc.lewis.quadadk.tools.SimpleCamera;
 
 public class MainActivity extends Activity {
+	public String quadid = "001";
+	
 	private static final String TAG = MainActivity.class.getSimpleName();
 
 	private PendingIntent mPermissionIntent;
@@ -49,6 +52,8 @@ public class MainActivity extends Activity {
 
 	// Class to communicate with the GroundStation
 	public static GroundStationClient groundStation;
+	//TODO: this class will poll the server to start and abort the mission
+	private MissionStatusPolling pollingWorker;
 
 	// Camera
 	public static SimpleCamera camera;
@@ -186,30 +191,31 @@ public class MainActivity extends Activity {
 		setServerStatus(DISCONNECTED);
 
 		mUsbManager = UsbManager.getInstance(this);
-		mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(
-				ACTION_USB_PERMISSION), 0);
+		mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
 		registerReceivers();
 
-		camera = new SimpleCamera(this,
-				(FrameLayout) findViewById(R.id.camera_preview));
+		// Start camera
+		camera = new SimpleCamera(this, (FrameLayout) findViewById(R.id.camera_preview));
 
+		// Start location provider
 		locationProvider = new MyLocation(this);
 		
 		// Get last socket details
 		sharedPreferences = getPreferences(Context.MODE_PRIVATE);
 		sharedPreferencesEditor = sharedPreferences.edit();
 		ipEditText.setText(sharedPreferences.getString("ip", ""));
-		portEditText.setText(Integer.toString(sharedPreferences.getInt("port",
-				9090)));
+		portEditText.setText(Integer.toString(sharedPreferences.getInt("port", 9090)));
+		
+		//TODO: implement new GroundStation system
+		// Start polling server for mission start/abort
+		pollingWorker = new MissionStatusPolling(this, quadid);
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
 
-		if (mAccessory == null) {
-			connect();
-		}
+		if (mAccessory == null) { connect(); }
 	}
 
 	@Override
@@ -221,6 +227,9 @@ public class MainActivity extends Activity {
 		if (camera != null) { camera.close(); }
 		
 		if (locationProvider != null) { locationProvider.stop(); locationProvider = null; }
+		
+		// Stop polling server
+		if (pollingWorker != null) { pollingWorker.finnish(); }
 	}
 
 	private void getUiReferences() {
@@ -268,16 +277,16 @@ public class MainActivity extends Activity {
 		Log.i(TAG, "Starting mission");
 		
 		if (isMissionRunning == false && comms != null) {
-		//if (isMissionRunning == false) {
+		//if (isMissionRunning == false) { //DEBUG
 			isMissionRunning = true;
 			new MissionThread(comms, groundStation, this, locationProvider);
 		}
 	}
 	
-	private void sendSensorData(byte sensor, int value) {
-		if (groundStation == null) { return; }
-		groundStation.send(sensor, value);
-	}
+//	private void sendSensorData(byte sensor, int value) {
+//		if (groundStation == null) { return; }
+//		groundStation.send(sensor, value);
+//	}
 
 	private void displayLocation(Location location) {
 		if (location == null) { return; }
@@ -380,27 +389,40 @@ public class MainActivity extends Activity {
 		public void onReceive(Context context, Intent intent) {
 			String action = intent.getAction();
 
-			if (action.equals(GroundStationClient.CONNECTED)) {
-				setServerStatus(MainActivity.CONNECTED);
-			} else if (action.equals(GroundStationClient.CONNECTING)) {
-				setServerStatus(MainActivity.CONNECTING);
-			} else if (action.equals(GroundStationClient.DISCONNECTED)) {
-				setServerStatus(MainActivity.DISCONNECTED);
-			} else if (action.equals(GroundStationClient.CANT_RESOLVE_HOST)) {
-				Toast.makeText(getApplicationContext(), "Can't resolve host", Toast.LENGTH_SHORT).show();
-			} else if (action.equals(GroundStationClient.START_MISSION)) {
-				mission();
+			// These are for the old server (Java GUI)
+//			if (action.equals(GroundStationClient.CONNECTED)) {
+//				setServerStatus(MainActivity.CONNECTED);
+//			} else if (action.equals(GroundStationClient.CONNECTING)) {
+//				setServerStatus(MainActivity.CONNECTING);
+//			} else if (action.equals(GroundStationClient.DISCONNECTED)) {
+//				setServerStatus(MainActivity.DISCONNECTED);
+//			} else if (action.equals(GroundStationClient.CANT_RESOLVE_HOST)) {
+//				Toast.makeText(getApplicationContext(), "Can't resolve host", Toast.LENGTH_SHORT).show();
+//			} else if (action.equals(GroundStationClient.START_MISSION)) {
+//				mission();
+//			}
+		
+			if (action.equals(MissionStatusPolling.START_MISSION)) {
+				Toast.makeText(getApplicationContext(), "Start", Toast.LENGTH_SHORT).show();
+			} else if (action.equals(MissionStatusPolling.ABORT_MISSION)) {
+				Toast.makeText(getApplicationContext(), "Abort", Toast.LENGTH_SHORT).show();
 			}
 		}
 	};
 
 	private static IntentFilter groundStationClientIntentFilter() {
 		final IntentFilter intentFilter = new IntentFilter();
-		intentFilter.addAction(GroundStationClient.CONNECTED);
-		intentFilter.addAction(GroundStationClient.CONNECTING);
-		intentFilter.addAction(GroundStationClient.DISCONNECTED);
-		intentFilter.addAction(GroundStationClient.CANT_RESOLVE_HOST);
-		intentFilter.addAction(GroundStationClient.START_MISSION);
+		
+		// These are for the old server (Java GUI)
+//		intentFilter.addAction(GroundStationClient.CONNECTED);
+//		intentFilter.addAction(GroundStationClient.CONNECTING);
+//		intentFilter.addAction(GroundStationClient.DISCONNECTED);
+//		intentFilter.addAction(GroundStationClient.CANT_RESOLVE_HOST);
+//		intentFilter.addAction(GroundStationClient.START_MISSION);
+		
+		intentFilter.addAction(MissionStatusPolling.START_MISSION);
+		intentFilter.addAction(MissionStatusPolling.ABORT_MISSION);
+		
 		return intentFilter;
 	}
 
