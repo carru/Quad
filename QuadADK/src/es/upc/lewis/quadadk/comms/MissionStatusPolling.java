@@ -3,6 +3,7 @@ package es.upc.lewis.quadadk.comms;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 public class MissionStatusPolling extends Thread {
 	// Parameters
@@ -11,6 +12,8 @@ public class MissionStatusPolling extends Thread {
 	// Intents
 	public static final String START_MISSION = "start";
 	public static final String ABORT_MISSION = "abort";
+	
+	private String TAG = "Polling Thread";
 	
 	private volatile boolean enabled = true;
 	private String quadid;
@@ -28,15 +31,23 @@ public class MissionStatusPolling extends Thread {
 	
 	@Override
 	public void run() {
+		boolean log = true;
+		
 		while(enabled) {
 			if (HTTPCalls.get_startmission(quadid)) {
 				notifyAction(START_MISSION);
-			}
-			else if (HTTPCalls.get_abortmission(quadid)) {
+				if (log) { Log.i(TAG, "start"); }
+			} else if (HTTPCalls.get_abortmission(quadid)) {
 				notifyAction(ABORT_MISSION);
+				if (log) { Log.i(TAG, "abort"); }
+			} else {
+				if (log) { Log.i(TAG, "no flags"); }
 			}
-			
-			try { sleep(POLLING_PERIOD); } catch (InterruptedException e) { }
+
+			try {
+				sleep(POLLING_PERIOD);
+			} catch (InterruptedException e) {
+			}
 		}
 	}
 	

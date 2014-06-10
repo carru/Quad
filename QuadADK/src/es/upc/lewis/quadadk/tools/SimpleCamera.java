@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import es.upc.lewis.quadadk.MainActivity;
+import es.upc.lewis.quadadk.comms.SendPictureThread;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
@@ -26,9 +26,12 @@ public class SimpleCamera {
 	private Camera mCamera;
 	private CameraPreview mPreview;
 	private boolean isReady = false;
+	private String quadid;
 	
-	public SimpleCamera(Context context, FrameLayout preview) {
+	public SimpleCamera(Context context, FrameLayout preview, String quadid) {
 		if (!checkCameraHardware(context)) { return; }
+		
+		this.quadid = quadid;
 		
 		// Create an instance of Camera
         mCamera = getCameraInstance();
@@ -108,18 +111,14 @@ public class SimpleCamera {
 	        }
 	        
 	        // Send picture to GroundStation
-	        sendPicture(data);
+	        new SendPictureThread(quadid, data);
 	    }
 	};
-	
-	private void sendPicture(byte[] data) {
-		if (MainActivity.groundStation != null) { MainActivity.groundStation.sendPicture(data); }
-	}
 	
 	/*private Uri getOutputMediaFileUri(int type){
 	      return Uri.fromFile(getOutputMediaFile(type));
 	}*/
-
+	
 	private File getOutputMediaFile(int type){
 	    // To be safe, you should check that the SDCard is mounted
 	    // using Environment.getExternalStorageState() before doing this.

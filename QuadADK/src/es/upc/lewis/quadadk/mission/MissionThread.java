@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import es.upc.lewis.quadadk.MainActivity;
 import es.upc.lewis.quadadk.comms.ArduinoCommands;
 import es.upc.lewis.quadadk.comms.CommunicationsThread;
-import es.upc.lewis.quadadk.comms.GroundStationClient;
-import es.upc.lewis.quadadk.comms.GroundStationCommands;
 import es.upc.lewis.quadadk.comms.MissionStatusPolling;
 import es.upc.lewis.quadadk.tools.MyLocation;
 import android.content.BroadcastReceiver;
@@ -23,6 +21,7 @@ public class MissionThread extends Thread {
 	private double WAYPOINT_LONGITUDE_ERROR = 0.00007; // 9.7 meters
 	
 	private double latitudeDelta, longitudeDelta;
+	private MainActivity activity;
 	
 	// Slider position from neutral (MissionUtils.CH_NEUTRAL)
 	private final int HORIZONTAL_MOVEMENT_SLIDER = 300;
@@ -41,13 +40,14 @@ public class MissionThread extends Thread {
 	private MissionUtils utils;
 	private MyLocation locationProvider;
 	
-	public MissionThread(CommunicationsThread comms, GroundStationClient server, MainActivity activity, MyLocation locationProvider) {
+	public MissionThread(CommunicationsThread comms, MainActivity activity, MyLocation locationProvider) {
 		if (comms == null) { return; }
 		
 		this.locationProvider = locationProvider;
+		this.activity = activity;
 		
 		// Utils class
-		utils = new MissionUtils(comms, server, activity);
+		utils = new MissionUtils(comms, activity, this);
 		
 		// Register BroadcastReceiver
 		LocalBroadcastManager.getInstance(activity).registerReceiver(
@@ -116,14 +116,15 @@ public class MissionThread extends Thread {
 		// Dumb mission
 		try {
 			utils.arm();
-			
-			// Wait 20 seconds
-			utils.wait(20000);
+			utils.send(ArduinoCommands.SET_MODE_STB);
+			utils.send(ArduinoCommands.SET_CH3, 1250);
+			utils.wait(200000);
 		} catch (AbortException e) {  }
-		utils.disarm_NO_EXCEPTION_DEBUG_ONLY();
-		MainActivity.isMissionRunning = false;
 		
-		// Remember to uncomment abortmission()
+		utils.disarm_NO_EXCEPTION_DEBUG_ONLY();
+		endMission();
+		
+		// Remember to uncomment abortmission() !!!!
 		
 		
 //		Location currentLocation, startLocation, targetLocation;
@@ -199,7 +200,15 @@ public class MissionThread extends Thread {
 //		}
 //		
 //		
-//		utils.endMission();
+//		endMission();
+	}
+	
+	private void endMission() {
+		// Unregister receiver
+		LocalBroadcastManager.getInstance(activity).unregisterReceiver(broadcastReceiver);
+		
+		// Notify mission is over
+		MainActivity.isMissionRunning = false;
 	}
 	
 	/**
@@ -217,9 +226,10 @@ public class MissionThread extends Thread {
 
 			// From GroundStation
 			if (action.equals(MissionStatusPolling.ABORT_MISSION)) {
-				//utils.abortMission(); //TODO: UNCOMMENT!!!!!!!!!!!!
+				utils.abortMission();
 				utils.showToast("Mission aborted!");
 			}
+			
 			// From Arduino
 			else if (action.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_TEMPERATURE)) {
 				// Reading stored in 'value' (float)

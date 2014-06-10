@@ -3,8 +3,6 @@ package es.upc.lewis.quadadk.mission;
 import es.upc.lewis.quadadk.MainActivity;
 import es.upc.lewis.quadadk.comms.ArduinoCommands;
 import es.upc.lewis.quadadk.comms.CommunicationsThread;
-import es.upc.lewis.quadadk.comms.GroundStationClient;
-import es.upc.lewis.quadadk.comms.GroundStationCommands;
 import android.widget.Toast;
 
 public class MissionUtils {
@@ -27,20 +25,19 @@ public class MissionUtils {
 	
 	// To abort the mission
 	private static volatile boolean isAborted = false;
+	private static volatile boolean isSleeping = false;
+	private MissionThread thread;
 	
 	// To communicate with the Arduino
 	private CommunicationsThread arduino;
 	
-	// To communicate with the GroundStation
-	private GroundStationClient server;
-	
 	// To show toasts (useful when testing)
 	private MainActivity activity;
 	
-	public MissionUtils(CommunicationsThread comms, GroundStationClient server, MainActivity activity) {
+	public MissionUtils(CommunicationsThread comms, MainActivity activity, MissionThread thread) {
 		arduino = comms;
 		this.activity = activity;
-		this.server = server;
+		this.thread = thread;
 		
 		isAborted = false;
 	}
@@ -72,7 +69,10 @@ public class MissionUtils {
 	public void abortMission() {
 		isAborted = true;
 		
-		returnToLaunch();
+		if (isSleeping) { thread.interrupt(); }
+		isSleeping = false;
+		
+		//returnToLaunch(); //TODO: uncomment
 	}
 	
 	/**
@@ -215,15 +215,28 @@ public class MissionUtils {
 	 * @throws AbortException 
 	 */
 	public void wait(int time) throws AbortException {
+		if (isAborted) { throw new AbortException(); }
+		
+		isSleeping = true;
+		
 		try { Thread.sleep(time); }
 		// Abort mission if thread is interrupted
-		catch (InterruptedException e) { throw new AbortException(); }
+		catch (InterruptedException e) {
+			if (isAborted) { throw new AbortException(); }
+		}
+		
+		// Wait was not interrupted
+		isSleeping = false;
 	}
 	
 	private void waitWithoutException(int time) {
+		isSleeping = true;
+		
 		try { Thread.sleep(time); }
-		// Abort mission if thread is interrupted
 		catch (InterruptedException e) { return; }
+		
+		// Wait was not interrupted
+		isSleeping = false;
 	}
 	
 	/**
@@ -236,17 +249,5 @@ public class MissionUtils {
 				Toast.makeText(activity, text, Toast.LENGTH_SHORT).show();
 			}
 		});
-	}
-	
-	/**
-	 * End mission. Must be called at the end of your mission
-	 */
-	public void endMission() {
-		// Clear / stop additional threads that were working
-		// (may be added in the future)
-		
-		// Notify mission is over
-		MainActivity.isMissionRunning = false;
-		server.send(GroundStationCommands.MISSION_END);
 	}
 }
