@@ -7,6 +7,7 @@ import es.upc.lewis.quadadk.comms.ArduinoCommands;
 import es.upc.lewis.quadadk.comms.CommunicationsThread;
 import es.upc.lewis.quadadk.comms.GroundStationClient;
 import es.upc.lewis.quadadk.comms.GroundStationCommands;
+import es.upc.lewis.quadadk.comms.MissionStatusPolling;
 import es.upc.lewis.quadadk.tools.MyLocation;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -53,7 +54,7 @@ public class MissionThread extends Thread {
 				broadcastReceiver, broadcastIntentFilter());
 
 		// Notify GroundStation mission has started
-		server.send(GroundStationCommands.MISSION_START);
+		//server.send(GroundStationCommands.MISSION_START);
 		
 		loadWaypoints();
 		
@@ -112,80 +113,93 @@ public class MissionThread extends Thread {
 	
 	@Override
 	public void run() {
-		Location currentLocation, startLocation, targetLocation;
-		boolean waypointPhotographed = false;
-		
-		
+		// Dumb mission
 		try {
-			// Get starting location
-			startLocation = locationProvider.getLastLocation();
-			while (startLocation == null) {
-				// GPS not ready, wait and try again
-				utils.wait(1000);
-							
-				startLocation = locationProvider.getLastLocation();
-			}
-
-			// Set first target
-			targetLocation = getNextWaypoint();
-			if (targetLocation == null) {
-				// First waypoint must never be null
-				utils.endMission();
-				return;
-			}
+			utils.arm();
 			
-			
-			utils.takeoff();
-			
-			
-			// Navigation loop
-			while (true) {
-				// Get current location
-				currentLocation = locationProvider.getLastLocation();
-
-				// Calculate distance, in degrees, to the target
-				latitudeDelta  = currentLocation.getLatitude()  - targetLocation.getLatitude();
-				longitudeDelta = currentLocation.getLongitude() - targetLocation.getLongitude();
-
-				// Have we reached the target?
-				if (!waypointReached()) {
-					// Not yet reached
-					utils.hover();
-					performMovement();
-				}
-				else {
-					// We reached the target
-					utils.hover();
-					
-					// Take a picture and wait 1 cycle
-					if (waypointPhotographed) {
-						targetLocation = getNextWaypoint();
-						if (targetLocation == null) {
-							// All waypoints have been reached, mission has to end
-							break;
-						}
-						
-						waypointPhotographed = false;
-					}
-					else {
-						utils.takePicture();
-						waypointPhotographed = true;
-					}
-				}
-
-				utils.wait(NAVIGATION_LOOP_PERIOD);
-			}
-			
-			
-			utils.returnToLaunch();
-			
-			
-		} catch (AbortException e) {
-			// Mission has been aborted
-		}
+			// Wait 20 seconds
+			utils.wait(20000);
+		} catch (AbortException e) {  }
+		utils.disarm_NO_EXCEPTION_DEBUG_ONLY();
+		MainActivity.isMissionRunning = false;
+		
+		// Remember to uncomment abortmission()
 		
 		
-		utils.endMission();
+//		Location currentLocation, startLocation, targetLocation;
+//		boolean waypointPhotographed = false;
+//		
+//		
+//		try {
+//			// Get starting location
+//			startLocation = locationProvider.getLastLocation();
+//			while (startLocation == null) {
+//				// GPS not ready, wait and try again
+//				utils.wait(1000);
+//							
+//				startLocation = locationProvider.getLastLocation();
+//			}
+//
+//			// Set first target
+//			targetLocation = getNextWaypoint();
+//			if (targetLocation == null) {
+//				// First waypoint must never be null
+//				utils.endMission();
+//				return;
+//			}
+//			
+//			
+//			utils.takeoff();
+//			
+//			
+//			// Navigation loop
+//			while (true) {
+//				// Get current location
+//				currentLocation = locationProvider.getLastLocation();
+//
+//				// Calculate distance, in degrees, to the target
+//				latitudeDelta  = currentLocation.getLatitude()  - targetLocation.getLatitude();
+//				longitudeDelta = currentLocation.getLongitude() - targetLocation.getLongitude();
+//
+//				// Have we reached the target?
+//				if (!waypointReached()) {
+//					// Not yet reached
+//					utils.hover();
+//					performMovement();
+//				}
+//				else {
+//					// We reached the target
+//					utils.hover();
+//					
+//					// Take a picture and wait 1 cycle
+//					if (waypointPhotographed) {
+//						targetLocation = getNextWaypoint();
+//						if (targetLocation == null) {
+//							// All waypoints have been reached, mission has to end
+//							break;
+//						}
+//						
+//						waypointPhotographed = false;
+//					}
+//					else {
+//						utils.takePicture();
+//						waypointPhotographed = true;
+//					}
+//				}
+//
+//				utils.wait(NAVIGATION_LOOP_PERIOD);
+//			}
+//			
+//			
+//			utils.returnToLaunch();
+//			
+//			
+//		} catch (AbortException e) {
+//			// Mission has been aborted
+//		}
+//		
+//		
+//		utils.endMission();
 	}
 	
 	/**
@@ -202,8 +216,8 @@ public class MissionThread extends Thread {
 			float value = Float.intBitsToFloat(intBytes);
 
 			// From GroundStation
-			if (action.equals(GroundStationClient.ABORT_MISSION)) {
-				utils.abortMission();
+			if (action.equals(MissionStatusPolling.ABORT_MISSION)) {
+				//utils.abortMission(); //TODO: UNCOMMENT!!!!!!!!!!!!
 				utils.showToast("Mission aborted!");
 			}
 			// From Arduino
@@ -226,7 +240,7 @@ public class MissionThread extends Thread {
 		final IntentFilter intentFilter = new IntentFilter();
 		
 		// From GroundStation
-		intentFilter.addAction(GroundStationClient.ABORT_MISSION);
+		intentFilter.addAction(MissionStatusPolling.ABORT_MISSION);
 		
 		// From Arduino
 		intentFilter.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_TEMPERATURE);

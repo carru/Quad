@@ -79,7 +79,7 @@ public class MissionUtils {
 	 * Arms motors. Blocks for 'timeToArm' milliseconds. Switches to Altitude Hold flight mode
 	 * Leaves roll, pitch and yaw in neutral (1500) and throttle at minimum (1000).
 	 */
-	private void arm() throws AbortException {
+	public void arm() throws AbortException { //TODO: change back to private
 		// Set flight mode to altitude hold (can't arm in loitter)
 		send(ArduinoCommands.SET_MODE_ALTHOLD);
 
@@ -95,7 +95,7 @@ public class MissionUtils {
 
 	/**
 	 * Disarms motors. Blocks for 'timeToDisarm' milliseconds.
-	 * Leaves roll, pitch and yaw in neutral (1500) and throttle at minimum (1000).
+	 * Leaves roll, pitch and yaw in neutral (CH_NEUTRAL) and throttle at minimum (THROTTLE_MIN).
 	 */
 	@SuppressWarnings("unused")
 	private void disarm() throws AbortException {
@@ -107,6 +107,18 @@ public class MissionUtils {
 		wait(TIME_TO_DISARM);
 
 		send(ArduinoCommands.SET_CH4, CH_NEUTRAL);
+	}
+	
+	//TODO: delete when done debugging
+	public void disarm_NO_EXCEPTION_DEBUG_ONLY() {
+		arduino.send(ArduinoCommands.SET_CH1, CH_NEUTRAL);
+		arduino.send(ArduinoCommands.SET_CH2, CH_NEUTRAL);
+		arduino.send(ArduinoCommands.SET_CH3, THROTTLE_MIN);
+		arduino.send(ArduinoCommands.SET_CH4, CH_MIN);
+
+		waitWithoutException(TIME_TO_DISARM);
+
+		arduino.send(ArduinoCommands.SET_CH4, CH_NEUTRAL);
 	}
 
 	/**

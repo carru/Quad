@@ -403,10 +403,12 @@ public class MainActivity extends Activity {
 //			}
 		
 			if (action.equals(MissionStatusPolling.START_MISSION)) {
-				Toast.makeText(getApplicationContext(), "Start", Toast.LENGTH_SHORT).show();
-			} else if (action.equals(MissionStatusPolling.ABORT_MISSION)) {
-				Toast.makeText(getApplicationContext(), "Abort", Toast.LENGTH_SHORT).show();
+				//Toast.makeText(getApplicationContext(), "Start", Toast.LENGTH_SHORT).show();
+				mission();
 			}
+//			else if (action.equals(MissionStatusPolling.ABORT_MISSION)) {
+//				Toast.makeText(getApplicationContext(), "Abort", Toast.LENGTH_SHORT).show();
+//			}
 		}
 	};
 
@@ -421,7 +423,7 @@ public class MainActivity extends Activity {
 //		intentFilter.addAction(GroundStationClient.START_MISSION);
 		
 		intentFilter.addAction(MissionStatusPolling.START_MISSION);
-		intentFilter.addAction(MissionStatusPolling.ABORT_MISSION);
+//		intentFilter.addAction(MissionStatusPolling.ABORT_MISSION);
 		
 		return intentFilter;
 	}
