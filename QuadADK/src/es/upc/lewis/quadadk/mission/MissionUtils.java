@@ -181,11 +181,11 @@ public class MissionUtils {
 	 * Take a picture and send it to the GroundStation. Blocks for TIME_TO_SEND_PICTURE milliseconds
 	 * @throws AbortException 
 	 */
-	public void takePicture() throws AbortException {
+	public void takePicture(String pic_id) throws AbortException {
 		if (isAborted) { throw new AbortException(); }
 		
 		if (MainActivity.camera != null) {
-			if (MainActivity.camera.isReady()) { MainActivity.camera.takePicture("test"); }
+			if (MainActivity.camera.isReady()) { MainActivity.camera.takePicture(pic_id); }
 		}
 	}
 	

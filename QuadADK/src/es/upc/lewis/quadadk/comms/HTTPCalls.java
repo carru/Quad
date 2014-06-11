@@ -11,11 +11,12 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.DefaultHttpClient;
+
+import es.upc.lewis.quadadk.MainActivity;
 
 import android.util.Log;
 
@@ -23,7 +24,6 @@ public class HTTPCalls{
 	private static String START = "start";
 	private static String END   = "end";
 	
-//	static DefaultHttpClient httpclient = new DefaultHttpClient();
 	static int HTTPResponseOK=200;
 	static String server_addr = "http://pbl1.webfactional.com/";
 	
@@ -114,10 +114,14 @@ public class HTTPCalls{
 		return false;
 	}
 	
+	/**
+	 * 
+	 * @param quadid
+	 * @param varname temp1, temp2, hum1, hum2, co, no2, alt_bar, alt_gps
+	 * @param value
+	 * @return
+	 */
 	public static boolean send_data(String quadid, String varname, String value) {
-		//varnames
-		//temp1, temp2, hum1, hum2, co, no2
-		
 		DefaultHttpClient httpclient = new DefaultHttpClient();
 		
 		HttpGet httpget = new HttpGet(server_addr+"send_data.php?id="+quadid+"&varname="+varname+"&value="+value);
@@ -137,10 +141,10 @@ public class HTTPCalls{
 	}
 	
 	//SEND PICTURE
-	public static boolean send_picture(ByteArrayEntity reqEntity, String quadid, File file, String pictureName) {
+	public static boolean send_picture(File file, String pic_id) {
 		DefaultHttpClient httpclient = new DefaultHttpClient();
 		
-		HttpPost httppost = new HttpPost(server_addr+"send_picture.php?id="+quadid);
+		HttpPost httppost = new HttpPost(server_addr+"send_picture.php?id="+MainActivity.QUAD_ID+"&pic="+pic_id);
 		FileBody fb = new FileBody(file);
 		MultipartEntityBuilder buildern = MultipartEntityBuilder.create();
 		buildern.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);

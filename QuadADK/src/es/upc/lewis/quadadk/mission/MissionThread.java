@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import es.upc.lewis.quadadk.MainActivity;
 import es.upc.lewis.quadadk.comms.ArduinoCommands;
 import es.upc.lewis.quadadk.comms.CommunicationsThread;
-import es.upc.lewis.quadadk.comms.HTTPCalls;
 import es.upc.lewis.quadadk.comms.MissionStatusPolling;
+import es.upc.lewis.quadadk.comms.SendDataThread;
 import es.upc.lewis.quadadk.tools.MyLocation;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -31,6 +31,7 @@ public class MissionThread extends Thread {
 	
 	// Store mission waypoints here
 	ArrayList<Waypoint> waypoints;
+	private int currentWaypoint;
 	private class Waypoint {
 		public double latitude;
 		public double longitude;
@@ -44,8 +45,6 @@ public class MissionThread extends Thread {
 	private MyLocation locationProvider;
 	
 	public MissionThread(CommunicationsThread comms, MainActivity activity, MyLocation locationProvider) {
-		if (comms == null) { return; }
-		
 		this.locationProvider = locationProvider;
 		this.activity = activity;
 		
@@ -110,97 +109,114 @@ public class MissionThread extends Thread {
 		Location location = new Location("");
 		location.setLatitude(waypoint.latitude);
 		location.setLongitude(waypoint.longitude);
+		currentWaypoint++;
 		return location;
 	}
 	
 	@Override
 	public void run() {
 		
-		try {
-			//while (true) {
-				
-				utils.readSensor(MissionUtils.TEMPERATURE);
-				utils.wait(500);
-			//}
-		} catch (AbortException e) { }
-		endMission();
-		
-//		Location currentLocation, startLocation, targetLocation;
-//		boolean waypointPhotographed = false;
-//		
-//		
 //		try {
-//			// Get starting location
-//			startLocation = locationProvider.getLastLocation();
-//			while (startLocation == null) {
-//				// GPS not ready, wait and try again
-//				utils.wait(1000);
-//							
-//				startLocation = locationProvider.getLastLocation();
-//			}
-//
-//			// Set first target
-//			targetLocation = getNextWaypoint();
-//			if (targetLocation == null) {
-//				// First waypoint must never be null
-//				endMission();
-//				return;
-//			}
+////			for(currentWaypoint=1; currentWaypoint<5; currentWaypoint++) {
+////				utils.takePicture("local_" + Integer.toString(currentWaypoint));
+////				utils.wait(5000);
+////			}
 //			
+////			utils.readSensor(MissionUtils.TEMPERATURE);
+////			utils.readSensor(MissionUtils.HUMIDITY);
+////			utils.readSensor(MissionUtils.NO2);
+////			utils.readSensor(MissionUtils.CO);
+////			utils.wait(5000);
 //			
-//			utils.takeoff();
-//			
-//			
-//			// Navigation loop
-//			while (true) {
-//				// Get current location
-//				currentLocation = locationProvider.getLastLocation();
-//
-//				// Calculate distance, in degrees, to the target
-//				latitudeDelta  = currentLocation.getLatitude()  - targetLocation.getLatitude();
-//				longitudeDelta = currentLocation.getLongitude() - targetLocation.getLongitude();
-//
-//				// Have we reached the target?
-//				if (!waypointReached()) {
-//					// Not yet reached
-//					utils.hover();
-//					performMovement();
-//				}
-//				else {
-//					// We reached the target
-//					utils.hover();
-//					
-//					// Take a picture and wait 1 cycle
-//					if (waypointPhotographed) {
-//						targetLocation = getNextWaypoint();
-//						if (targetLocation == null) {
-//							// All waypoints have been reached, mission has to end
-//							break;
-//						}
-//						
-//						waypointPhotographed = false;
-//					}
-//					else {
-//						utils.takePicture();
-//						waypointPhotographed = true;
-//					}
-//				}
-//
+//			while(true) {
 //				readSensorsSequentially();
-//				
-//				utils.wait(NAVIGATION_LOOP_PERIOD);
+//				utils.wait(250);
 //			}
-//			
-//			
-//			utils.returnToLaunch();
-//			
-//			
-//		} catch (AbortException e) {
-//			// Mission has been aborted
-//		}
-//		
-//		
+//		} catch (AbortException e) { }
 //		endMission();
+		
+		
+		
+		
+		
+		
+		Location currentLocation, startLocation, targetLocation;
+		boolean waypointPhotographed = false;
+		
+		
+		try {
+			// Get starting location
+			startLocation = locationProvider.getLastLocation();
+			while (startLocation == null) {
+				// GPS not ready, wait and try again
+				utils.wait(1000);
+							
+				startLocation = locationProvider.getLastLocation();
+			}
+
+			// Set first target
+			currentWaypoint = 0;
+			targetLocation = getNextWaypoint();
+			if (targetLocation == null) {
+				// First waypoint must never be null
+				endMission();
+				return;
+			}
+			
+			
+			utils.takeoff();
+			
+			
+			// Navigation loop
+			while (true) {
+				// Get current location
+				currentLocation = locationProvider.getLastLocation();
+
+				// Calculate distance, in degrees, to the target
+				latitudeDelta  = currentLocation.getLatitude()  - targetLocation.getLatitude();
+				longitudeDelta = currentLocation.getLongitude() - targetLocation.getLongitude();
+
+				// Have we reached the target?
+				if (!waypointReached()) {
+					// Not yet reached
+					utils.hover();
+					performMovement();
+				}
+				else {
+					// We reached the target
+					utils.hover();
+					
+					// Take a picture and wait 1 cycle
+					if (waypointPhotographed) {
+						targetLocation = getNextWaypoint();
+						if (targetLocation == null) {
+							// All waypoints have been reached, mission has to end
+							break;
+						}
+						
+						waypointPhotographed = false;
+					}
+					else {
+						utils.takePicture("local_" + Integer.toString(currentWaypoint));
+						waypointPhotographed = true;
+					}
+				}
+
+				readSensorsSequentially();
+				
+				utils.wait(NAVIGATION_LOOP_PERIOD);
+			}
+			
+			
+			utils.returnToLaunch();
+			
+			
+		} catch (AbortException e) {
+			// Mission has been aborted
+		}
+		
+		
+		endMission();
 	}
 	
 	private void readSensorsSequentially() throws AbortException {
@@ -217,9 +233,12 @@ public class MissionThread extends Thread {
 		case 3:
 			utils.readSensor(MissionUtils.NO2);
 			break;
+		case 4:
+			utils.readSensor(MissionUtils.ALTITUDE);
+			break;
 		}
 		currentSensor++;
-		if (currentSensor > 3) { currentSensor = 0; }
+		if (currentSensor > 4) { currentSensor = 0; }
 	}
 	
 	/**
@@ -250,23 +269,26 @@ public class MissionThread extends Thread {
 			if (action.equals(MissionStatusPolling.ABORT_MISSION)) {
 				utils.abortMission();
 				utils.showToast("Mission aborted!");
-			}
 			
 			// From Arduino
-			else if (action.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_TEMPERATURE)) {
-				HTTPCalls.send_data(MainActivity.QUAD_ID, "temp1", Float.toString(value));
+		    } else if (action.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_TEMPERATURE)) {
+				sendData("temp1", value);
 			} else if (action.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_HUMIDITY)) {
-				HTTPCalls.send_data(MainActivity.QUAD_ID, "hum1", Float.toString(value));
+				sendData("hum1", value);
 			} else if (action.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_NO2)) {
-				HTTPCalls.send_data(MainActivity.QUAD_ID, "no2", Float.toString(value));
+				sendData("no2", value);
 			} else if (action.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_CO)) {
-				HTTPCalls.send_data(MainActivity.QUAD_ID, "co", Float.toString(value));
+				sendData("co", value);
 			} else if (action.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_ALTITUDE)) {
-				HTTPCalls.send_data(MainActivity.QUAD_ID, "temp2", Float.toString(value));
+				sendData("alt_bar", value);
 			}
 		}
 	};
 
+	private void sendData(String varName, float value) {
+		new SendDataThread(varName, value);
+	}
+	
 	/**
 	 * Intents to listen to
 	 */

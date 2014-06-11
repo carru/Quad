@@ -47,26 +47,7 @@ public class MissionStatusPolling extends Thread {
 				}
 			}
 			
-			
-			
-			
-//			if (HTTPCalls.get_startmission(quadid)) {
-//				notifyAction(START_MISSION);
-//				if (log) { Log.i(TAG, "start"); }
-//			} else if (HTTPCalls.get_abortmission(quadid)) {
-//				notifyAction(ABORT_MISSION);
-//				if (log) { Log.i(TAG, "abort"); }
-//			} else {
-//				if (log) { Log.i(TAG, "no flags"); }
-//			}
-
-			
-			
-			
-			try {
-				sleep(POLLING_PERIOD);
-			} catch (InterruptedException e) {
-			}
+			try { sleep(POLLING_PERIOD); } catch (InterruptedException e) { }
 		}
 	}
 	

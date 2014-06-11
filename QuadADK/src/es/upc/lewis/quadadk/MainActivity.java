@@ -160,7 +160,7 @@ public class MainActivity extends Activity {
 		locationProvider = new MyLocation(this);
 		
 		// Start polling server for mission start/abort
-		//pollingWorker = new MissionStatusPolling(this, QUAD_ID); //TODO: uncomment
+		pollingWorker = new MissionStatusPolling(this, QUAD_ID);
 		
 		// Debug buttons
 		Button b1 = (Button) findViewById(R.id.button1);

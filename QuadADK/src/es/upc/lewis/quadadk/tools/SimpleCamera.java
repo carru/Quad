@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import es.upc.lewis.quadadk.MainActivity;
 import es.upc.lewis.quadadk.comms.SendPictureThread;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -94,7 +93,6 @@ public class SimpleCamera {
 	        }
 
 	    	// Save picture
-	    	//TODO: save with pictureName instead of timestamp?
 	        File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
 	        if (pictureFile == null){
 	            Log.d(TAG, "Error creating media file.");
@@ -112,7 +110,7 @@ public class SimpleCamera {
 	        }
 	        
 	        // Send picture to GroundStation
-	        new SendPictureThread(MainActivity.QUAD_ID, data, pictureFile, pictureName);
+	        new SendPictureThread(pictureFile, pictureName);
 	    }
 	};
 	
