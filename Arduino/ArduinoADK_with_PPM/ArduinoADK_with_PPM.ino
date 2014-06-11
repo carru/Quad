@@ -1,3 +1,4 @@
+
 #include <Max3421e.h>
 #include <Usb.h>
 #include <AndroidAccessory.h>
@@ -6,6 +7,8 @@
 #include "Wire.h"
 #include "EggBus.h"
 #include "DHT.h"
+#include "MPL3115A2.h"
+
 
 ///////////////////////// ADK CONFIG /////////////////////////////
 #define BUFFER_SIZE_FOR_IO 256
@@ -59,6 +62,10 @@ DHT dht(DHTPIN, DHTTYPE);
 EggBus eggBus;
 //////////////////////////////////////////////////////////////////
 
+//////////////////////// ALTIMETER //////////////////////////////
+MPL3115A2 myPressure;
+/////////////////////////////////////////////////////////////////
+
 void intHandler() {
   timeNow = micros();
 
@@ -85,6 +92,12 @@ void setup() {
 
   // Eggshield
   dht.begin();
+  
+  // Altimeter
+  myPressure.begin();
+  myPressure.setModeAltimeter();
+  myPressure.setOversampleRate(7); // Set Oversample to the recommended 128
+  myPressure.enableEventFlags();
 
   // Blinking LED (RC)
   pinMode(ledPort, OUTPUT);
@@ -187,6 +200,14 @@ void attendCommand(byte command, int value) {
     Serial.println(sensorData);
 
     sendSensorData(DATA_SENSOR_CO, sensorData);
+    break;
+    
+  case READ_SENSOR_ALTITUDE:
+    sensorData = myPressure.readAltitude();
+    Serial.print("Altitude [m]: ");
+    Serial.println(sensorData);
+
+    sendSensorData(DATA_SENSOR_ALTITUDE, sensorData);
     break;
 
   case SET_MODE_ALTHOLD:
