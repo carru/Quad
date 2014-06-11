@@ -31,7 +31,7 @@ import es.upc.lewis.quadadk.tools.MyLocation;
 import es.upc.lewis.quadadk.tools.SimpleCamera;
 
 public class MainActivity extends Activity {
-	public String QUAD_ID = "001";
+	public static String QUAD_ID = "001";
 	
 	private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -112,7 +112,7 @@ public class MainActivity extends Activity {
 	private OnClickListener cameraButtonListener = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
-			if (camera.isReady()) { camera.takePicture(); }
+			if (camera.isReady()) { camera.takePicture("test"); }
 		}
 	};
 
@@ -154,7 +154,7 @@ public class MainActivity extends Activity {
 		registerReceivers();
 
 		// Start camera
-		camera = new SimpleCamera(this, (FrameLayout) findViewById(R.id.camera_preview), QUAD_ID);
+		camera = new SimpleCamera(this, (FrameLayout) findViewById(R.id.camera_preview));
 
 		// Start location provider
 		locationProvider = new MyLocation(this);
@@ -241,7 +241,6 @@ public class MainActivity extends Activity {
 		
 		if (isMissionRunning == false && comms != null) {
 		//if (isMissionRunning == false) { // DEBUG (to start mission without an Arduino)
-			isMissionRunning = true;
 			new MissionThread(comms, this, locationProvider);
 		}
 	}

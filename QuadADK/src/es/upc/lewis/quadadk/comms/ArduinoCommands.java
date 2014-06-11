@@ -15,6 +15,9 @@ public interface ArduinoCommands {
 	public static final byte READ_SENSOR_CO = 0x04;
 	public static final byte DATA_SENSOR_CO = 0x14;
 	
+	public static final byte READ_SENSOR_ALTITUDE = 0x05;
+	public static final byte DATA_SENSOR_ALTITUDE = 0x15;
+	
 	// RC RELATED COMMANDS
 	public static final byte SET_CH1 = (byte) 0xF1;
 	public static final byte SET_CH2 = (byte) 0xF2;

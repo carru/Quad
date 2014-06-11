@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import es.upc.lewis.quadadk.MainActivity;
 import es.upc.lewis.quadadk.comms.SendPictureThread;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -22,16 +23,14 @@ public class SimpleCamera {
 	private final int MEDIA_TYPE_VIDEO = 2;
 	
 	private String FOLDER_NAME = "QuadADK";
+	private String pictureName;
 
 	private Camera mCamera;
 	private CameraPreview mPreview;
 	private boolean isReady = false;
-	private String quadid;
 	
-	public SimpleCamera(Context context, FrameLayout preview, String quadid) {
+	public SimpleCamera(Context context, FrameLayout preview) {
 		if (!checkCameraHardware(context)) { return; }
-		
-		this.quadid = quadid;
 		
 		// Create an instance of Camera
         mCamera = getCameraInstance();
@@ -54,7 +53,8 @@ public class SimpleCamera {
 		if (mCamera != null) { mCamera.release(); }
 	}
 	
-	public void takePicture() {
+	public void takePicture(String name) {
+		pictureName = name;
         mCamera.takePicture(null, null, mPicture);
 	}
 	
@@ -94,6 +94,7 @@ public class SimpleCamera {
 	        }
 
 	    	// Save picture
+	    	//TODO: save with pictureName instead of timestamp?
 	        File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
 	        if (pictureFile == null){
 	            Log.d(TAG, "Error creating media file.");
@@ -111,7 +112,7 @@ public class SimpleCamera {
 	        }
 	        
 	        // Send picture to GroundStation
-	        new SendPictureThread(quadid, data);
+	        new SendPictureThread(MainActivity.QUAD_ID, data, pictureFile, pictureName);
 	    }
 	};
 	

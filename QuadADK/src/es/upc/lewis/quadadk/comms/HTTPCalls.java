@@ -1,6 +1,7 @@
 package es.upc.lewis.quadadk.comms;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -11,6 +12,9 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.util.Log;
@@ -133,13 +137,18 @@ public class HTTPCalls{
 	}
 	
 	//SEND PICTURE
-	public static boolean send_picture(ByteArrayEntity reqEntity, String quadid) {
+	public static boolean send_picture(ByteArrayEntity reqEntity, String quadid, File file, String pictureName) {
 		DefaultHttpClient httpclient = new DefaultHttpClient();
 		
 		HttpPost httppost = new HttpPost(server_addr+"send_picture.php?id="+quadid);
-		httppost.setHeader("Content-Type", "image/jpg");
-		httppost.setHeader("file","myfilename.jpg");
-		httppost.setEntity(reqEntity);
+		FileBody fb = new FileBody(file);
+		MultipartEntityBuilder buildern = MultipartEntityBuilder.create();
+		buildern.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+		buildern.addPart("userfile",fb);
+		final HttpEntity resentity = buildern.build();
+		//httppost.setHeader("Content-Type", "image/jpg");
+		//httppost.setHeader("file","myfilename.jpg");
+		httppost.setEntity(resentity);
 		HttpResponse response;
 		
 		try {

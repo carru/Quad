@@ -1,5 +1,6 @@
 package es.upc.lewis.quadadk.comms;
 
+import es.upc.lewis.quadadk.MainActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
@@ -34,16 +35,34 @@ public class MissionStatusPolling extends Thread {
 		boolean log = true;
 		
 		while(enabled) {
-			if (HTTPCalls.get_startmission(quadid)) {
-				notifyAction(START_MISSION);
-				if (log) { Log.i(TAG, "start"); }
-			} else if (HTTPCalls.get_abortmission(quadid)) {
-				notifyAction(ABORT_MISSION);
-				if (log) { Log.i(TAG, "abort"); }
+			if (MainActivity.isMissionRunning) {
+				if (HTTPCalls.get_abortmission(quadid)) {
+					notifyAction(ABORT_MISSION);
+					if (log) { Log.i(TAG, "abort"); }
+				}
 			} else {
-				if (log) { Log.i(TAG, "no flags"); }
+				if (HTTPCalls.get_startmission(quadid)) {
+					notifyAction(START_MISSION);
+					if (log) { Log.i(TAG, "start"); }
+				}
 			}
+			
+			
+			
+			
+//			if (HTTPCalls.get_startmission(quadid)) {
+//				notifyAction(START_MISSION);
+//				if (log) { Log.i(TAG, "start"); }
+//			} else if (HTTPCalls.get_abortmission(quadid)) {
+//				notifyAction(ABORT_MISSION);
+//				if (log) { Log.i(TAG, "abort"); }
+//			} else {
+//				if (log) { Log.i(TAG, "no flags"); }
+//			}
 
+			
+			
+			
 			try {
 				sleep(POLLING_PERIOD);
 			} catch (InterruptedException e) {

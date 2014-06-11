@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import es.upc.lewis.quadadk.MainActivity;
 import es.upc.lewis.quadadk.comms.ArduinoCommands;
 import es.upc.lewis.quadadk.comms.CommunicationsThread;
+import es.upc.lewis.quadadk.comms.HTTPCalls;
 import es.upc.lewis.quadadk.comms.MissionStatusPolling;
 import es.upc.lewis.quadadk.tools.MyLocation;
 import android.content.BroadcastReceiver;
@@ -22,6 +23,8 @@ public class MissionThread extends Thread {
 	
 	private double latitudeDelta, longitudeDelta;
 	private MainActivity activity;
+	
+	private int currentSensor = 0;
 	
 	// Slider position from neutral (MissionUtils.CH_NEUTRAL)
 	private final int HORIZONTAL_MOVEMENT_SLIDER = 300;
@@ -52,11 +55,10 @@ public class MissionThread extends Thread {
 		// Register BroadcastReceiver
 		LocalBroadcastManager.getInstance(activity).registerReceiver(
 				broadcastReceiver, broadcastIntentFilter());
-
-		// Notify GroundStation mission has started
-		//server.send(GroundStationCommands.MISSION_START);
 		
 		loadWaypoints();
+		
+		MainActivity.isMissionRunning = true;
 		
 		start();
 	}
@@ -113,19 +115,15 @@ public class MissionThread extends Thread {
 	
 	@Override
 	public void run() {
-		// Dumb mission
+		
 		try {
-			utils.arm();
-			utils.send(ArduinoCommands.SET_MODE_STB);
-			utils.send(ArduinoCommands.SET_CH3, 1250);
-			utils.wait(200000);
-		} catch (AbortException e) {  }
-		
-		utils.disarm_NO_EXCEPTION_DEBUG_ONLY();
+			//while (true) {
+				
+				utils.readSensor(MissionUtils.TEMPERATURE);
+				utils.wait(500);
+			//}
+		} catch (AbortException e) { }
 		endMission();
-		
-		//TODO: Remember to uncomment code inside utils.abortmission() !!!!
-		
 		
 //		Location currentLocation, startLocation, targetLocation;
 //		boolean waypointPhotographed = false;
@@ -145,7 +143,7 @@ public class MissionThread extends Thread {
 //			targetLocation = getNextWaypoint();
 //			if (targetLocation == null) {
 //				// First waypoint must never be null
-//				utils.endMission();
+//				endMission();
 //				return;
 //			}
 //			
@@ -188,6 +186,8 @@ public class MissionThread extends Thread {
 //					}
 //				}
 //
+//				readSensorsSequentially();
+//				
 //				utils.wait(NAVIGATION_LOOP_PERIOD);
 //			}
 //			
@@ -201,6 +201,25 @@ public class MissionThread extends Thread {
 //		
 //		
 //		endMission();
+	}
+	
+	private void readSensorsSequentially() throws AbortException {
+		switch (currentSensor) {
+		case 0:
+			utils.readSensor(MissionUtils.TEMPERATURE);
+			break;
+		case 1:
+			utils.readSensor(MissionUtils.HUMIDITY);
+			break;
+		case 2:
+			utils.readSensor(MissionUtils.CO);
+			break;
+		case 3:
+			utils.readSensor(MissionUtils.NO2);
+			break;
+		}
+		currentSensor++;
+		if (currentSensor > 3) { currentSensor = 0; }
 	}
 	
 	/**
@@ -226,7 +245,7 @@ public class MissionThread extends Thread {
 			int intBytes = intent.getIntExtra(CommunicationsThread.VALUE, 0);
 			// bytes to float
 			float value = Float.intBitsToFloat(intBytes);
-
+			
 			// From GroundStation
 			if (action.equals(MissionStatusPolling.ABORT_MISSION)) {
 				utils.abortMission();
@@ -235,13 +254,15 @@ public class MissionThread extends Thread {
 			
 			// From Arduino
 			else if (action.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_TEMPERATURE)) {
-				// Reading stored in 'value' (float)
+				HTTPCalls.send_data(MainActivity.QUAD_ID, "temp1", Float.toString(value));
 			} else if (action.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_HUMIDITY)) {
-				// Reading stored in 'value' (float)
+				HTTPCalls.send_data(MainActivity.QUAD_ID, "hum1", Float.toString(value));
 			} else if (action.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_NO2)) {
-				// Reading stored in 'value' (float)
+				HTTPCalls.send_data(MainActivity.QUAD_ID, "no2", Float.toString(value));
 			} else if (action.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_CO)) {
-				// Reading stored in 'value' (float)
+				HTTPCalls.send_data(MainActivity.QUAD_ID, "co", Float.toString(value));
+			} else if (action.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_ALTITUDE)) {
+				HTTPCalls.send_data(MainActivity.QUAD_ID, "temp2", Float.toString(value));
 			}
 		}
 	};
@@ -260,6 +281,7 @@ public class MissionThread extends Thread {
 		intentFilter.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_HUMIDITY);
 		intentFilter.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_NO2);
 		intentFilter.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_CO);
+		intentFilter.addAction(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_ALTITUDE);
 		
 		return intentFilter;
 	}

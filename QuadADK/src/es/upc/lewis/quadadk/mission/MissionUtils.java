@@ -15,6 +15,7 @@ public class MissionUtils {
 	public static final byte HUMIDITY    = 0x02;
 	public static final byte NO2         = 0x03;
 	public static final byte CO          = 0x04;
+	public static final byte ALTITUDE    = 0x05;
 	
 	// Channel values
 	public static final int THROTTLE_MIN     = 1150; // Throttle has a different minimum value
@@ -72,14 +73,14 @@ public class MissionUtils {
 		if (isSleeping) { thread.interrupt(); }
 		isSleeping = false;
 		
-		//returnToLaunch(); //TODO: uncomment
+		returnToLaunch();
 	}
 	
 	/**
 	 * Arms motors. Blocks for 'timeToArm' milliseconds. Switches to Altitude Hold flight mode
 	 * Leaves roll, pitch and yaw in neutral (1500) and throttle at minimum (1000).
 	 */
-	public void arm() throws AbortException { //TODO: change back to private
+	private void arm() throws AbortException {
 		// Set flight mode to altitude hold (can't arm in loitter)
 		send(ArduinoCommands.SET_MODE_ALTHOLD);
 
@@ -110,16 +111,16 @@ public class MissionUtils {
 	}
 	
 	//TODO: delete when done debugging
-	public void disarm_NO_EXCEPTION_DEBUG_ONLY() {
-		arduino.send(ArduinoCommands.SET_CH1, CH_NEUTRAL);
-		arduino.send(ArduinoCommands.SET_CH2, CH_NEUTRAL);
-		arduino.send(ArduinoCommands.SET_CH3, THROTTLE_MIN);
-		arduino.send(ArduinoCommands.SET_CH4, CH_MIN);
-
-		waitWithoutException(TIME_TO_DISARM);
-
-		arduino.send(ArduinoCommands.SET_CH4, CH_NEUTRAL);
-	}
+//	public void disarm_NO_EXCEPTION_DEBUG_ONLY() {
+//		arduino.send(ArduinoCommands.SET_CH1, CH_NEUTRAL);
+//		arduino.send(ArduinoCommands.SET_CH2, CH_NEUTRAL);
+//		arduino.send(ArduinoCommands.SET_CH3, THROTTLE_MIN);
+//		arduino.send(ArduinoCommands.SET_CH4, CH_MIN);
+//
+//		waitWithoutException(TIME_TO_DISARM);
+//
+//		arduino.send(ArduinoCommands.SET_CH4, CH_NEUTRAL);
+//	}
 
 	/**
 	 * Set roll, pitch, throttle and yaw to neutral (hover)
@@ -184,12 +185,12 @@ public class MissionUtils {
 		if (isAborted) { throw new AbortException(); }
 		
 		if (MainActivity.camera != null) {
-			if (MainActivity.camera.isReady()) { MainActivity.camera.takePicture(); }
+			if (MainActivity.camera.isReady()) { MainActivity.camera.takePicture("test"); }
 		}
 	}
 	
 	/**
-	 * Read sensor and send result to the GroundStation
+	 * Read sensor and get result in MissionThread
 	 * @throws AbortException 
 	 */
 	public void readSensor(byte sensor) throws AbortException {
@@ -205,6 +206,9 @@ public class MissionUtils {
 			break;
 		case CO:
 			send(ArduinoCommands.READ_SENSOR_CO);
+			break;
+		case ALTITUDE:
+			send(ArduinoCommands.READ_SENSOR_ALTITUDE);
 			break;
 		}
 	}

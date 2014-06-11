@@ -17,6 +17,7 @@ public class CommunicationsThread extends Thread {
     public static final String ACTION_DATA_AVAILABLE_SENSOR_HUMIDITY    = "2";
     public static final String ACTION_DATA_AVAILABLE_SENSOR_NO2         = "3";
     public static final String ACTION_DATA_AVAILABLE_SENSOR_CO          = "4";
+    public static final String ACTION_DATA_AVAILABLE_SENSOR_ALTITUDE    = "5";
     // Fields
     public static final String VALUE = "5";
     
@@ -98,6 +99,10 @@ public class CommunicationsThread extends Thread {
 			
 		case ArduinoCommands.DATA_SENSOR_CO:
 			intent = new Intent(ACTION_DATA_AVAILABLE_SENSOR_CO);
+			break;
+
+		case ArduinoCommands.DATA_SENSOR_ALTITUDE:
+			intent = new Intent(ACTION_DATA_AVAILABLE_SENSOR_ALTITUDE);
 			break;
 			
 		default:
