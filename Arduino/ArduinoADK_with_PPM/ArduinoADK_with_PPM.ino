@@ -49,10 +49,11 @@ volatile int16_t timeBefore = 0;
 volatile int delta = 0;
 volatile int currentChannel = 0;
 
-#define THROTTLE_MIN 1150 // Throttle has a different minimum value
-#define CH_MIN       1000
-#define CH_NEUTRAL   1500
-#define CH_MAX       2000
+#define THROTTLE_MIN     1150 // Throttle has a different minimum value
+#define THROTTLE_NEUTRAL 1650 // Throttle has a different neutral value
+#define CH_MIN     1000
+#define CH_NEUTRAL 1500
+#define CH_MAX     2000
 //////////////////////////////////////////////////////////////////
 
 ///////////////////////// EGGSHIELD //////////////////////////////
@@ -251,7 +252,7 @@ void attendCommand(byte command, int value) {
 void setSlidersNeutral() {
   setPPMChannel(CH_ROLL, CH_NEUTRAL);
   setPPMChannel(CH_PITCH, CH_NEUTRAL);
-  setPPMChannel(CH_THROTTLE, CH_NEUTRAL);
+  setPPMChannel(CH_THROTTLE, THROTTLE_NEUTRAL);
   setPPMChannel(CH_YAW, CH_NEUTRAL);
 
   setPPMChannel(CH_SWITCH, CH_MIN); // No simple mode
@@ -310,6 +311,15 @@ void loop() {
     }
     mode = MANUAL;
   }
+  
+  // DEBUG print generated pwm values
+  /*for (int i = 0; i <= chanel_number-1; i++) {
+    Serial.print(i+1);
+    Serial.print(": ");
+    Serial.print(ppm[i]);
+    Serial.print("  ");
+  }
+  Serial.println();*/
 
   // Manage ADK connection
   if (acc.isConnected()) {

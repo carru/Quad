@@ -15,6 +15,7 @@ public class MainActivity extends Activity {
 	private TextView latText;
 	private TextView longText;
 	private TextView accText;
+	private TextView altText;
 	private Button startBtn;
 	private Button abortBtn;
 	private static TextView statusText;
@@ -58,6 +59,7 @@ public class MainActivity extends Activity {
 		latText = (TextView) findViewById(R.id.latText);
 		longText = (TextView) findViewById(R.id.longText);
 		accText = (TextView) findViewById(R.id.accText);
+		altText = (TextView) findViewById(R.id.altText);
 		startBtn = (Button) findViewById(R.id.startBtn);
 		abortBtn = (Button) findViewById(R.id.abortBtn);
 		statusText = (TextView) findViewById(R.id.statusText);
@@ -111,10 +113,9 @@ public class MainActivity extends Activity {
 	
 	class UpdateThread extends Thread {
 		private volatile boolean enabled = true;
+		private int UPDATE_PERIOD = 250;
 
-		public void finnish() {
-			enabled = false;
-		}
+		public void finnish() { enabled = false; }
 
 		@Override
 		public void run() {
@@ -124,16 +125,14 @@ public class MainActivity extends Activity {
 					public void run() {
 						Location location = locationProvider.getLastLocation();
 						if (location != null) {
-							latText.setText("Lat: " + Double.toString(location.getLatitude()));
-							longText.setText("Long: " + Double.toString(location.getLongitude()));
-							accText.setText("Accuracy: " + Double.toString(location.getAccuracy()));
+							latText.setText ("Lat: "      + Double.toString(location.getLatitude() ));
+							longText.setText("Long: "     + Double.toString(location.getLongitude()));
+							accText.setText ("Accuracy: " + Double.toString(location.getAccuracy() ));
+							altText.setText ("Altitude: " + Double.toString(location.getAltitude() ));
 						}
 					}
 				});
-				try {
-					sleep(100);
-				} catch (InterruptedException e) {
-				}
+				try { sleep(UPDATE_PERIOD); } catch (InterruptedException e) { }
 			}
 		}
 	}
