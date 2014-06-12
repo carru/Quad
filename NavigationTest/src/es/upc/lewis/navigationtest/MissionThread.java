@@ -2,7 +2,12 @@ package es.upc.lewis.navigationtest;
 
 import java.util.ArrayList;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.location.Location;
+import android.support.v4.content.LocalBroadcastManager;
 
 public class MissionThread extends Thread {
 	private int NAVIGATION_LOOP_PERIOD = 250; // Milliseconds
@@ -35,12 +40,16 @@ public class MissionThread extends Thread {
 		
 		loadWaypoints();
 		
+		// Register BroadcastReceiver
+		LocalBroadcastManager.getInstance(activity).registerReceiver(
+				broadcastReceiver, broadcastIntentFilter());
+		
 		start();
 		activity.missionIsRunning(true);
 	}
 
 	private void doAction(String direction) {
-		activity.displayAction(direction);
+		if (enabled) { activity.displayAction(direction); }
 	}
 	
 	public void finnish() {
@@ -79,7 +88,7 @@ public class MissionThread extends Thread {
 			targetLocation = getNextWaypoint();
 			if (targetLocation == null) {
 				// First waypoint must never be null
-				end();
+				endMission();
 				return;
 			}
 			
@@ -115,8 +124,7 @@ public class MissionThread extends Thread {
 			// Finish mission, utils.returnToLaunch();
 			
 		
-		
-		end();
+			endMission();
 	}
 
 	private Location getNextWaypoint() {
@@ -159,7 +167,35 @@ public class MissionThread extends Thread {
 		return true;
 	}
 	
-	private void end() {
+	private void endMission() {
 		activity.missionIsRunning(false);
+		
+		// Unregister receiver
+		LocalBroadcastManager.getInstance(activity).unregisterReceiver(broadcastReceiver);
+	}
+	
+	/**
+	 * Receive important events
+	 */
+	private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String action = intent.getAction();
+			
+			if (action.equals(MyLocation.ABORT_MISSION)) {
+				finnish();
+		    }
+		}
+	};
+	
+	/**
+	 * Intents to listen to
+	 */
+	private static IntentFilter broadcastIntentFilter() {
+		final IntentFilter intentFilter = new IntentFilter();
+		
+		intentFilter.addAction(MyLocation.ABORT_MISSION);
+		
+		return intentFilter;
 	}
 }

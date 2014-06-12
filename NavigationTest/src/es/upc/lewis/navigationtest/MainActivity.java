@@ -81,7 +81,7 @@ public class MainActivity extends Activity {
 	}
 
 	@Override
-	protected void onStop() {
+	protected void onDestroy() {
 		updateWorker.finnish();
 
 		if (missionThread != null) { missionThread.finnish(); }
@@ -89,7 +89,7 @@ public class MainActivity extends Activity {
 		// Stop location provider
 		if (locationProvider != null) { locationProvider.stop(); locationProvider = null; }
 		
-		super.onStop();
+		super.onDestroy();
 	}
 
 	private OnClickListener startBtnListener = new OnClickListener() {

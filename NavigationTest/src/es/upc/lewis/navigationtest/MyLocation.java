@@ -6,20 +6,27 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 
 public class MyLocation implements LocationListener {
 	private long MIN_TIME_BETWEEN_UPDATES = 100;   // Milliseconds, not accurate
 	private long MIN_DISTANCE_BETWEEN_UPDATES = 0; // Meters
 	
-	private float MAX_ERROR_IN_METERS = 20; 
-	
-	public static final String GPS_UPDATE = "g";
-	Intent intent;
+	private float MAX_ERROR_IN_METERS = 20;
+	private int MAX_BAD_READINGS_FOR_FAILSAFE = 5;
+	private int numberOfBadReadings = 0;
 	
 	private LocationManager locationManager;
 	private Location lastLocation = null;
+	
+	public static final String GPS_UPDATE = "g";
+	public static final String ABORT_MISSION = "a";
+	private Intent intent;
+	private Context context;
 
 	public MyLocation(Context context) {
+		this.context = context;
+		
 		locationManager = (LocationManager) context
 				.getSystemService(Context.LOCATION_SERVICE);
 		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
@@ -33,15 +40,37 @@ public class MyLocation implements LocationListener {
 	public void stop() {
 		locationManager.removeUpdates(this);
 	}
+
+	public void setLocation_DEBUG_ONLY(Location location) {
+		lastLocation = location;
+		// Notify there's an update
+		intent = new Intent(GPS_UPDATE);
+		LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+	}
 	
 	@Override
 	public void onLocationChanged(Location location) {
 		// Discard locations with poor accuracy
-		if (location.getAccuracy() > MAX_ERROR_IN_METERS) { return; }
+		if (location.getAccuracy() > MAX_ERROR_IN_METERS) {
+			numberOfBadReadings++;
+			if (numberOfBadReadings >= MAX_BAD_READINGS_FOR_FAILSAFE) { gpsFailsafe(); }
+			return;
+		}
 		
+		numberOfBadReadings = 0;
 		lastLocation = location;
+		
+		// Notify there's an update
+		intent = new Intent(GPS_UPDATE);
+		LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 	}
 
+	private void gpsFailsafe() {
+		// Send abort mission broadcast
+		intent = new Intent(ABORT_MISSION);
+		LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+	}
+	
 	@Override
 	public void onProviderDisabled(String provider) {
 
