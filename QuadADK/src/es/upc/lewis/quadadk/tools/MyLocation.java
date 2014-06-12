@@ -1,5 +1,6 @@
 package es.upc.lewis.quadadk.tools;
 
+import es.upc.lewis.quadadk.comms.MissionStatusPolling;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
@@ -12,7 +13,9 @@ public class MyLocation implements LocationListener {
 	private long MIN_TIME_BETWEEN_UPDATES = 100;   // Milliseconds, not accurate
 	private long MIN_DISTANCE_BETWEEN_UPDATES = 0; // Meters
 	
-	private float MAX_ERROR_IN_METERS = 15;
+	private float MAX_ERROR_IN_METERS = 20;
+	private int MAX_BAD_READINGS_FOR_FAILSAFE = 5;
+	private int numberOfBadReadings = 0;
 	
 	private LocationManager locationManager;
 	private Location lastLocation = null;
@@ -37,12 +40,24 @@ public class MyLocation implements LocationListener {
 	public void stop() {
 		locationManager.removeUpdates(this);
 	}
+
+	public void setLocation_DEBUG_ONLY(Location location) {
+		lastLocation = location;
+		// Notify there's an update
+		intent = new Intent(GPS_UPDATE);
+		LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+	}
 	
 	@Override
 	public void onLocationChanged(Location location) {
 		// Discard locations with poor accuracy
-		if (location.getAccuracy() > MAX_ERROR_IN_METERS) { return; }
+		if (location.getAccuracy() > MAX_ERROR_IN_METERS) {
+			numberOfBadReadings++;
+			if (numberOfBadReadings >= MAX_BAD_READINGS_FOR_FAILSAFE) { gpsFailsafe(); }
+			return;
+		}
 		
+		numberOfBadReadings = 0;
 		lastLocation = location;
 		
 		// Notify there's an update
@@ -50,6 +65,13 @@ public class MyLocation implements LocationListener {
 		LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 	}
 
+	private void gpsFailsafe() {
+		// Send abort mission broadcast
+		//TODO: we don't do it yet
+//		intent = new Intent(MissionStatusPolling.ABORT_MISSION);
+//		LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+	}
+	
 	@Override
 	public void onProviderDisabled(String provider) {
 

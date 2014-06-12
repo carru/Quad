@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.android.future.usb.UsbAccessory;
 import com.android.future.usb.UsbManager;
 
+import es.upc.lewis.quadadk.comms.ArduinoCommands;
 import es.upc.lewis.quadadk.comms.CommunicationsThread;
 import es.upc.lewis.quadadk.comms.MissionStatusPolling;
 import es.upc.lewis.quadadk.mission.MissionThread;
@@ -163,20 +164,38 @@ public class MainActivity extends Activity {
 		pollingWorker = new MissionStatusPolling(this, QUAD_ID);
 		
 		// Debug buttons
-		Button b1 = (Button) findViewById(R.id.button1);
-		b1.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent("start"));
-			}
-		});
-		Button b2 = (Button) findViewById(R.id.button2);
-		b2.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent("abort"));
-			}
-		});
+//		Button b1 = (Button) findViewById(R.id.button1);
+//		b1.setOnClickListener(new OnClickListener() {
+//			@Override
+//			public void onClick(View arg0) {
+//				//LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent("start"));
+//				
+//				//comms.send(ArduinoCommands.SET_CH1, 2000);
+//				
+//				Location fakeLocation = new Location("");
+//				fakeLocation.setLatitude(41.38825221);
+//				fakeLocation.setLongitude(2.11327339);
+//				fakeLocation.setAltitude(200);
+//				fakeLocation.setAccuracy(1);
+//				locationProvider.setLocation_DEBUG_ONLY(fakeLocation);
+//			}
+//		});
+//		Button b2 = (Button) findViewById(R.id.button2);
+//		b2.setOnClickListener(new OnClickListener() {
+//			@Override
+//			public void onClick(View arg0) {
+//				//LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent("abort"));
+//				
+//				//comms.send(ArduinoCommands.SET_CH1, 1000);
+//				
+//				Location fakeLocation = new Location("");
+//				fakeLocation.setLatitude(50);
+//				fakeLocation.setLongitude(4);
+//				fakeLocation.setAltitude(200);
+//				fakeLocation.setAccuracy(1);
+//				locationProvider.setLocation_DEBUG_ONLY(fakeLocation);
+//			}
+//		});
 	}
 
 	@Override
@@ -242,6 +261,7 @@ public class MainActivity extends Activity {
 		if (isMissionRunning == false && comms != null) {
 		//if (isMissionRunning == false) { // DEBUG (to start mission without an Arduino)
 			new MissionThread(comms, this, locationProvider);
+			Log.i(TAG, "Mission started");
 		}
 	}
 

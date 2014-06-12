@@ -32,19 +32,21 @@ public class MissionStatusPolling extends Thread {
 	
 	@Override
 	public void run() {
-		boolean log = true;
+		boolean log = false;
 		
 		while(enabled) {
+			if (log) { Log.i(TAG, "iteration"); }
+			
 			if (MainActivity.isMissionRunning) {
 				if (HTTPCalls.get_abortmission(quadid)) {
 					notifyAction(ABORT_MISSION);
-					if (log) { Log.i(TAG, "abort"); }
-				}
+					if (log) { Log.i(TAG, "abort true"); }
+				} else { if (log) { Log.i(TAG, "abort false"); } }
 			} else {
 				if (HTTPCalls.get_startmission(quadid)) {
 					notifyAction(START_MISSION);
-					if (log) { Log.i(TAG, "start"); }
-				}
+					if (log) { Log.i(TAG, "start true"); }
+				} else { if (log) { Log.i(TAG, "start false"); } }
 			}
 			
 			try { sleep(POLLING_PERIOD); } catch (InterruptedException e) { }

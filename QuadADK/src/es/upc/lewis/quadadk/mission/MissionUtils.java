@@ -109,23 +109,12 @@ public class MissionUtils {
 
 		send(ArduinoCommands.SET_CH4, CH_NEUTRAL);
 	}
-	
-	//TODO: delete when done debugging
-//	public void disarm_NO_EXCEPTION_DEBUG_ONLY() {
-//		arduino.send(ArduinoCommands.SET_CH1, CH_NEUTRAL);
-//		arduino.send(ArduinoCommands.SET_CH2, CH_NEUTRAL);
-//		arduino.send(ArduinoCommands.SET_CH3, THROTTLE_MIN);
-//		arduino.send(ArduinoCommands.SET_CH4, CH_MIN);
-//
-//		waitWithoutException(TIME_TO_DISARM);
-//
-//		arduino.send(ArduinoCommands.SET_CH4, CH_NEUTRAL);
-//	}
 
 	/**
-	 * Set roll, pitch, throttle and yaw to neutral (hover)
+	 * Set roll, pitch, throttle and yaw to neutral (hover) and flight mode to Loitter
 	 */
 	public void hover() throws AbortException {
+		send(ArduinoCommands.SET_MODE_LOITTER);
 		send(ArduinoCommands.SET_CH1, CH_NEUTRAL);
 		send(ArduinoCommands.SET_CH2, CH_NEUTRAL);
 		send(ArduinoCommands.SET_CH3, THROTTLE_NEUTRAL);
@@ -162,19 +151,21 @@ public class MissionUtils {
 	 */
 	public void returnToLaunch() {
 		// Hover
+		arduino.send(ArduinoCommands.SET_MODE_LOITTER);
 		arduino.send(ArduinoCommands.SET_CH1, CH_NEUTRAL);
 		arduino.send(ArduinoCommands.SET_CH2, CH_NEUTRAL);
 		arduino.send(ArduinoCommands.SET_CH3, THROTTLE_NEUTRAL);
 		arduino.send(ArduinoCommands.SET_CH4, CH_NEUTRAL);
 		
-		// Set return to launch mode
-		arduino.send(ArduinoCommands.SET_MODE_RTL);
-		
-		// Wait some time so it engages RTL
-		waitWithoutException(2000);
-				
-		// Set throttle to low (auto disarm after landing)
-		arduino.send(ArduinoCommands.SET_CH3, THROTTLE_MIN);
+		//TODO: UNCOMMENT!
+//		// Set return to launch mode
+//		arduino.send(ArduinoCommands.SET_MODE_RTL);
+//		
+//		// Wait some time so it engages RTL
+//		waitWithoutException(2000);
+//				
+//		// Set throttle to low (auto disarm after landing)
+//		arduino.send(ArduinoCommands.SET_CH3, THROTTLE_MIN);
 	}
 	
 	/**

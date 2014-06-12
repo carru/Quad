@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.Location;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 public class MissionThread extends Thread {
 	private int NAVIGATION_LOOP_PERIOD = 250; // Milliseconds
@@ -21,7 +22,12 @@ public class MissionThread extends Thread {
 	private double WAYPOINT_LATITUDE_ERROR  = 0.00005; // 9.3 meters
 	private double WAYPOINT_LONGITUDE_ERROR = 0.00007; // 9.7 meters
 	
+	private Location currentLocation, startLocation, targetLocation;
+	private boolean waypointPhotographed = false;
+	private int cyclesInThisWaypoint = 0;
 	private double latitudeDelta, longitudeDelta;
+	boolean latitudeMovement;
+	boolean longitudeMovement;
 	private MainActivity activity;
 	
 	private int currentSensor = 0;
@@ -76,22 +82,41 @@ public class MissionThread extends Thread {
 		waypoints.add(new Waypoint(41.38796800, 2.11310139));
 	}
 	
+	/**
+	 * Sets sticks to move to the waypoint (independent of previous movement direction)
+	 * @throws AbortException
+	 */
 	private void performMovement() throws AbortException {
-		if (Math.abs(latitudeDelta) > WAYPOINT_LATITUDE_ERROR) {
+		latitudeMovement = Math.abs(latitudeDelta) > WAYPOINT_LATITUDE_ERROR;
+		longitudeMovement = Math.abs(longitudeDelta) > WAYPOINT_LONGITUDE_ERROR;
+		
+		if (latitudeMovement) {
+			// Set latitude movement
 			if (latitudeDelta < 0) {
 				utils.send(ArduinoCommands.SET_CH2, MissionUtils.CH_NEUTRAL - HORIZONTAL_MOVEMENT_SLIDER);
 			}
 			else if (latitudeDelta > 0) {
 				utils.send(ArduinoCommands.SET_CH2, MissionUtils.CH_NEUTRAL + HORIZONTAL_MOVEMENT_SLIDER);
 			}
+			
+			// Change longitude to neutral if needed
+			if (!longitudeMovement) {
+				utils.send(ArduinoCommands.SET_CH1, MissionUtils.CH_NEUTRAL);
+			}
 		}
 		
-		if (Math.abs(longitudeDelta) > WAYPOINT_LONGITUDE_ERROR) {
+		if (longitudeMovement) {
+			// Set longitude movement
 			if (longitudeDelta < 0) {
 				utils.send(ArduinoCommands.SET_CH1, MissionUtils.CH_NEUTRAL + HORIZONTAL_MOVEMENT_SLIDER);
 			}
 			else if (longitudeDelta > 0) {
 				utils.send(ArduinoCommands.SET_CH1, MissionUtils.CH_NEUTRAL - HORIZONTAL_MOVEMENT_SLIDER);
+			}
+			
+			// Change latitude to neutral if needed
+			if (!latitudeMovement) {
+				utils.send(ArduinoCommands.SET_CH2, MissionUtils.CH_NEUTRAL);
 			}
 		}
 	}
@@ -117,6 +142,7 @@ public class MissionThread extends Thread {
 	public void run() {
 		
 //		try {
+//			
 ////			for(currentWaypoint=1; currentWaypoint<5; currentWaypoint++) {
 ////				utils.takePicture("local_" + Integer.toString(currentWaypoint));
 ////				utils.wait(5000);
@@ -128,20 +154,25 @@ public class MissionThread extends Thread {
 ////			utils.readSensor(MissionUtils.CO);
 ////			utils.wait(5000);
 //			
+//			boolean toggle = true;
 //			while(true) {
 //				readSensorsSequentially();
+//				if (toggle) 
+//					utils.send(ArduinoCommands.SET_CH1, 1000);
+//				else
+//					utils.send(ArduinoCommands.SET_CH1, 2000);
+//				toggle=!toggle;
 //				utils.wait(250);
 //			}
+//			
+////			utils.wait(100000);
+//			
 //		} catch (AbortException e) { }
 //		endMission();
 		
 		
 		
 		
-		
-		
-		Location currentLocation, startLocation, targetLocation;
-		boolean waypointPhotographed = false;
 		
 		
 		try {
@@ -164,11 +195,13 @@ public class MissionThread extends Thread {
 			}
 			
 			
-			utils.takeoff();
+			//utils.takeoff();
+			utils.send(ArduinoCommands.SET_MODE_LOITTER);
 			
 			
 			// Navigation loop
-			while (true) {
+			boolean navigating = true;
+			while (navigating) {
 				// Get current location
 				currentLocation = locationProvider.getLastLocation();
 
@@ -179,35 +212,47 @@ public class MissionThread extends Thread {
 				// Have we reached the target?
 				if (!waypointReached()) {
 					// Not yet reached
-					utils.hover();
 					performMovement();
+					cyclesInThisWaypoint = 0;
 				}
 				else {
 					// We reached the target
 					utils.hover();
 					
-					// Take a picture and wait 1 cycle
-					if (waypointPhotographed) {
+					cyclesInThisWaypoint++;
+					switch (cyclesInThisWaypoint) {
+					case 1:
+						utils.takePicture("local_" + Integer.toString(currentWaypoint));
+						break;
+					case 2:
+						utils.readSensor(MissionUtils.TEMPERATURE);
+						break;
+					case 3:
+						utils.readSensor(MissionUtils.HUMIDITY);
+						break;
+					case 4:
+						utils.readSensor(MissionUtils.NO2);
+						break;
+					case 5:
+						utils.readSensor(MissionUtils.CO);
+						break;
+					case 6:
+						utils.readSensor(MissionUtils.ALTITUDE);
+						break;
+					case 7:
 						targetLocation = getNextWaypoint();
 						if (targetLocation == null) {
 							// All waypoints have been reached, mission has to end
-							break;
+							navigating = false;
 						}
-						
-						waypointPhotographed = false;
-					}
-					else {
-						utils.takePicture("local_" + Integer.toString(currentWaypoint));
-						waypointPhotographed = true;
+						break;
 					}
 				}
-
-				readSensorsSequentially();
 				
 				utils.wait(NAVIGATION_LOOP_PERIOD);
 			}
 			
-			
+			//TODO: Remember returnToLaunch is commented to only do hovering!!
 			utils.returnToLaunch();
 			
 			
@@ -219,27 +264,27 @@ public class MissionThread extends Thread {
 		endMission();
 	}
 	
-	private void readSensorsSequentially() throws AbortException {
-		switch (currentSensor) {
-		case 0:
-			utils.readSensor(MissionUtils.TEMPERATURE);
-			break;
-		case 1:
-			utils.readSensor(MissionUtils.HUMIDITY);
-			break;
-		case 2:
-			utils.readSensor(MissionUtils.CO);
-			break;
-		case 3:
-			utils.readSensor(MissionUtils.NO2);
-			break;
-		case 4:
-			utils.readSensor(MissionUtils.ALTITUDE);
-			break;
-		}
-		currentSensor++;
-		if (currentSensor > 4) { currentSensor = 0; }
-	}
+//	private void readSensorsSequentially() throws AbortException {
+//		switch (currentSensor) {
+//		case 0:
+//			utils.readSensor(MissionUtils.TEMPERATURE);
+//			break;
+//		case 1:
+//			utils.readSensor(MissionUtils.HUMIDITY);
+//			break;
+//		case 2:
+//			utils.readSensor(MissionUtils.CO);
+//			break;
+//		case 3:
+//			utils.readSensor(MissionUtils.NO2);
+//			break;
+//		case 4:
+//			utils.readSensor(MissionUtils.ALTITUDE);
+//			break;
+//		}
+//		currentSensor++;
+//		if (currentSensor > 4) { currentSensor = 0; }
+//	}
 	
 	/**
 	 * End mission. Must be called at the end of your mission
