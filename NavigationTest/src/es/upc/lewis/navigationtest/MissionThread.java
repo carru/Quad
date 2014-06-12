@@ -68,7 +68,7 @@ public class MissionThread extends Thread {
 		
 			// Get starting location
 			startLocation = locationProvider.getLastLocation();
-			while (startLocation == null) {
+			while (startLocation == null && enabled) {
 				// GPS not ready, wait and try again
 				try { sleep(1000); } catch (InterruptedException e) { }
 							
@@ -99,7 +99,6 @@ public class MissionThread extends Thread {
 				// Have we reached the target?
 				if (!waypointReached()) {
 					// Not yet reached
-					// Hover, utils.hover();
 					performMovement();
 				}
 				else {

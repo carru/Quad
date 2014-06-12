@@ -11,7 +11,7 @@ public class MyLocation implements LocationListener {
 	private long MIN_TIME_BETWEEN_UPDATES = 100;   // Milliseconds, not accurate
 	private long MIN_DISTANCE_BETWEEN_UPDATES = 0; // Meters
 	
-	private float MAX_ERROR_IN_METERS = 15; 
+	private float MAX_ERROR_IN_METERS = 20; 
 	
 	public static final String GPS_UPDATE = "g";
 	Intent intent;
