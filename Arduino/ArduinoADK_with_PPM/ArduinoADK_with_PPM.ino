@@ -20,24 +20,17 @@ AndroidAccessory acc("UPC", "ArduinoADK", "Description","1.0", "URI", "Serial");
 //////////////////////////////////////////////////////////////////
 
 ///////////////////////// RC CONFIG //////////////////////////////
-#define chanel_number 8  // Number of chanels
-#define PPM_FrLen 27000  // PPM frame length in microseconds
+#define chanel_number  8 // Number of chanels
+#define PPM_FrLen  27000 // PPM frame length in microseconds
 #define PPM_PulseLen 400 // Pulse length in microseconds
-#define onState 0        // Polarity of the pulses: 1 is positive, 0 is negative
+#define onState        0 // Polarity of the pulses: 1 is positive, 0 is negative
 
 #define ppmOutPin 49 // PPM signal output pin on the arduino
 #define ppmInPin  18 // PPM signal input pin on the arduino
 #define interrupt  5 // Interrupt associated with PPM_in_pin (http://arduino.cc/en/Reference/AttachInterrupt)
 
-//#define PULSEIN_TIMEOUT 50000 // Timeout to read RC frames in microseconds
-
-int ppm[chanel_number];    // PPM generator reads these values
+int ppm[chanel_number];    // PPM values from the Android app
 int ppm_in[chanel_number]; // RC PPM values are stored here
-
-boolean ledFramesToToggle = 5; // Toggle LED when we've received this many RC frames
-int ledPort = 13;
-int ledCount = 0;
-boolean ledStatus = true;
 
 boolean mode;
 #define AUTO true
@@ -78,9 +71,30 @@ void intHandler() {
   }
   else {
     currentChannel++;
-    if (currentChannel > 0 && currentChannel <= chanel_number) {
-      ppm_in[currentChannel - 1] = delta;
+    ppm_in[currentChannel - 1] = delta;
+
+
+
+    if (currentChannel==7) { // channel 5, switch 
+      if (delta > CH_NEUTRAL) { // Switch on high position (auto)
+        if (mode == MANUAL) {
+          // Toggled from manual to auto
+          // Set channels to neutral position (loitter).
+          setFlightMode(MODE_LOITTER);
+          setSlidersNeutral();
+        }
+
+        mode = AUTO;
+
+
+      }
+      else {// Switch on low position (manual)
+        mode = MANUAL;
+      }
     }
+
+
+
   }
 
   // Save timeNOW for the next interrupt
@@ -91,21 +105,19 @@ void setup() {
   Serial.begin(115200);
   Serial.println("Start");
 
+  currentChannel = 0;
+
   // Eggshield
   dht.begin();
-  
+
   // Altimeter
   myPressure.begin();
   myPressure.setModeAltimeter();
   myPressure.setOversampleRate(7); // Set Oversample to the recommended 128
   myPressure.enableEventFlags();
 
-  // Blinking LED (RC)
-  pinMode(ledPort, OUTPUT);
-
   // ADK
   acc.powerOn();
-
 
   // PPM
   pinMode(ppmInPin, INPUT);
@@ -124,13 +136,12 @@ void setup() {
   TIMSK1 |= (1 << OCIE1A); // enable timer compare interrupt
   sei();
 
-
   // Initialize ppm values
   setFlightMode(MODE_LOITTER); // Motors can't arm in Loitter mode
   setSlidersNeutralNoThrottle();
 
-  // Start with auto mode (then it checks the switch)
-  mode = AUTO;
+  // Start with MANUAL mode (then it checks the switch)
+  mode = MANUAL;
 }
 
 void sendSensorData(byte sensor, float value) {
@@ -147,10 +158,6 @@ void sendSensorData(byte sensor, float value) {
 }
 
 void setPPMChannel(int channel, int value) {
-  if (mode == MANUAL) { 
-    return; 
-  }
-
   // Reject out of range values
   if (value < CH_MIN || value > CH_MAX) { 
     return; 
@@ -185,8 +192,7 @@ void attendCommand(byte command, int value) {
 
   case READ_SENSOR_NO2:
     eggBus.init();
-    eggBus.next();
-    sensorData = eggBus.getSensorValue(0);
+    if(eggBus.next()!=0) { sensorData = eggBus.getSensorValue(0); } else { sensorData = -1; }
     Serial.print("NO2 [ppb]: ");
     Serial.println(sensorData);
 
@@ -195,14 +201,14 @@ void attendCommand(byte command, int value) {
 
   case READ_SENSOR_CO:
     eggBus.init();
-    eggBus.next();
-    sensorData = eggBus.getSensorValue(1);
+    if(eggBus.next()!=0) { sensorData = eggBus.getSensorValue(1); } else { sensorData = -1; }
+    
     Serial.print("CO [ppb]: ");
     Serial.println(sensorData);
 
     sendSensorData(DATA_SENSOR_CO, sensorData);
     break;
-    
+
   case READ_SENSOR_ALTITUDE:
     sensorData = myPressure.readAltitude();
     Serial.print("Altitude [m]: ");
@@ -226,7 +232,7 @@ void attendCommand(byte command, int value) {
   case SET_MODE_RTL:
     setFlightMode(MODE_RTL);
     break;
-    
+
   case SET_MODE_STB:
     setFlightMode(MODE_STB);
     break;
@@ -284,42 +290,42 @@ void loop() {
 
   // DEBUG print pwm values from the receiver
   /*for (int i = 0; i <= chanel_number-1; i++) {
-    Serial.print(i+1);
-    Serial.print(": ");
-    Serial.print(ppm_in[i]);
-    Serial.print("  ");
-  }
-  Serial.println();*/
+   Serial.print(i+1);
+   Serial.print(": ");
+   Serial.print(ppm_in[i]);
+   Serial.print("  ");
+   }
+   Serial.println();*/
 
   // Check RC mode
-  if (ppm_in[CH_SWITCH-1] > CH_NEUTRAL) { // Switch on high position (auto)
-    if (mode == MANUAL) {
-      // Toggled from manual to auto
-      mode = AUTO;
-      // Set channels to neutral position (loitter).
-      setFlightMode(MODE_LOITTER);
-      setSlidersNeutral();
-    } 
-    else {
-      // Was already in auto mode
-      // Do nothing
-    }
-  }
-  else { // Switch on low position (manual)
-    for (int i = 0; i <= chanel_number-1; i++) {
-      ppm[i] = ppm_in[i];
-    }
-    mode = MANUAL;
-  }
-  
+  //  if (ppm_in[CH_SWITCH-1] > CH_NEUTRAL) { // Switch on high position (auto)
+  //    if (mode == MANUAL) {
+  //      // Toggled from manual to auto
+  //      mode = AUTO;
+  //      // Set channels to neutral position (loitter).
+  //      setFlightMode(MODE_LOITTER);
+  //      setSlidersNeutral();
+  //    } 
+  //    else {
+  //      // Was already in auto mode
+  //      // Do nothing
+  //    }
+  //  }
+  //  else { // Switch on low position (manual)
+  //    for (int i = 0; i <= chanel_number-1; i++) {
+  //      ppm[i] = ppm_in[i];
+  //    }
+  //    mode = MANUAL;
+  //  }
+
   // DEBUG print generated pwm values
   /*for (int i = 0; i <= chanel_number-1; i++) {
-    Serial.print(i+1);
-    Serial.print(": ");
-    Serial.print(ppm[i]);
-    Serial.print("  ");
-  }
-  Serial.println();*/
+   Serial.print(i+1);
+   Serial.print(": ");
+   Serial.print(ppm[i]);
+   Serial.print("  ");
+   }
+   Serial.println();*/
 
   // Manage ADK connection
   if (acc.isConnected()) {
@@ -372,11 +378,23 @@ ISR(TIMER1_COMPA_vect){
       calc_rest = 0;
     }
     else{
-      OCR1A = (ppm[cur_chan_numb] - PPM_PulseLen) * 2;
-      calc_rest = calc_rest + ppm[cur_chan_numb];
+      if (mode == MANUAL) {
+        OCR1A = (ppm_in[cur_chan_numb] - PPM_PulseLen) * 2;
+        calc_rest = calc_rest + ppm_in[cur_chan_numb];
+      }
+      else {
+        OCR1A = (ppm[cur_chan_numb] - PPM_PulseLen) * 2;
+        calc_rest = calc_rest + ppm[cur_chan_numb];
+      }
       cur_chan_numb++;
     }     
   }
 }
+
+
+
+
+
+
 
 
