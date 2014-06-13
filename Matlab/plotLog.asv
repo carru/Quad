@@ -1,0 +1,11 @@
+function [  ] = plotLog( fileName )
+
+    [ latitude, longitude, altitude, accuracy ] = readLog( fileName );
+
+    plot(latitude);
+    plot(longitude);
+    plot(altitude);
+    plot(
+    
+end
+

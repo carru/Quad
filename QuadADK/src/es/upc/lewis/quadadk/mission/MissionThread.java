@@ -63,6 +63,8 @@ public class MissionThread extends Thread {
 		
 		MainActivity.isMissionRunning = true;
 		
+		MainActivity.gpsLogger.createLogFile();
+		
 		start();
 	}
 
@@ -144,127 +146,122 @@ public class MissionThread extends Thread {
 	@Override
 	public void run() {
 		
+		try {
+			
+//			for(currentWaypoint=1; currentWaypoint<5; currentWaypoint++) {
+//				utils.takePicture("local_" + Integer.toString(currentWaypoint));
+//				utils.wait(5000);
+//			}
+			
+//			utils.readSensor(MissionUtils.TEMPERATURE);
+//			utils.readSensor(MissionUtils.HUMIDITY);
+//			utils.readSensor(MissionUtils.NO2);
+//			utils.readSensor(MissionUtils.CO);
+//			utils.wait(5000);
+			
+//			utils.wait(100000);
+			
+			while(true) {
+				currentLocation = locationProvider.getLastLocation();
+				MainActivity.gpsLogger.write(currentLocation);
+				utils.wait(250);
+			}
+			
+		} catch (AbortException e) { }
+		endMission();
+		
+		
+		
+		
+		
+		
 //		try {
-//			
-////			for(currentWaypoint=1; currentWaypoint<5; currentWaypoint++) {
-////				utils.takePicture("local_" + Integer.toString(currentWaypoint));
-////				utils.wait(5000);
-////			}
-//			
-////			utils.readSensor(MissionUtils.TEMPERATURE);
-////			utils.readSensor(MissionUtils.HUMIDITY);
-////			utils.readSensor(MissionUtils.NO2);
-////			utils.readSensor(MissionUtils.CO);
-////			utils.wait(5000);
-//			
-//			boolean toggle = true;
-//			while(true) {
-//				readSensorsSequentially();
-//				if (toggle) 
-//					utils.send(ArduinoCommands.SET_CH1, 1000);
-//				else
-//					utils.send(ArduinoCommands.SET_CH1, 2000);
-//				toggle=!toggle;
-//				utils.wait(250);
+//			// Get starting location
+//			startLocation = locationProvider.getLastLocation();
+//			while (startLocation == null) {
+//				// GPS not ready, wait and try again
+//				utils.wait(1000);
+//							
+//				startLocation = locationProvider.getLastLocation();
+//			}
+//
+//			// Set first target
+//			currentWaypoint = 0;
+//			targetLocation = getNextWaypoint();
+//			if (targetLocation == null) {
+//				// First waypoint must never be null
+//				endMission();
+//				return;
 //			}
 //			
-////			utils.wait(100000);
 //			
-//		} catch (AbortException e) { }
+//			utils.takeoff();
+//			//utils.send(ArduinoCommands.SET_MODE_LOITTER);
+//			
+//			
+//			// Navigation loop
+//			boolean navigating = true;
+//			while (navigating) {
+//				// Get current location
+//				currentLocation = locationProvider.getLastLocation();
+//
+//				// Calculate distance, in degrees, to the target
+//				latitudeDelta  = currentLocation.getLatitude()  - targetLocation.getLatitude();
+//				longitudeDelta = currentLocation.getLongitude() - targetLocation.getLongitude();
+//
+//				// Have we reached the target?
+//				if (!waypointReached()) {
+//					// Not yet reached
+//					performMovement();
+//					cyclesInThisWaypoint = 0;
+//				}
+//				else {
+//					// We reached the target
+//					utils.hover();
+//					
+//					cyclesInThisWaypoint++;
+//					switch (cyclesInThisWaypoint) {
+//					case 1:
+//						utils.readSensor(MissionUtils.ALTITUDE);
+//						break;
+//					case 2:
+//						utils.readSensor(MissionUtils.TEMPERATURE);
+//						break;
+//					case 3:
+//						utils.readSensor(MissionUtils.HUMIDITY);
+//						break;
+//					case 4:
+//						utils.readSensor(MissionUtils.NO2);
+//						break;
+//					case 5:
+//						utils.readSensor(MissionUtils.CO);
+//						break;
+//					case 6:
+//						utils.takePicture("local_" + Integer.toString(currentWaypoint));
+//						break;
+//					case 7:
+//						targetLocation = getNextWaypoint();
+//						if (targetLocation == null) {
+//							// All waypoints have been reached, mission has to end
+//							navigating = false;
+//						}
+//						break;
+//					}
+//				}
+//				
+//				utils.wait(NAVIGATION_LOOP_PERIOD);
+//			}
+//			
+//			
+//			utils.returnToLaunch();
+//			
+//			
+//		} catch (AbortException e) {
+//			// Mission has been aborted
+//		}
+//		
+//		
 //		endMission();
-		
-		
-		
-		
-		
-		
-		try {
-			// Get starting location
-			startLocation = locationProvider.getLastLocation();
-			while (startLocation == null) {
-				// GPS not ready, wait and try again
-				utils.wait(1000);
-							
-				startLocation = locationProvider.getLastLocation();
-			}
-
-			// Set first target
-			currentWaypoint = 0;
-			targetLocation = getNextWaypoint();
-			if (targetLocation == null) {
-				// First waypoint must never be null
-				endMission();
-				return;
-			}
-			
-			
-			utils.takeoff();
-			//utils.send(ArduinoCommands.SET_MODE_LOITTER);
-			
-			
-			// Navigation loop
-			boolean navigating = true;
-			while (navigating) {
-				// Get current location
-				currentLocation = locationProvider.getLastLocation();
-
-				// Calculate distance, in degrees, to the target
-				latitudeDelta  = currentLocation.getLatitude()  - targetLocation.getLatitude();
-				longitudeDelta = currentLocation.getLongitude() - targetLocation.getLongitude();
-
-				// Have we reached the target?
-				if (!waypointReached()) {
-					// Not yet reached
-					performMovement();
-					cyclesInThisWaypoint = 0;
-				}
-				else {
-					// We reached the target
-					utils.hover();
-					
-					cyclesInThisWaypoint++;
-					switch (cyclesInThisWaypoint) {
-					case 1:
-						utils.readSensor(MissionUtils.ALTITUDE);
-						break;
-					case 2:
-						utils.readSensor(MissionUtils.TEMPERATURE);
-						break;
-					case 3:
-						utils.readSensor(MissionUtils.HUMIDITY);
-						break;
-					case 4:
-						utils.readSensor(MissionUtils.NO2);
-						break;
-					case 5:
-						utils.readSensor(MissionUtils.CO);
-						break;
-					case 6:
-						utils.takePicture("local_" + Integer.toString(currentWaypoint));
-						break;
-					case 7:
-						targetLocation = getNextWaypoint();
-						if (targetLocation == null) {
-							// All waypoints have been reached, mission has to end
-							navigating = false;
-						}
-						break;
-					}
-				}
-				
-				utils.wait(NAVIGATION_LOOP_PERIOD);
-			}
-			
-			
-			utils.returnToLaunch();
-			
-			
-		} catch (AbortException e) {
-			// Mission has been aborted
-		}
-		
-		
-		endMission();
 	}
 	
 	/**
@@ -276,6 +273,8 @@ public class MissionThread extends Thread {
 		
 		// Notify mission is over
 		MainActivity.isMissionRunning = false;
+		
+		MainActivity.gpsLogger.close();
 	}
 	
 	/**
@@ -294,7 +293,7 @@ public class MissionThread extends Thread {
 			
 			// From GroundStation
 			if (action.equals(MissionStatusPolling.ABORT_MISSION)) {
-				utils.abortMission();
+				//utils.abortMission(); //TODO: UNCOMMENT!!!!!!!!!!!!!!!!
 				utils.showToast("Mission aborted!");
 			
 			// From Arduino

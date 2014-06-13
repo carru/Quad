@@ -27,6 +27,7 @@ import com.android.future.usb.UsbManager;
 import es.upc.lewis.quadadk.comms.CommunicationsThread;
 import es.upc.lewis.quadadk.comms.MissionStatusPolling;
 import es.upc.lewis.quadadk.mission.MissionThread;
+import es.upc.lewis.quadadk.tools.GPSLogger;
 import es.upc.lewis.quadadk.tools.MyLocation;
 import es.upc.lewis.quadadk.tools.SimpleCamera;
 
@@ -43,6 +44,9 @@ public class MainActivity extends Activity {
 	private UsbAccessory mAccessory;
 	private ParcelFileDescriptor mFileDescriptor;
 
+	// GPS Logger
+	public static GPSLogger gpsLogger;
+	
 	// Worker thread for ADK communications
 	private CommunicationsThread comms;
 
@@ -257,10 +261,14 @@ public class MainActivity extends Activity {
 	private void mission() {
 		Log.i(TAG, "Starting mission");
 		
-		if (isMissionRunning == false && comms != null) {
-		//if (isMissionRunning == false) { // DEBUG (to start mission without an Arduino)
+		//if (isMissionRunning == false && comms != null) {
+		if (isMissionRunning == false) { // DEBUG (to start mission without an Arduino)
+			// Start logger
+			gpsLogger = new GPSLogger(getApplicationContext());
+						
 			new MissionThread(comms, this, locationProvider);
 			Log.i(TAG, "Mission started");
+			Toast.makeText(this, "Mission started", Toast.LENGTH_SHORT).show();
 		}
 	}
 
