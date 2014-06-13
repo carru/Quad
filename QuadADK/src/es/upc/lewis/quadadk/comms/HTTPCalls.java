@@ -24,7 +24,7 @@ public class HTTPCalls{
 	private static String START = "start";
 	private static String END   = "end";
 	
-	static int HTTPResponseOK=200;
+	static int HTTPResponseOK = 200;
 	static String server_addr = "http://pbl1.webfactional.com/";
 	
 	/*** MISSION ***/

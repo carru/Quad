@@ -4,9 +4,9 @@ import es.upc.lewis.quadadk.MainActivity;
 
 public class SendDataThread extends Thread {
 	String varName;
-	float value;
+	String value;
 	
-	public SendDataThread(String varName, float value) {
+	public SendDataThread(String varName, String value) {
 		this.varName = varName;
 		this.value = value;
 		start();
@@ -14,6 +14,6 @@ public class SendDataThread extends Thread {
 	
 	@Override
 	public void run() {
-		HTTPCalls.send_data(MainActivity.QUAD_ID, varName, Float.toString(value));
+		HTTPCalls.send_data(MainActivity.QUAD_ID, varName, value);
 	}
 }

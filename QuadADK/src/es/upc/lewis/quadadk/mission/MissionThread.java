@@ -14,23 +14,21 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.Location;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 public class MissionThread extends Thread {
 	private int NAVIGATION_LOOP_PERIOD = 250; // Milliseconds
 	
 	private double WAYPOINT_LATITUDE_ERROR  = 0.00005; // 9.3 meters
 	private double WAYPOINT_LONGITUDE_ERROR = 0.00007; // 9.7 meters
+	//private double WAYPOINT_LATITUDE_ERROR  = 0.00004;
+	//private double WAYPOINT_LONGITUDE_ERROR = 0.00006;
 	
 	private Location currentLocation, startLocation, targetLocation;
-	private boolean waypointPhotographed = false;
 	private int cyclesInThisWaypoint = 0;
 	private double latitudeDelta, longitudeDelta;
 	boolean latitudeMovement;
 	boolean longitudeMovement;
 	private MainActivity activity;
-	
-	private int currentSensor = 0;
 	
 	// Slider position from neutral (MissionUtils.CH_NEUTRAL)
 	private final int HORIZONTAL_MOVEMENT_SLIDER = 300;
@@ -76,10 +74,15 @@ public class MissionThread extends Thread {
 		 */
 		
 		// Square
-		waypoints.add(new Waypoint(41.38825229, 2.11327331));
-		waypoints.add(new Waypoint(41.38809966, 2.11348435));
-		waypoints.add(new Waypoint(41.38793185, 2.11331496));
-		waypoints.add(new Waypoint(41.38796800, 2.11310139));
+//		waypoints.add(new Waypoint(41.38825229, 2.11327331));
+//		waypoints.add(new Waypoint(41.38809966, 2.11348435));
+//		waypoints.add(new Waypoint(41.38793185, 2.11331496));
+//		waypoints.add(new Waypoint(41.38796800, 2.11310139));
+		
+		// Elisenda
+		waypoints.add(new Waypoint(41.38821131, 2.11331871));
+		waypoints.add(new Waypoint(41.38818302, 2.11342866));
+		waypoints.add(new Waypoint(41.38804657, 2.11329966));
 	}
 	
 	/**
@@ -195,8 +198,8 @@ public class MissionThread extends Thread {
 			}
 			
 			
-			//utils.takeoff();
-			utils.send(ArduinoCommands.SET_MODE_LOITTER);
+			utils.takeoff();
+			//utils.send(ArduinoCommands.SET_MODE_LOITTER);
 			
 			
 			// Navigation loop
@@ -222,7 +225,7 @@ public class MissionThread extends Thread {
 					cyclesInThisWaypoint++;
 					switch (cyclesInThisWaypoint) {
 					case 1:
-						utils.takePicture("local_" + Integer.toString(currentWaypoint));
+						utils.readSensor(MissionUtils.ALTITUDE);
 						break;
 					case 2:
 						utils.readSensor(MissionUtils.TEMPERATURE);
@@ -237,7 +240,7 @@ public class MissionThread extends Thread {
 						utils.readSensor(MissionUtils.CO);
 						break;
 					case 6:
-						utils.readSensor(MissionUtils.ALTITUDE);
+						utils.takePicture("local_" + Integer.toString(currentWaypoint));
 						break;
 					case 7:
 						targetLocation = getNextWaypoint();
@@ -252,7 +255,7 @@ public class MissionThread extends Thread {
 				utils.wait(NAVIGATION_LOOP_PERIOD);
 			}
 			
-			//TODO: Remember returnToLaunch is commented to only do hovering!!
+			
 			utils.returnToLaunch();
 			
 			
@@ -263,28 +266,6 @@ public class MissionThread extends Thread {
 		
 		endMission();
 	}
-	
-//	private void readSensorsSequentially() throws AbortException {
-//		switch (currentSensor) {
-//		case 0:
-//			utils.readSensor(MissionUtils.TEMPERATURE);
-//			break;
-//		case 1:
-//			utils.readSensor(MissionUtils.HUMIDITY);
-//			break;
-//		case 2:
-//			utils.readSensor(MissionUtils.CO);
-//			break;
-//		case 3:
-//			utils.readSensor(MissionUtils.NO2);
-//			break;
-//		case 4:
-//			utils.readSensor(MissionUtils.ALTITUDE);
-//			break;
-//		}
-//		currentSensor++;
-//		if (currentSensor > 4) { currentSensor = 0; }
-//	}
 	
 	/**
 	 * End mission. Must be called at the end of your mission
@@ -309,6 +290,7 @@ public class MissionThread extends Thread {
 			int intBytes = intent.getIntExtra(CommunicationsThread.VALUE, 0);
 			// bytes to float
 			float value = Float.intBitsToFloat(intBytes);
+			String valueString = Float.toString(value);
 			
 			// From GroundStation
 			if (action.equals(MissionStatusPolling.ABORT_MISSION)) {
@@ -317,22 +299,18 @@ public class MissionThread extends Thread {
 			
 			// From Arduino
 		    } else if (action.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_TEMPERATURE)) {
-				sendData("temp1", value);
+		    	new SendDataThread("temp1", valueString);
 			} else if (action.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_HUMIDITY)) {
-				sendData("hum1", value);
+				new SendDataThread("hum1", valueString);
 			} else if (action.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_NO2)) {
-				sendData("no2", value);
+				new SendDataThread("no2", valueString);
 			} else if (action.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_CO)) {
-				sendData("co", value);
+				new SendDataThread("co", valueString);
 			} else if (action.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_ALTITUDE)) {
-				sendData("alt_bar", value);
+				new SendDataThread("alt_bar", valueString);
 			}
 		}
 	};
-
-	private void sendData(String varName, float value) {
-		new SendDataThread(varName, value);
-	}
 	
 	/**
 	 * Intents to listen to

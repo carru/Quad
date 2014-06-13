@@ -24,7 +24,6 @@ import android.widget.Toast;
 import com.android.future.usb.UsbAccessory;
 import com.android.future.usb.UsbManager;
 
-import es.upc.lewis.quadadk.comms.ArduinoCommands;
 import es.upc.lewis.quadadk.comms.CommunicationsThread;
 import es.upc.lewis.quadadk.comms.MissionStatusPolling;
 import es.upc.lewis.quadadk.mission.MissionThread;

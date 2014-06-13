@@ -157,15 +157,14 @@ public class MissionUtils {
 		arduino.send(ArduinoCommands.SET_CH3, THROTTLE_NEUTRAL);
 		arduino.send(ArduinoCommands.SET_CH4, CH_NEUTRAL);
 		
-		//TODO: UNCOMMENT!
-//		// Set return to launch mode
-//		arduino.send(ArduinoCommands.SET_MODE_RTL);
-//		
-//		// Wait some time so it engages RTL
-//		waitWithoutException(2000);
-//				
-//		// Set throttle to low (auto disarm after landing)
-//		arduino.send(ArduinoCommands.SET_CH3, THROTTLE_MIN);
+		// Set return to launch mode
+		arduino.send(ArduinoCommands.SET_MODE_RTL);
+		
+		// Wait some time so it engages RTL
+		waitWithoutException(2000);
+				
+		// Set throttle to low (auto disarm after landing)
+		arduino.send(ArduinoCommands.SET_CH3, THROTTLE_MIN);
 	}
 	
 	/**

@@ -1,6 +1,6 @@
 package es.upc.lewis.quadadk.tools;
 
-import es.upc.lewis.quadadk.comms.MissionStatusPolling;
+import es.upc.lewis.quadadk.comms.SendDataThread;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
@@ -63,6 +63,9 @@ public class MyLocation implements LocationListener {
 		// Notify there's an update
 		intent = new Intent(GPS_UPDATE);
 		LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+		
+		// Send altitude
+		new SendDataThread("alt_gps", Double.toString(lastLocation.getAltitude()));
 	}
 
 	private void gpsFailsafe() {
