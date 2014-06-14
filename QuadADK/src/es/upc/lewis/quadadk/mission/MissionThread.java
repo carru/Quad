@@ -69,8 +69,8 @@ import android.support.v4.content.LocalBroadcastManager;
  * We recommend values from +/- 200 to +/- 300
  * 
  * You can combine them to move diagonally:
- * utils.send(ArduinoCommands.SET_CH2, MissionUtils.CH_NEUTRAL + 150);
- * utils.send(ArduinoCommands.SET_CH1, MissionUtils.CH_NEUTRAL + 150);
+ * utils.send(ArduinoCommands.SET_CH2, MissionUtils.CH_NEUTRAL + 200);
+ * utils.send(ArduinoCommands.SET_CH1, MissionUtils.CH_NEUTRAL + 200);
  * This will make the quadcopter move backward and right at the same time
  *
  */
