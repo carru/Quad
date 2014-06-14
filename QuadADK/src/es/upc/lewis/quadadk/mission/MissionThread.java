@@ -26,6 +26,11 @@ import android.support.v4.content.LocalBroadcastManager;
  * is send it to the server.
  * 
  * 
+ * Useful methods:
+ * 
+ * locationProvider.getLastLocation()		Returns your GPS position (updated roughly once per second)
+ * 
+ * 
  * The class MissionUtils has this methods you should use:
  * 
  * takeoff			Start the quadcopter and go to the starting position

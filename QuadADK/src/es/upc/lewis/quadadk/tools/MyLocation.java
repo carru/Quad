@@ -10,7 +10,7 @@ import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 
 public class MyLocation implements LocationListener {
-	private long MIN_TIME_BETWEEN_UPDATES = 0;   // Milliseconds, not accurate
+	private long MIN_TIME_BETWEEN_UPDATES = 100;   // Milliseconds, not accurate
 	private long MIN_DISTANCE_BETWEEN_UPDATES = 0; // Meters
 	
 	private float MAX_ERROR_IN_METERS = 20;
