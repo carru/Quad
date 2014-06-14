@@ -58,15 +58,15 @@ import android.support.v4.content.LocalBroadcastManager;
  * Channel 2: forward (low) and backward (high)
  * 
  * Examples
- * Forward		utils.send(ArduinoCommands.SET_CH2, MissionUtils.CH_NEUTRAL - 150);
- * 				Moves forward slowly
+ * Forward		utils.send(ArduinoCommands.SET_CH2, MissionUtils.CH_NEUTRAL - 200);
+ * 				Moves forward
  * 
  * Right		utils.send(ArduinoCommands.SET_CH1, MissionUtils.CH_NEUTRAL + 300);
  * 				Moves right faster
  * 
- * Note how the channel value (second parameter) is and offset (neutral position) with
+ * Note how the channel value (second parameter) is an offset (neutral position) with
  * the movement added. With +/- 300 we get 1200 and 1800
- * We do not recommend trying to go faster than +/- 300
+ * We recommend values from +/- 200 to +/- 300
  * 
  * You can combine them to move diagonally:
  * utils.send(ArduinoCommands.SET_CH2, MissionUtils.CH_NEUTRAL + 150);
@@ -80,7 +80,7 @@ public class MissionThread extends Thread {
 	 *  IMPORTANT!
 	 *  Set your ID
 	 */
-	public static String QUAD_ID = "001";
+	public static final String QUAD_ID = "001";
 	
 	
 	private int NAVIGATION_LOOP_PERIOD = 250; // Milliseconds
@@ -108,7 +108,7 @@ public class MissionThread extends Thread {
 	private MainActivity activity;
 	
 	// Slider position from neutral (MissionUtils.CH_NEUTRAL)
-	private final int HORIZONTAL_MOVEMENT_SLIDER = 200;
+	private final int HORIZONTAL_MOVEMENT_SLIDER = 200; // TODO: increase? no more than 300
 	
 	// Store mission waypoints here
 	ArrayList<Waypoint> waypoints;
