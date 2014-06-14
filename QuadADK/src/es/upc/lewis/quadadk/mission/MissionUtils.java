@@ -6,6 +6,8 @@ import es.upc.lewis.quadadk.comms.CommunicationsThread;
 import android.widget.Toast;
 
 public class MissionUtils {
+	private final int VERTICAL_MOVEMENT_SLIDER = 200;
+	
 	private static final int TIME_TO_ARM     = 5000;        // Milliseconds
 	private static final int TIME_TO_DISARM  = TIME_TO_ARM; // Milliseconds
 	private static final int TIME_TO_TAKEOFF = 20000;       // Milliseconds
@@ -165,6 +167,10 @@ public class MissionUtils {
 				
 		// Set throttle to low (auto disarm after landing)
 		arduino.send(ArduinoCommands.SET_CH3, THROTTLE_MIN);
+	}
+	
+	public void goUp() throws AbortException {
+		send(ArduinoCommands.SET_CH3, THROTTLE_NEUTRAL + VERTICAL_MOVEMENT_SLIDER);
 	}
 	
 	/**

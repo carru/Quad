@@ -45,7 +45,7 @@ public class MainActivity extends Activity {
 	private ParcelFileDescriptor mFileDescriptor;
 
 	// GPS Logger
-	public static GPSLogger gpsLogger;
+	//public static GPSLogger gpsLogger;
 	
 	// Worker thread for ADK communications
 	private CommunicationsThread comms;
@@ -175,28 +175,37 @@ public class MainActivity extends Activity {
 //				
 //				//comms.send(ArduinoCommands.SET_CH1, 2000);
 //				
-//				Location fakeLocation = new Location("");
-//				fakeLocation.setLatitude(41.38825221);
-//				fakeLocation.setLongitude(2.11327339);
-//				fakeLocation.setAltitude(200);
-//				fakeLocation.setAccuracy(1);
-//				locationProvider.setLocation_DEBUG_ONLY(fakeLocation);
+//				Location loc1 = new Location("");
+//				loc1.setLatitude(41.38825229);
+//				loc1.setLongitude(2.11327331);
+//				Location loc2 = new Location("");
+//				
+//				loc2.setLatitude(loc1.getLatitude() + 0.00001);
+//				loc2.setLongitude(loc1.getLongitude() + 0.00000);
+//				Log.d(TAG, Double.toString(loc1.distanceTo(loc2)));
+//				
+//				loc2.setLatitude(loc1.getLatitude() + 0.00002);
+//				loc2.setLongitude(loc1.getLongitude() + 0.00000);
+//				Log.d(TAG, Double.toString(loc1.distanceTo(loc2)));
+//				
+//				loc2.setLatitude(loc1.getLatitude() + 0.00003);
+//				loc2.setLongitude(loc1.getLongitude() + 0.00000);
+//				Log.d(TAG, Double.toString(loc1.distanceTo(loc2)));
+//				
+//				loc2.setLatitude(loc1.getLatitude() + 0.00004);
+//				loc2.setLongitude(loc1.getLongitude() + 0.00000);
+//				Log.d(TAG, Double.toString(loc1.distanceTo(loc2)));
+//				
+//				loc2.setLatitude(loc1.getLatitude() + 0.00005);
+//				loc2.setLongitude(loc1.getLongitude() + 0.00000);
+//				Log.d(TAG, Double.toString(loc1.distanceTo(loc2)));
 //			}
 //		});
 //		Button b2 = (Button) findViewById(R.id.button2);
 //		b2.setOnClickListener(new OnClickListener() {
 //			@Override
 //			public void onClick(View arg0) {
-//				//LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent("abort"));
 //				
-//				//comms.send(ArduinoCommands.SET_CH1, 1000);
-//				
-//				Location fakeLocation = new Location("");
-//				fakeLocation.setLatitude(50);
-//				fakeLocation.setLongitude(4);
-//				fakeLocation.setAltitude(200);
-//				fakeLocation.setAccuracy(1);
-//				locationProvider.setLocation_DEBUG_ONLY(fakeLocation);
 //			}
 //		});
 	}
@@ -261,10 +270,10 @@ public class MainActivity extends Activity {
 	private void mission() {
 		Log.i(TAG, "Starting mission");
 		
-		//if (isMissionRunning == false && comms != null) {
-		if (isMissionRunning == false) { // DEBUG (to start mission without an Arduino)
+		if (isMissionRunning == false && comms != null) {
+		//if (isMissionRunning == false) { // DEBUG (to start mission without an Arduino)
 			// Start logger
-			gpsLogger = new GPSLogger(getApplicationContext());
+			//gpsLogger = new GPSLogger(getApplicationContext());
 						
 			new MissionThread(comms, this, locationProvider);
 			Log.i(TAG, "Mission started");
