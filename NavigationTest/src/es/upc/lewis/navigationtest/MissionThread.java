@@ -12,8 +12,8 @@ import android.support.v4.content.LocalBroadcastManager;
 public class MissionThread extends Thread {
 	private int NAVIGATION_LOOP_PERIOD = 250; // Milliseconds
 	
-	private double WAYPOINT_LATITUDE_ERROR  = 0.00005; // 9.3 meters
-	private double WAYPOINT_LONGITUDE_ERROR = 0.00007; // 9.7 meters
+	private double WAYPOINT_LATITUDE_ERROR  = 0.00005;
+	private double WAYPOINT_LONGITUDE_ERROR = 0.00007;
 	
 	private volatile boolean enabled = true;
 	

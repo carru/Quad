@@ -4,11 +4,14 @@ function [ latitude, longitude, altitude, accuracy ] = readLog( fileName )
 
     data = fscanf(fd,'%f;%f;%f;%f%*s');
     
-    latitude = data(1:4:end)
-    longitude = data(2:4:end)
-    altitude = data(3:4:end);
-    accuracy = data(4:4:end);
+    latitude = data(1:4:550);
+    longitude = data(2:4:550);
+    altitude = data(3:4:550);
+    accuracy = data(4:4:550);
 
     fclose(fd);
+    
+    maxLatitudeDelta = max(latitude) - min(latitude)
+    maxLongitudeDelta = max(longitude) - min(longitude)
     
 end

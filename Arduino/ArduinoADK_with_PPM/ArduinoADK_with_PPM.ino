@@ -322,7 +322,8 @@ void loop() {
   /*for (int i = 0; i <= chanel_number-1; i++) {
    Serial.print(i+1);
    Serial.print(": ");
-   Serial.print(ppm[i]);
+   if (mode == MANUAL) { Serial.print(ppm_in[i]); }
+   else { Serial.print(ppm[i]); }
    Serial.print("  ");
    }
    Serial.println();*/
