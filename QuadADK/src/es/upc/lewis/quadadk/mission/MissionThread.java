@@ -15,6 +15,65 @@ import android.content.IntentFilter;
 import android.location.Location;
 import android.support.v4.content.LocalBroadcastManager;
 
+/**
+ * 
+ * Implement your mission in this class (inside the run() method).
+ * 
+ * 
+ * The MainActivity will start this thread when the server signals to start.
+ * If the server aborts the mission you'll receive an ABORT_MISSION broadcast (see broadcastReceiver).
+ * This BroadcastReceiver also receives data from the Arduino sensors; all it does now
+ * is send it to the server.
+ * 
+ * 
+ * The class MissionUtils has this methods you should use:
+ * 
+ * takeoff			Start the quadcopter and go to the starting position
+ * 
+ * returnToLaunch	Return to the starting position and land
+ * 
+ * abortMission		Interrupt and stop your mission and issue a returnToLaunch
+ * 					Do not use it to end your mission when all the work is done
+ * 					(see endMission for this purpose)
+ * 
+ * endMission		Prepare to end this thread
+ * 					You should finish your mission with returnToLaunch and endMission
+ * 
+ * wait				Sleep for a given number of milliseconds
+ * 
+ * readSensor		Example: utils.readSensor(MissionUtils.TEMPERATURE);
+ * 					Tell the Arduino to measure temperature and receive the result in the broadcastReceiver
+ * 
+ * takePicture		Take a picture with the back camera and send it to the server
+ * 					String parameter is the name
+ * 
+ * 
+ * Movement methods:
+ * 
+ * hover			Stay in place, don't move in any direction
+ * 
+ * To move your quadcopter horizontally you have to simulate movement of the right stick
+ * The neutral (middle) position of the stick is 1500 and the range is [1000, 2000]
+ * Channel 1: right (high) and left (low)
+ * Channel 2: forward (low) and backward (high)
+ * 
+ * Examples
+ * Forward		utils.send(ArduinoCommands.SET_CH2, MissionUtils.CH_NEUTRAL - 150);
+ * 				Moves forward slowly
+ * 
+ * Right		utils.send(ArduinoCommands.SET_CH1, MissionUtils.CH_NEUTRAL + 300);
+ * 				Moves right faster
+ * 
+ * Note how the channel value (second parameter) is and offset (neutral position) with
+ * the movement added. With +/- 300 we get 1200 and 1800
+ * We do not recommend trying to go faster than +/- 300
+ * 
+ * You can combine them to move diagonally:
+ * utils.send(ArduinoCommands.SET_CH2, MissionUtils.CH_NEUTRAL + 150);
+ * utils.send(ArduinoCommands.SET_CH1, MissionUtils.CH_NEUTRAL + 150);
+ * This will make the quadcopter move backward and right at the same time
+ *
+ */
 public class MissionThread extends Thread {
 	private int NAVIGATION_LOOP_PERIOD = 250; // Milliseconds
 	
@@ -176,7 +235,7 @@ public class MissionThread extends Thread {
 	
 	@Override
 	public void run() {
-		
+		// TESTS
 //		try {
 //			
 ////			for(currentWaypoint=1; currentWaypoint<5; currentWaypoint++) {
@@ -205,6 +264,45 @@ public class MissionThread extends Thread {
 		
 		
 		
+		// Empty mission
+//		try {
+//			
+//			// Get starting location
+//			startLocation = locationProvider.getLastLocation();
+//			while (startLocation == null) {
+//				// GPS not ready, wait and try again
+//				utils.wait(1000);
+//							
+//				startLocation = locationProvider.getLastLocation();
+//			}
+//			// At this point we have GPS signal
+//			
+//
+//			// Go up, to the starting position
+//			utils.takeoff();
+//
+//			
+//			// Hover for 20 seconds. Note that the time is in milliseconds
+//			utils.wait(20*1000);
+//
+//			
+//			// Go back to the starting position and land
+//			utils.returnToLaunch();
+//
+//		} catch (AbortException e) {
+//			// Mission has been aborted
+//			
+//			// If you have not changed it, the broadcastReceiver will issue a Return To Launch
+//			// command so you don't need to do anything here.
+//			// The try/catch makes sure your algorithm is stopped when we abort the mission
+//		}
+//
+//		// Call this at the end of your mission
+//		endMission();
+		
+		
+		
+		
 		
 		try {
 			// Get starting location
@@ -225,9 +323,11 @@ public class MissionThread extends Thread {
 				return;
 			}
 
+			
 			utils.takeoff();
 			// utils.send(ArduinoCommands.SET_MODE_LOITTER);
 
+			
 			// Navigation loop
 			boolean navigating = true;
 			while (navigating) {
@@ -320,7 +420,7 @@ public class MissionThread extends Thread {
 		public void onReceive(Context context, Intent intent) {
 			String action = intent.getAction();
 			
-			// Get the value (4 bytes) as an int (seansor readings)
+			// Get the value (4 bytes) as an int (sensor readings)
 			int intBytes = intent.getIntExtra(CommunicationsThread.VALUE, 0);
 			// bytes to float
 			float value = Float.intBitsToFloat(intBytes);
@@ -328,10 +428,11 @@ public class MissionThread extends Thread {
 			
 			// From GroundStation
 			if (action.equals(MissionStatusPolling.ABORT_MISSION)) {
-				utils.abortMission(); //TODO: UNCOMMENT!!!!!!!!!!!!!!!!
+				utils.abortMission();
 				utils.showToast("Mission aborted!");
 			
 			// From Arduino
+			// All it does now is send data to the server
 		    } else if (action.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_TEMPERATURE)) {
 		    	new SendDataThread("temp1", valueString);
 			} else if (action.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_HUMIDITY)) {

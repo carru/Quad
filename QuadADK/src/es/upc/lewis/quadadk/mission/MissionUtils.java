@@ -124,6 +124,7 @@ public class MissionUtils {
 	}
 	
 	/**
+	 * Call this method to get the quadcopter in the air
 	 * Arm motors and ascend to a predefined altitude
 	 * Ends after (TIME_TO_TAKEOFF + 1000) milliseconds and with Loitter flight mode
 	 * @throws AbortException
@@ -169,9 +170,9 @@ public class MissionUtils {
 		arduino.send(ArduinoCommands.SET_CH3, THROTTLE_MIN);
 	}
 	
-	public void goUp() throws AbortException {
-		send(ArduinoCommands.SET_CH3, THROTTLE_NEUTRAL + VERTICAL_MOVEMENT_SLIDER);
-	}
+//	public void goUp() throws AbortException {
+//		send(ArduinoCommands.SET_CH3, THROTTLE_NEUTRAL + VERTICAL_MOVEMENT_SLIDER);
+//	}
 	
 	/**
 	 * Take a picture and send it to the GroundStation. Blocks for TIME_TO_SEND_PICTURE milliseconds
@@ -229,6 +230,10 @@ public class MissionUtils {
 		isSleeping = false;
 	}
 	
+	/**
+	 * Do not use this method in your mission
+	 * @param time in milliseconds
+	 */
 	private void waitWithoutException(int time) {
 		isSleeping = true;
 		
@@ -240,7 +245,7 @@ public class MissionUtils {
 	}
 	
 	/**
-	 * Show a Toast
+	 * Show a Toast, useful for debugging
 	 * @param text to show
 	 */
 	public void showToast(final String text) {
