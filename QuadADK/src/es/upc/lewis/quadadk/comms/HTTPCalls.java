@@ -17,6 +17,7 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import es.upc.lewis.quadadk.MainActivity;
+import es.upc.lewis.quadadk.mission.MissionThread;
 
 import android.util.Log;
 
@@ -144,7 +145,7 @@ public class HTTPCalls{
 	public static boolean send_picture(File file, String pic_id) {
 		DefaultHttpClient httpclient = new DefaultHttpClient();
 		
-		HttpPost httppost = new HttpPost(server_addr+"send_picture.php?id="+MainActivity.QUAD_ID+"&pic="+pic_id);
+		HttpPost httppost = new HttpPost(server_addr+"send_picture.php?id="+MissionThread.QUAD_ID+"&pic="+pic_id);
 		FileBody fb = new FileBody(file);
 		MultipartEntityBuilder buildern = MultipartEntityBuilder.create();
 		buildern.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);

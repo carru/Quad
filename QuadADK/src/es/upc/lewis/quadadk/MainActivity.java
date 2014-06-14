@@ -32,7 +32,7 @@ import es.upc.lewis.quadadk.tools.MyLocation;
 import es.upc.lewis.quadadk.tools.SimpleCamera;
 
 public class MainActivity extends Activity {
-	public static String QUAD_ID = "001";
+	
 	
 	private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -164,7 +164,7 @@ public class MainActivity extends Activity {
 		locationProvider = new MyLocation(this);
 		
 		// Start polling server for mission start/abort
-		pollingWorker = new MissionStatusPolling(this, QUAD_ID);
+		pollingWorker = new MissionStatusPolling(this, MissionThread.QUAD_ID);
 		
 		// Debug buttons
 //		Button b1 = (Button) findViewById(R.id.button1);

@@ -1,6 +1,6 @@
 package es.upc.lewis.quadadk.comms;
 
-import es.upc.lewis.quadadk.MainActivity;
+import es.upc.lewis.quadadk.mission.MissionThread;
 
 public class SendDataThread extends Thread {
 	String varName;
@@ -14,6 +14,6 @@ public class SendDataThread extends Thread {
 	
 	@Override
 	public void run() {
-		HTTPCalls.send_data(MainActivity.QUAD_ID, varName, value);
+		HTTPCalls.send_data(MissionThread.QUAD_ID, varName, value);
 	}
 }

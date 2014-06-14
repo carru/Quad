@@ -75,6 +75,14 @@ import android.support.v4.content.LocalBroadcastManager;
  *
  */
 public class MissionThread extends Thread {
+	
+	/*
+	 *  IMPORTANT!
+	 *  Set your ID
+	 */
+	public static String QUAD_ID = "001";
+	
+	
 	private int NAVIGATION_LOOP_PERIOD = 250; // Milliseconds
 	
 	private double WAYPOINT_LATITUDE_ERROR  = 0.00005;
@@ -100,7 +108,7 @@ public class MissionThread extends Thread {
 	private MainActivity activity;
 	
 	// Slider position from neutral (MissionUtils.CH_NEUTRAL)
-	private final int HORIZONTAL_MOVEMENT_SLIDER = 150;
+	private final int HORIZONTAL_MOVEMENT_SLIDER = 200;
 	
 	// Store mission waypoints here
 	ArrayList<Waypoint> waypoints;
