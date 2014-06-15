@@ -77,32 +77,54 @@ import android.support.v4.content.LocalBroadcastManager;
  * utils.send(ArduinoCommands.SET_CH2, MissionUtils.CH_NEUTRAL + 200);
  * utils.send(ArduinoCommands.SET_CH1, MissionUtils.CH_NEUTRAL + 200);
  * This will make the quadcopter move backward and right at the same time
+ * 
+ * 
+ * Channel 3 is the throttle; leave it at neutral (MissionUtils.THROTTLE_NEUTRAL) to maintain
+ * altitude and use 'utils.goUp()' to increase it
+ * WARNING!: Never try to descend. Also, throttle channel has a different range than the others
+ * but you don't need to directly modify it.
+ * 
+ * Use only these two methods to change throttle:
+ * utils.send(ArduinoCommands.SET_CH3, MissionUtils.THROTTLE_NEUTRAL)
+ * utils.goUp()
+ * 
+ * 
+ * Channel 4 controls yaw (rotation)
+ * The quadcopter will maintain the orientation it started with and we always start with it pointing north
+ * Because of this, you can assume the quadcopter is always pointing north and thus don't need to 
+ * manually change yaw
+ * 
+ * When pointing north, moving to the right increases longitude and moving forward increases latitude
+ * 
+ * 
+ * Channel 5 is the flight mode
+ * You don't have to worry about it. Your flight mode during the mission will be Loitter
+ * Don't change it
+ * 
+ * 
+ * Channel 7 controls who has control over the quadcopter, Android or the RC
+ * Don't change it
+ * 
+ *  
+ * Channels 6 and 8 are unused
+ * Don't change them
  *
  */
 public class MissionThread extends Thread {
 	
 	/*
+	 * TODO:
 	 *  IMPORTANT!
 	 *  Set your ID
 	 */
-	public static final String QUAD_ID = "001";
+	public static final String QUAD_ID = "";
 	
+	// Sleep time, in milliseconds, at the end of the navigation loop
+	private int NAVIGATION_LOOP_PERIOD = 250;
 	
-	private int NAVIGATION_LOOP_PERIOD = 250; // Milliseconds
-	
+	// Maximum error to consider we reached a waypoint. You may want to tweak it
 	private double WAYPOINT_LATITUDE_ERROR  = 0.00005;
-	//private double WAYPOINT_LATITUDE_ERROR  = 0.00004;
-	//private double WAYPOINT_LATITUDE_ERROR  = 0.00003;
-	//private double WAYPOINT_LATITUDE_ERROR  = 0.00002;
-	//private double WAYPOINT_LATITUDE_ERROR  = 0.00001;
-	
 	private double WAYPOINT_LONGITUDE_ERROR = 0.00007;
-	//private double WAYPOINT_LONGITUDE_ERROR = 0.00006;
-	//private double WAYPOINT_LONGITUDE_ERROR = 0.00005;
-	//private double WAYPOINT_LONGITUDE_ERROR = 0.00004;
-	//private double WAYPOINT_LONGITUDE_ERROR = 0.00003;
-	//private double WAYPOINT_LONGITUDE_ERROR = 0.00002;
-	//private double WAYPOINT_LONGITUDE_ERROR = 0.00001;
 	
 	private Location currentLocation, startLocation, targetLocation;
 	private int cyclesInThisWaypoint = 0;
@@ -110,12 +132,17 @@ public class MissionThread extends Thread {
 	private double latitudeDelta, longitudeDelta;
 	boolean latitudeMovement;
 	boolean longitudeMovement;
-	private MainActivity activity;
 	
-	// Slider position from neutral (MissionUtils.CH_NEUTRAL)
-	private final int HORIZONTAL_MOVEMENT_SLIDER = 200; // TODO: increase? no more than 300
+	// Slider movement from neutral (MissionUtils.CH_NEUTRAL)
+	// Set to a higher value to move faster. Recommended values: [200, 300]
+	private final int HORIZONTAL_MOVEMENT_SLIDER = 200;
 	
-	// Store mission waypoints here
+	// Time to go up (gain altitude), in milliseconds
+	// This is used in the last waypoint. You may want to use the altitude (barometer)
+	// sensor instead of going up for given amount of time
+	private final int TIME_TO_GO_UP = 3000;
+	
+	// Store mission waypoints here. See loadWapoints()
 	ArrayList<Waypoint> waypoints;
 	private int currentWaypoint;
 	private class Waypoint {
@@ -129,6 +156,7 @@ public class MissionThread extends Thread {
 	
 	private MissionUtils utils;
 	private MyLocation locationProvider;
+	private MainActivity activity;
 	
 	public MissionThread(CommunicationsThread comms, MainActivity activity, MyLocation locationProvider) {
 		this.locationProvider = locationProvider;
@@ -150,12 +178,16 @@ public class MissionThread extends Thread {
 		start();
 	}
 
+	/**
+	 * Add your waypoints here
+	 */
 	private void loadWaypoints() {
 		waypoints = new ArrayList<Waypoint>();
+		// Starting location is 41.38812815, 2.1133061
 		
-		/*
-		 * Starting location is 41.38812815, 2.1133061 
-		 */
+		// Example:
+		// waypoints.add(new Waypoint(41.38825229, 2.11327331));
+		
 		
 		// Square
 //		waypoints.add(new Waypoint(41.38825229, 2.11327331));
@@ -172,15 +204,6 @@ public class MissionThread extends Thread {
 		
 		waypoints.add(new Waypoint(41.38807804, 2.11348146));
 		waypoints.add(new Waypoint(41.38799437, 2.11317220));
-		// Repeat this two waypoints
-		waypoints.add(new Waypoint(41.38807804, 2.11348146));
-		waypoints.add(new Waypoint(41.38799437, 2.11317220));
-		waypoints.add(new Waypoint(41.38807804, 2.11348146));
-		waypoints.add(new Waypoint(41.38799437, 2.11317220));
-		waypoints.add(new Waypoint(41.38807804, 2.11348146));
-		waypoints.add(new Waypoint(41.38799437, 2.11317220));
-		waypoints.add(new Waypoint(41.38807804, 2.11348146));
-		waypoints.add(new Waypoint(41.38799437, 2.11317220));
 	}
 	
 	/**
@@ -188,6 +211,10 @@ public class MissionThread extends Thread {
 	 * @throws AbortException
 	 */
 	private void performMovement() throws AbortException {
+		// This method sets channels 1 and 2 to move to the current waypoint target
+		// It always moves at the same speed (HORIZONTAL_MOVEMENT_SLIDER)
+		// Feel free to modify it
+		
 		latitudeMovement = Math.abs(latitudeDelta) > WAYPOINT_LATITUDE_ERROR;
 		longitudeMovement = Math.abs(longitudeDelta) > WAYPOINT_LONGITUDE_ERROR;
 		
@@ -233,10 +260,14 @@ public class MissionThread extends Thread {
 	private Location getNextWaypoint() {
 		if (waypoints.isEmpty()) { return null; }
 		
+		// Get next waypoint from the list
 		Waypoint waypoint = waypoints.remove(0);
+		
+		// Create a Location object with this waypoint
 		Location location = new Location("");
 		location.setLatitude(waypoint.latitude);
 		location.setLongitude(waypoint.longitude);
+		
 		currentWaypoint++;
 		cyclesInThisWaypoint = 0;
 		
@@ -248,75 +279,6 @@ public class MissionThread extends Thread {
 	
 	@Override
 	public void run() {
-		// TESTS
-//		try {
-//			
-////			for(currentWaypoint=1; currentWaypoint<5; currentWaypoint++) {
-////				utils.takePicture("local_" + Integer.toString(currentWaypoint));
-////				utils.wait(5000);
-////			}
-//			
-////			utils.readSensor(MissionUtils.TEMPERATURE);
-////			utils.readSensor(MissionUtils.HUMIDITY);
-////			utils.readSensor(MissionUtils.NO2);
-////			utils.readSensor(MissionUtils.CO);
-////			utils.wait(5000);
-//			
-////			utils.wait(100000);
-//			
-//			while(true) {
-//				currentLocation = locationProvider.getLastLocation();
-//				MainActivity.gpsLogger.write(currentLocation);
-//				utils.wait(250);
-//			}
-//			
-//		} catch (AbortException e) { }
-//		endMission();
-		
-		
-		
-		
-		
-		// Empty mission
-//		try {
-//			
-//			// Get starting location
-//			startLocation = locationProvider.getLastLocation();
-//			while (startLocation == null) {
-//				// GPS not ready, wait and try again
-//				utils.wait(1000);
-//							
-//				startLocation = locationProvider.getLastLocation();
-//			}
-//			// At this point we have GPS signal
-//			
-//
-//			// Go up, to the starting position
-//			utils.takeoff();
-//
-//			
-//			// Hover for 20 seconds. Note that the time is in milliseconds
-//			utils.wait(20*1000);
-//
-//			
-//			// Go back to the starting position and land
-//			utils.returnToLaunch();
-//
-//		} catch (AbortException e) {
-//			// Mission has been aborted
-//			
-//			// If you have not changed it, the broadcastReceiver will issue a Return To Launch
-//			// command so you don't need to do anything here.
-//			// The try/catch makes sure your algorithm is stopped when we abort the mission
-//		}
-//
-//		// Call this at the end of your mission
-//		endMission();
-		
-		
-		
-		
-		
 		try {
 			// Get starting location
 			startLocation = locationProvider.getLastLocation();
@@ -326,19 +288,21 @@ public class MissionThread extends Thread {
 							
 				startLocation = locationProvider.getLastLocation();
 			}
+			// At this point we have GPS signal
 
+			
 			// Set first target
 			currentWaypoint = 0;
 			targetLocation = getNextWaypoint();
 			if (targetLocation == null) {
-				// First waypoint must never be null
+				// There are no waypoints defined! End mission without taking off
 				endMission();
 				return;
 			}
 
 			
+			// Go up, to the starting position
 			utils.takeoff();
-			// utils.send(ArduinoCommands.SET_MODE_LOITTER);
 
 			
 			// Navigation loop
@@ -359,47 +323,79 @@ public class MissionThread extends Thread {
 					// We reached the target
 					utils.hover();
 
-					cyclesInThisWaypoint++;
-
-					// Make measurements
-					switch (cyclesInThisWaypoint) {
-					case 1:
-						utils.readSensor(MissionUtils.ALTITUDE);
-						break;
-					case 2:
-						utils.readSensor(MissionUtils.TEMPERATURE);
-						break;
-					case 3:
-						utils.readSensor(MissionUtils.HUMIDITY);
-						break;
-					case 4:
-						utils.readSensor(MissionUtils.NO2);
-						break;
-					case 5:
-						utils.readSensor(MissionUtils.CO);
-						break;
-					case 6:
+					if (isLastWaypoint) {
+						// Take a picture of the last waypoint before going up
 						utils.takePicture("local_" + Integer.toString(currentWaypoint));
-						break;
-					case 7:
-						targetLocation = getNextWaypoint();
-						if (targetLocation == null) {
-							// All waypoints have been reached, mission has to end
-							navigating = false;
+						utils.wait(NAVIGATION_LOOP_PERIOD);
+						
+						// Go up for a given ammount of time
+						// You can use the altitude sensor (barometer) instead
+						utils.goUp();
+						utils.wait(TIME_TO_GO_UP);
+						
+						// Stop going up
+						utils.hover();
+						
+						// Take another picture at the new height
+						utils.takePicture("global");
+						
+						// Stop the loop, we are done
+						navigating = false;
+					}
+					else {
+						cyclesInThisWaypoint++;
+
+						// This makes all the measurements on each waypoint (one per loop cycle)
+						// Feel free to change what to do when we are in the target waypoint
+						switch (cyclesInThisWaypoint) {
+						case 1:
+							utils.readSensor(MissionUtils.ALTITUDE);
+							break;
+						case 2:
+							utils.readSensor(MissionUtils.TEMPERATURE);
+							break;
+						case 3:
+							utils.readSensor(MissionUtils.HUMIDITY);
+							break;
+						case 4:
+							utils.readSensor(MissionUtils.NO2);
+							break;
+						case 5:
+							utils.readSensor(MissionUtils.CO);
+							break;
+						case 6:
+							utils.takePicture("local_" + Integer.toString(currentWaypoint));
+							break;
+						case 7:
+							targetLocation = getNextWaypoint();
+							if (targetLocation == null) {
+								// Update: if we have a special case for the last waypoint
+								// ('if (isLastWaypoint)') we'll never get here
+								
+								// All waypoints have been reached, mission has
+								// to end
+								navigating = false;
+							}
+							break;
 						}
-						break;
 					}
 				}
 
 				utils.wait(NAVIGATION_LOOP_PERIOD);
 			}
 
+			// Go back to the starting position and land
 			utils.returnToLaunch();
 
 		} catch (AbortException e) {
 			// Mission has been aborted
+			
+			// If you have not changed it, the broadcastReceiver will issue a Return To Launch
+			// command so you don't need to do anything here.
+			// The try/catch makes sure your algorithm is stopped when we abort the mission
 		}
 
+		// Call this at the end of your mission
 		endMission();
 	}
 	
@@ -415,15 +411,6 @@ public class MissionThread extends Thread {
 		
 		//MainActivity.gpsLogger.close();
 	}
-	
-//	private boolean isSameLocation(Location location1, Location location2) {
-//		if (location1.getLatitude()  != location2.getLatitude())  { return false; }
-//		if (location1.getLongitude() != location2.getLongitude()) { return false; }
-//		if (location1.getAltitude()  != location2.getAltitude())  { return false; }
-//		if (location1.getAccuracy()  != location2.getAccuracy())  { return false; }
-//		
-//		return true;
-//	}
 	
 	/**
 	 * Receive important events
@@ -442,10 +429,10 @@ public class MissionThread extends Thread {
 			// From GroundStation
 			if (action.equals(MissionStatusPolling.ABORT_MISSION)) {
 				utils.abortMission();
-				utils.showToast("Mission aborted!");
+				//utils.showToast("Mission aborted!");
 			
 			// From Arduino
-			// All it does now is send data to the server
+			// All it does now is send data to the server. You'll probably want to change this
 		    } else if (action.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_TEMPERATURE)) {
 		    	new SendDataThread("temp1", valueString);
 			} else if (action.equals(CommunicationsThread.ACTION_DATA_AVAILABLE_SENSOR_HUMIDITY)) {

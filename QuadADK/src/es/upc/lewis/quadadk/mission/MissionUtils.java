@@ -170,9 +170,13 @@ public class MissionUtils {
 		arduino.send(ArduinoCommands.SET_CH3, THROTTLE_MIN);
 	}
 	
-//	public void goUp() throws AbortException {
-//		send(ArduinoCommands.SET_CH3, THROTTLE_NEUTRAL + VERTICAL_MOVEMENT_SLIDER);
-//	}
+	/**
+	 * Set throttle high to gain altitude
+	 * @throws AbortException
+	 */
+	public void goUp() throws AbortException {
+		send(ArduinoCommands.SET_CH3, THROTTLE_NEUTRAL + VERTICAL_MOVEMENT_SLIDER);
+	}
 	
 	/**
 	 * Take a picture and send it to the GroundStation. Blocks for TIME_TO_SEND_PICTURE milliseconds

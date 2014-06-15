@@ -27,7 +27,6 @@ import com.android.future.usb.UsbManager;
 import es.upc.lewis.quadadk.comms.CommunicationsThread;
 import es.upc.lewis.quadadk.comms.MissionStatusPolling;
 import es.upc.lewis.quadadk.mission.MissionThread;
-import es.upc.lewis.quadadk.tools.GPSLogger;
 import es.upc.lewis.quadadk.tools.MyLocation;
 import es.upc.lewis.quadadk.tools.SimpleCamera;
 

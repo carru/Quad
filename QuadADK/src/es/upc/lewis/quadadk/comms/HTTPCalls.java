@@ -16,7 +16,6 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 
-import es.upc.lewis.quadadk.MainActivity;
 import es.upc.lewis.quadadk.mission.MissionThread;
 
 import android.util.Log;
